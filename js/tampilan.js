@@ -184,6 +184,11 @@ const PANEL = {
     isiContoh: () => {
       $('#latar').value = CONTOH.a.latar;
       $('#latar').dispatchEvent(new Event('input'));
+    },
+    ada: () => $('#latar').value.trim().length > 0,
+    kosongkan: () => {
+      $('#latar').value = '';
+      $('#latar').dispatchEvent(new Event('input'));
     }
   },
   bc: {
@@ -199,6 +204,13 @@ const PANEL = {
       $('#objek').value = CONTOH.bc.objek;
       aturDaftar('rumusan', CONTOH.bc.rumusan);
       aturDaftar('tujuan', CONTOH.bc.tujuan);
+    },
+    ada: () => ['#teori', '#konsep', '#objek'].some((i) => $(i).value.trim()) ||
+      [...ambilDaftar('rumusan'), ...ambilDaftar('tujuan')].some((t) => t.trim()),
+    kosongkan: () => {
+      for (const i of ['#teori', '#konsep', '#objek']) $(i).value = '';
+      aturDaftar('rumusan', []);
+      aturDaftar('tujuan', []);
     }
   }
 };
@@ -291,6 +303,14 @@ async function mulai() {
   for (const [nama, cfg] of Object.entries(PANEL)) {
     $(`#form-${nama}`).addEventListener('submit', (e) => e.preventDefault());
     $('.contoh', $(`#panel-${nama}`)).addEventListener('click', cfg.isiContoh);
+    $('.kosongkan', $(`#panel-${nama}`)).addEventListener('click', () => {
+      if (cfg.ada() && !confirm('Kosongkan semua isian di bagian ini? Tulisan yang sudah diisi akan terhapus.')) return;
+      cfg.kosongkan();
+      const akar = $(`#panel-${nama}`);
+      $('.isi-hasil', akar).replaceChildren();
+      $('.pesan-makna', akar).textContent = '';
+      $('.hasil', akar).hidden = true;
+    });
   }
   try {
     for (const nama of Object.keys(PANEL)) pasangPanel(nama, await muatRubrik(PANEL[nama].berkas));
