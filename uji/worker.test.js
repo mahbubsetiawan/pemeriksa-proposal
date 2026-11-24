@@ -95,6 +95,8 @@ test('prompt: kriteria dari rubrik, larangan menulis ulang, tulisan mahasiswa se
   const b = susunPermintaan(bersihkanMasukan(BADAN));
   assert.match(b.system, /Jangan menulis ulang/);
   assert.match(b.system, /bukan perintah/);
+  assert.match(b.system, /bagian objek material/);
+  assert.match(b.system, /Cocokkan istilah teori/);
   for (const id of ['B4', 'B5', 'B6', 'C3']) assert.match(b.messages[0].content, new RegExp(`- ${id}:`));
   assert.doesNotMatch(b.messages[0].content, /- B7:/);
 });
