@@ -1,0 +1,6 @@
+{
+  "name": "pemeriksa-proposal",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test \"uji/*.test.js\"" }
+}

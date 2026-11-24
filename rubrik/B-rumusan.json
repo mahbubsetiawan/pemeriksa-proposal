@@ -1,0 +1,69 @@
+[
+  {
+    "id": "B1",
+    "bagian": "B",
+    "jenis": "aturan",
+    "kriteria": "Rumusan masalah paling banyak dua",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.B",
+    "bagian_panduan": "Bab I.B, Kaidah Akademik",
+    "dasar": "\"Jumlah rumusan masalah maksimal 2 pertanyaan agar fokus mahasiswa tidak mengembang terlalu kompleks.\"",
+    "pesan_gagal": "Terdapat {jumlah} rumusan; panduan membatasi paling banyak dua."
+  },
+  {
+    "id": "B2",
+    "bagian": "B",
+    "jenis": "aturan",
+    "kriteria": "Rumusan diawali kata tanya Bagaimana atau Mengapa",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.B",
+    "bagian_panduan": "Bab I.B, Kaidah Akademik dan Rumus",
+    "dasar": "\"Kata tanya yang digunakan harus analitis, yakni 'Bagaimana' atau 'Mengapa'\"; rumus: Kata Tanya Analitis (\"Bagaimana\" / \"Mengapa\") + konsep teori + objek material.",
+    "pesan_gagal": "Rumusan nomor {n} belum diawali kata tanya analitis (Bagaimana atau Mengapa)."
+  },
+  {
+    "id": "B3",
+    "bagian": "B",
+    "jenis": "aturan",
+    "kriteria": "Rumusan tidak diawali \"Apakah\" (kata tanya biner)",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.B",
+    "bagian_panduan": "Bab I.B, Kaidah Akademik",
+    "dasar": "\"dilarang menggunakan kata tanya biner seperti 'Apakah'\".",
+    "pesan_gagal": "Rumusan nomor {n} diawali \"Apakah\"; kata tanya biner dilarang oleh panduan.",
+    "pesan_peringatan": "Rumusan nomor {n} diawali kata tanya berakhiran -kah ({kata}) yang kemungkinan biner; panduan melarang kata tanya biner seperti \"Apakah\". Periksa kembali."
+  },
+  {
+    "id": "B4",
+    "bagian": "B",
+    "jenis": "ai",
+    "kriteria": "Setiap rumusan memuat konsep teori dan objek material",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.B",
+    "bagian_panduan": "Bab I.B, Kaidah Akademik dan Rumus",
+    "dasar": "Rumus: kata tanya analitis + konsep spesifik objek formal (teori) + objek material lapangan/teks; contoh bertanda (Konsep Teori) dan (Objek Material).",
+    "pesan_gagal": "Rumusan belum memuat konsep teori dan objek material sekaligus."
+  },
+  {
+    "id": "B5",
+    "bagian": "B",
+    "jenis": "ai",
+    "kriteria": "Konsep teori sudah menyatu dengan objek sejak rumusan pertama (bukan model \"Linear Tempel Teori\")",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.B",
+    "bagian_panduan": "Bab I.B, Kaidah Akademik",
+    "dasar": "\"Dilarang keras menggunakan model 'Linear Tempel Teori'... wajib langsung mengawinkan konsep teori ke dalam objek materialnya sejak pertanyaan pertama (Model Perkawinan Konsep).\"",
+    "pesan_gagal": "Rumusan pertama tampak hanya deskriptif; konsep teori baru masuk pada rumusan berikutnya."
+  },
+  {
+    "id": "B6",
+    "bagian": "B",
+    "jenis": "ai",
+    "kriteria": "Yang dimunculkan adalah konsep teori, bukan kategori analitik atau indikator",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.B",
+    "bagian_panduan": "Bab I.B, Kaidah Akademik",
+    "dasar": "\"Yang dimunculkan dalam rumusan masalah adalah konsep teori, bukan kategori analitik atau indikator\".",
+    "pesan_gagal": "Rumusan tampak memuat kategori analitik atau indikator, bukan konsep teori."
+  }
+]

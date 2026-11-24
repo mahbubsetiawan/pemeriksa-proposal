@@ -1,0 +1,15 @@
+{
+  "name": "Pemeriksa Proposal Skripsi AFI",
+  "short_name": "Pemeriksa Proposal",
+  "description": "Pemeriksa awal rumusan masalah dan tujuan penelitian berdasarkan panduan struktur penulisan skripsi model analisis-teoretis.",
+  "lang": "id",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#14110f",
+  "theme_color": "#14110f",
+  "icons": [
+    { "src": "ikon/ikon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "ikon/ikon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

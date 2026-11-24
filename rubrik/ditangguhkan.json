@@ -1,0 +1,13 @@
+[
+  {
+    "id": "B7",
+    "bagian": "B",
+    "jenis": "ai",
+    "kriteria": "Rumusan bukan pertanyaan vonis (benar atau salah, bid'ah atau tidak)",
+    "tingkat": "wajib",
+    "rujukan": "Belum ada dasar di panduan",
+    "dasar": "Gagasan: rumusan yang meminta vonis (benar atau salah, bid'ah atau tidak) bukan pertanyaan analitis. Belum tertulis di panduan.",
+    "pesan_gagal": "Rumusan tampak meminta vonis, bukan analisis.",
+    "catatan": "Ditangguhkan sampai gagasan ini ditulis di panduan."
+  }
+]

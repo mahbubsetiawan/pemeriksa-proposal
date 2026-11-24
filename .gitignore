@@ -1,0 +1,12 @@
+node_modules/
+# Data uji nyata milik pemilik; jangan ikut diunggah.
+uji/data-uji.json
+# Dokumen sumber dan catatan kerja pribadi; tidak untuk diterbitkan.
+sumber/
+RENCANA-PROYEK.md
+CLAUDE.md
+# Berkas pribadi/lingkungan
+.claude/
+.wrangler/
+.dev.vars
+*.log

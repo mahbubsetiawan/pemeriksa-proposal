@@ -1,0 +1,19 @@
+name = "pemeriksa-proposal"
+main = "index.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+preview_urls = false
+
+[vars]
+ASAL_DIIZINKAN = "https://mahbubsetiawan.github.io,http://localhost:8765"
+BATAS_GLOBAL = "300"
+
+# Pemilik membuat namespace KV sendiri (npx wrangler kv namespace create PEMAKAIAN)
+# lalu mengisi id di bawah. Jangan menaruh rahasia di berkas ini.
+[[kv_namespaces]]
+binding = "PEMAKAIAN"
+id = "ccfdd796e9c248f9b923a6c922a41de0"
+
+# Rahasia (dipasang pemilik sendiri, tidak ada di repositori):
+#   ANTHROPIC_API_KEY  -> npx wrangler secret put ANTHROPIC_API_KEY
+#   KODE_AKSES         -> npx wrangler secret put KODE_AKSES  (boleh beberapa kode, dipisah koma)

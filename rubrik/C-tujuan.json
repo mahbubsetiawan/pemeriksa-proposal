@@ -1,0 +1,36 @@
+[
+  {
+    "id": "C1",
+    "bagian": "C",
+    "jenis": "aturan",
+    "kriteria": "Tujuan senada dan linear dengan rumusan (satu tujuan untuk tiap rumusan)",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.C",
+    "bagian_panduan": "Bab I.C, Kaidah Akademik",
+    "dasar": "\"Tujuan penelitian harus senada dan linear dengan rumusan masalah.\" Contoh panduan: dua rumusan, dua tujuan. Kesamaan jumlah adalah tafsiran atas \"linear\" (lihat daftar pertanyaan).",
+    "pesan_gagal": "Terdapat {jumlah_tujuan} tujuan untuk {jumlah_rumusan} rumusan; panduan meminta tujuan yang linear dengan rumusan.",
+    "catatan": "Tafsiran: linear = jumlah sama."
+  },
+  {
+    "id": "C2",
+    "bagian": "C",
+    "jenis": "aturan",
+    "kriteria": "Tujuan memakai \"menganalisis\" atau \"menginterpretasikan\" dan tidak memakai \"untuk mengetahui\"",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.C",
+    "bagian_panduan": "Bab I.C, Kaidah Akademik dan Rumus",
+    "dasar": "\"Jangan menggunakan kata 'untuk mengetahui' yang berada pada lapisan permukaan. Gunakan kata kerja level interpretatif teoretis seperti 'untuk menganalisis' atau 'untuk menginterpretasikan'\"; rumus: Kata Kerja Analitis (\"Menganalisis\" / \"Menginterpretasikan\") + bunyi rumusan masalah.",
+    "pesan_gagal": "Tujuan nomor {n} belum memakai kata kerja analitis (menganalisis atau menginterpretasikan) atau memakai \"untuk mengetahui\"."
+  },
+  {
+    "id": "C3",
+    "bagian": "C",
+    "jenis": "ai",
+    "kriteria": "Isi tiap tujuan mencerminkan bunyi rumusan yang bersesuaian",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.C",
+    "bagian_panduan": "Bab I.C, Rumus",
+    "dasar": "Rumus: kata kerja analitis + bunyi rumusan masalah; \"senada dan linear dengan rumusan masalah\".",
+    "pesan_gagal": "Isi tujuan belum sejalan dengan bunyi rumusan yang bersesuaian."
+  }
+]

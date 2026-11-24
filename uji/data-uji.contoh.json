@@ -1,0 +1,34 @@
+[
+  {
+    "id": "contoh-01",
+    "catatan": "Contoh benar dari panduan (kasus Kungkum Pengging dan Sartre). Isi data nyata tanpa identitas mahasiswa.",
+    "teori": "Eksistensialisme Jean-Paul Sartre",
+    "konsep": "kebebasan radikal, kesadaran otentik, itikad buruk (bad faith)",
+    "objek": "Tradisi Kungkum di Umbul Pengging",
+    "rumusan": [
+      "Bagaimana konstruksi kebebasan radikal dan kesadaran otentik para pelaku Tradisi Kungkum di Umbul Pengging?",
+      "Bagaimana dinamika itikad buruk (bad faith) dalam komodifikasi spiritual para pelaku Tradisi Kungkum di Umbul Pengging?"
+    ],
+    "tujuan": [
+      "Untuk menganalisis konstruksi kebebasan radikal dan kesadaran otentik pelaku Tradisi Kungkum di Umbul Pengging melalui lensa eksistensialisme Jean-Paul Sartre.",
+      "Untuk menginterpretasikan dinamika itikad buruk (bad faith) dalam komodifikasi spiritual para pelaku Tradisi Kungkum di Umbul Pengging."
+    ],
+    "penilaian": { "B1": "terpenuhi", "B2": "terpenuhi", "B3": "terpenuhi", "B4": "terpenuhi", "B5": "terpenuhi", "B6": "terpenuhi", "C1": "terpenuhi", "C2": "terpenuhi", "C3": "terpenuhi" }
+  },
+  {
+    "id": "contoh-02",
+    "catatan": "Contoh salah buatan sendiri: rumusan biner, tiga rumusan, tujuan memakai 'untuk mengetahui'. Isi penilaian Anda sendiri untuk tiap kriteria.",
+    "teori": "Epistemologi",
+    "konsep": "sumber dan batas pengetahuan",
+    "objek": "Misykat al-Anwar",
+    "rumusan": [
+      "Apakah al-Ghazali meninggalkan akal dalam Misykat al-Anwar?",
+      "Bagaimana pandangan al-Ghazali tentang akal?",
+      "Mengapa akal terhalang wahm?"
+    ],
+    "tujuan": [
+      "Untuk mengetahui kedudukan akal dalam Misykat al-Anwar."
+    ],
+    "penilaian": { "B1": "belum", "B2": "belum", "B3": "belum", "B4": "belum", "B5": "belum", "B6": "tidak_yakin", "C1": "belum", "C2": "belum", "C3": "belum" }
+  }
+]

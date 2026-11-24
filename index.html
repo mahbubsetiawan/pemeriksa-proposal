@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14110f">
+  <title>Pemeriksa Proposal Skripsi AFI</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="ikon/ikon-192.png">
+  <link rel="apple-touch-icon" href="ikon/ikon-192.png">
+  <link rel="stylesheet" href="gaya.css">
+</head>
+<body>
+  <header>
+    <h1>Pemeriksa Proposal Skripsi</h1>
+    <p class="sub">Bagian B (Rumusan Masalah) dan C (Tujuan Penelitian)</p>
+  </header>
+  <main>
+    <p class="pernyataan" role="note">Hasil ini hanya bantuan awal, bukan penilaian final dosen pembimbing. Aplikasi ini menunjukkan kriteria yang sudah dan belum terpenuhi; aplikasi tidak menulis ulang tulisan Anda.</p>
+
+    <form id="form" novalidate>
+      <fieldset>
+        <legend>Isian terstruktur</legend>
+        <label for="teori">Nama teori <span class="bantu">(objek formal; misalnya eksistensialisme Jean-Paul Sartre)</span></label>
+        <input id="teori" type="text" autocomplete="off">
+        <label for="konsep">Konsep teori <span class="bantu">(paling banyak tiga; pisahkan dengan koma)</span></label>
+        <input id="konsep" type="text" autocomplete="off">
+        <label for="objek">Objek material <span class="bantu">(teks atau lapangan yang diteliti)</span></label>
+        <input id="objek" type="text" autocomplete="off">
+      </fieldset>
+
+      <fieldset>
+        <legend>Rumusan masalah</legend>
+        <div id="daftar-rumusan" class="daftar"></div>
+        <button type="button" class="tambah" data-untuk="rumusan">Tambah rumusan</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tujuan penelitian</legend>
+        <div id="daftar-tujuan" class="daftar"></div>
+        <button type="button" class="tambah" data-untuk="tujuan">Tambah tujuan</button>
+      </fieldset>
+
+      <button type="submit" class="utama">Periksa</button>
+    </form>
+
+    <section id="hasil" aria-live="polite" hidden>
+      <h2>Hasil pemeriksaan</h2>
+      <p id="ringkasan"></p>
+      <div id="kotak-makna" hidden>
+        <p id="mode-makna" class="bantu"></p>
+        <div id="isian-ai" hidden>
+          <label for="kode">Kode akses kelas</label>
+          <input id="kode" type="password" autocomplete="off">
+          <label class="pilihan"><input id="setuju" type="checkbox"> <span>Saya setuju tulisan saya dikirim ke layanan Claude (Anthropic) untuk pemeriksaan makna. Menurut ketentuan Anthropic untuk API, data tidak dipakai melatih model secara bawaan dan dihapus dari sistem mereka dalam 30 hari. Server perantara aplikasi ini tidak menyimpan tulisan Anda.</span></label>
+        </div>
+        <button type="button" id="jalankan-makna">Jalankan pemeriksaan makna</button>
+        <p id="pesan-makna" role="status"></p>
+      </div>
+      <div id="isi-hasil"></div>
+    </section>
+  </main>
+  <footer>
+    <p>Pemeriksaan ini mengacu pada panduan struktur penulisan skripsi model analisis-teoretis yang disusun Dr. Mahbub Setiawan sebagai alat bantu belajar mahasiswa. Panduan itu bukan dokumen resmi fakultas atau program studi, dan pembimbing Anda tetap menjadi rujukan akhir. Tulisan Anda diperiksa di perangkat ini dan tidak dikirim ke mana pun.</p>
+  </footer>
+  <script type="module" src="js/tampilan.js"></script>
+</body>
+</html>
