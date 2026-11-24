@@ -26,6 +26,13 @@ button.utama { width:100%; background:var(--aksen); color:#1a0f05; border-color:
 .terpenuhi .lencana { color:var(--baik); } .belum .lencana { color:var(--buruk); }
 .peringatan .lencana { color:var(--waspada); } .tidak_yakin .lencana,.tidak_dapat_diperiksa .lencana,.belum_dijalankan .lencana { color:var(--netral); }
 .rujukan { font-size:.85rem; color:var(--redup); margin:.2rem 0 0; }
+.tab { display:flex; gap:.4rem; margin:0 0 1rem; flex-wrap:wrap; }
+.tab button { flex:1 1 10rem; }
+.tab button[aria-selected="true"] { background:var(--aksen); color:#1a0f05; border-color:var(--aksen); font-weight:700; }
+.layanan { border:1px solid var(--garis); border-radius:8px; padding:.6rem 1rem; margin:0 0 1rem; }
+.layanan summary { cursor:pointer; font-weight:700; }
+.panjang { min-height:16rem; }
+.panel[hidden], .layanan[hidden] { display:none; }
 blockquote { margin:.4rem 0; padding:.3rem .8rem; border-left:3px solid var(--garis); color:var(--redup); font-family:Georgia,serif; }
 .kartu p { margin:.3rem 0; }
 @media (min-width:700px) { body { font-size:18px; } }

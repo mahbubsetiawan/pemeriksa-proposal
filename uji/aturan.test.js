@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  STATUS, bersihkan, kataPertama, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
+  STATUS, bersihkan, kataPertama, periksaA7, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
 } from '../js/aturan.js';
 
 const baca = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
-const RUBRIK = [...baca('../rubrik/B-rumusan.json'), ...baca('../rubrik/C-tujuan.json')];
+const RUBRIK = [...baca('../rubrik/A-latar.json'), ...baca('../rubrik/B-rumusan.json'), ...baca('../rubrik/C-tujuan.json')];
 
 // Contoh benar dari Panduan Bab I.B dan I.C (kasus Kungkum Pengging - Sartre).
 const RM_BENAR = [
@@ -119,7 +119,7 @@ test('periksaSemua: pesan terisi dan jenis AI belum dijalankan', () => {
 });
 
 test('periksaSemua: contoh benar dari panduan lolos semua kriteria aturan', () => {
-  const hasil = periksaSemua(RUBRIK, { rumusan: RM_BENAR, tujuan: T_BENAR });
+  const hasil = periksaSemua(RUBRIK.filter((e) => e.bagian !== 'A'), { rumusan: RM_BENAR, tujuan: T_BENAR });
   for (const h of hasil.filter((x) => x.jenis === 'aturan')) assert.equal(h.status, STATUS.TERPENUHI, h.id);
 });
 
@@ -129,10 +129,40 @@ test('rubrik: bentuk entri dan rujukan panduan', () => {
     for (const k of ['id', 'bagian', 'jenis', 'kriteria', 'tingkat', 'rujukan', 'pesan_gagal', 'dasar']) {
       assert.ok(e[k], `${e.id} tanpa ${k}`);
     }
-    assert.match(e.rujukan, /^Panduan Bab I\.[BC]$/);
+    assert.match(e.rujukan, /^Panduan Bab I\.[ABC]$/);
     assert.ok(e.bagian_panduan);
     assert.ok(['aturan', 'ai'].includes(e.jenis));
     assert.ok(!ids.has(e.id));
     ids.add(e.id);
   }
+});
+
+// Contoh latar belakang benar dari panduan Bab I.A (kasus Kungkum Pengging - Sartre).
+const LATAR_BENAR = [
+  'Di tengah arus modernisasi dan mekanisasi kehidupan perkotaan, manusia sering kali mengalami krisis otentisitas dan keterasingan (alienasi), yang melahirkan kebutuhan ruang spiritual untuk melepaskan diri dari tekanan rutinitas.',
+  'Dalam konteks tersebut, Tradisi Kungkum di Umbul Pengging bertahan bukan sekadar sebagai pelestarian budaya, melainkan memperlihatkan anomali di mana ruang sakral tersebut justru bergeser menjadi komoditas spiritual.',
+  'Untuk membedah motivasi dan pergulatan batin pelaku tradisi ini, penelitian menggunakan perspektif Eksistensialisme Jean-Paul Sartre, khususnya mengenai konsep kebebasan radikal, otentisitas, dan bad faith (itikad buruk).',
+  'Meskipun studi antropologis dan sosiologis terdahulu telah banyak membahas aspek sejarah dan relasi sosial Tradisi Kungkum, belum ada studi yang membedah krisis kesadaran eksistensial individu di balik komodifikasi ritual tersebut.',
+  'Oleh karena itu, penelitian ini bertujuan untuk mengungkap dinamika otentisitas dan konstruksi bad faith para pelaku ritual Kungkum.'
+].join('\n\n');
+
+test('A7: latar belakang benar dari panduan lolos', () => {
+  assert.equal(periksaA7(LATAR_BENAR).status, STATUS.TERPENUHI);
+});
+
+test('A7: detail metode atau daftar penelitian menjadi peringatan dengan kutipan', () => {
+  const r1 = periksaA7(LATAR_BENAR + ' Data dikumpulkan dengan teknik pengumpulan data berupa wawancara mendalam dan triangulasi.');
+  assert.equal(r1.status, STATUS.PERINGATAN);
+  assert.equal(r1.bukti.length, 1);
+  assert.match(r1.bukti[0], /triangulasi/);
+  const r2 = periksaA7('Penelitian pertama oleh A membahas sejarah. Penelitian kedua oleh B membahas relasi sosial.');
+  assert.equal(r2.status, STATUS.PERINGATAN);
+  assert.equal(periksaA7('   ').status, STATUS.TIDAK_DAPAT);
+});
+
+test('periksaSemua untuk bagian A: aturan A7 jalan, kriteria STARE belum dijalankan', () => {
+  const hasil = periksaSemua(RUBRIK.filter((e) => e.bagian === 'A'), { latar: LATAR_BENAR });
+  const per = Object.fromEntries(hasil.map((h) => [h.id, h]));
+  assert.equal(per.A7.status, STATUS.TERPENUHI);
+  for (const id of ['A1', 'A2', 'A3', 'A4', 'A5', 'A6']) assert.equal(per[id].status, STATUS.BELUM_DIJALANKAN);
 });

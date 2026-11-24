@@ -1,0 +1,80 @@
+[
+  {
+    "id": "A1",
+    "bagian": "A",
+    "jenis": "ai",
+    "kriteria": "Situation: memotret peta besar fenomena atau konteks umum secara makro",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.A",
+    "bagian_panduan": "Bab I.A, Rumus STARE",
+    "dasar": "\"S - Situation (Konteks Umum): Memotret peta besar fenomena keberagamaan, nalar beragama, atau krisis pemikiran kontemporer secara makro.\"",
+    "pesan_gagal": "Konteks umum (peta besar fenomena) belum tampak di latar belakang."
+  },
+  {
+    "id": "A2",
+    "bagian": "A",
+    "jenis": "ai",
+    "kriteria": "Target: menjelaskan lokus lapangan atau teks yang dibidik dan alasan mengapa mendesak diteliti",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.A",
+    "bagian_panduan": "Bab I.A, Rumus STARE",
+    "dasar": "\"T - Target (Urgensi Objek Material): Menjelaskan lokus lapangan/teks yang menjadi target bidik dan argumen mengapa objek ini mendesak diteliti.\"",
+    "pesan_gagal": "Objek material dan alasan mendesaknya diteliti belum tampak."
+  },
+  {
+    "id": "A3",
+    "bagian": "A",
+    "jenis": "ai",
+    "kriteria": "Approach: mengenalkan perspektif teori atau filsafat sebagai pisau bedah beserta relevansi awalnya",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.A",
+    "bagian_panduan": "Bab I.A, Rumus STARE",
+    "dasar": "\"A - Approach (Objek Formal/Perspektif): Mengenalkan sudut pandang teori/filsafat sebagai 'pisau bedah' beserta relevansi awalnya.\"",
+    "pesan_gagal": "Perspektif teori sebagai pisau bedah belum tampak."
+  },
+  {
+    "id": "A4",
+    "bagian": "A",
+    "jenis": "ai",
+    "kriteria": "Review: cuplikan singkat keterbatasan fokus peneliti terdahulu (celah penelitian)",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.A",
+    "bagian_panduan": "Bab I.A, Rumus STARE",
+    "dasar": "\"R - Review (Intipan Celah): Menampilkan cuplikan singkat mengenai keterbatasan fokus peneliti terdahulu (research gap).\"",
+    "pesan_gagal": "Celah penelitian terdahulu belum tampak."
+  },
+  {
+    "id": "A5",
+    "bagian": "A",
+    "jenis": "ai",
+    "kriteria": "Ends: penegasan akhir yang menjustifikasi tujuan utama penelitian",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.A",
+    "bagian_panduan": "Bab I.A, Rumus STARE",
+    "dasar": "\"E - Ends (Masalah Pokok/Tujuan): Penegasan akhir berupa muara kalimat yang menjastifikasi tujuan utama penelitian.\"",
+    "pesan_gagal": "Muara kalimat yang menegaskan masalah pokok atau tujuan belum tampak."
+  },
+  {
+    "id": "A6",
+    "bagian": "A",
+    "jenis": "ai",
+    "kriteria": "Alur deduktif dari makro ke mikro dan memotret kesenjangan antara kenyataan (Das Sein) dan kondisi ideal (Das Sollen)",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.A",
+    "bagian_panduan": "Bab I.A, Kaidah Akademik",
+    "dasar": "\"Latar belakang harus memotret kesenjangan antara realitas sosial (Das Sein) dengan kondisi ideal (Das Sollen), dengan alur yang menitis secara deduktif dari makro ke mikro tanpa bertele-tele.\"",
+    "pesan_gagal": "Alur makro ke mikro atau kesenjangan kenyataan dan kondisi ideal belum jelas."
+  },
+  {
+    "id": "A7",
+    "bagian": "A",
+    "jenis": "aturan",
+    "kriteria": "Tidak memuat detail landasan teori, rincian tinjauan pustaka yang mendalam, atau detail operasional metode",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab I.A",
+    "bagian_panduan": "Bab I, Kaidah Akademik (Umum)",
+    "dasar": "\"Bab ini tidak boleh mencantumkan detail landasan teori, rincian literatur review yang mendalam, ataupun detail operasional metode penelitian agar tidak memicu duplikasi ruang pada bab-bab selanjutnya.\" Pemeriksaan ini hanya mencari kata kunci, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Ada kalimat yang tampak memuat detail metode atau daftar penelitian terdahulu.",
+    "pesan_peringatan": "Ada kalimat yang tampak memuat detail metode atau daftar penelitian terdahulu. Bagian itu sebaiknya dipindah ke bagian landasan teori, tinjauan penelitian terdahulu, atau metode."
+  }
+]

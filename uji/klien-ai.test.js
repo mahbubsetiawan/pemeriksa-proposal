@@ -5,6 +5,7 @@ import { periksaMakna, validasiHasil, buatPelaksanaWorker } from '../js/klien-ai
 
 const baca = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
 const RUBRIK = [...baca('../rubrik/B-rumusan.json'), ...baca('../rubrik/C-tujuan.json')];
+const RUBRIK_A = baca('../rubrik/A-latar.json');
 const AI = RUBRIK.filter((e) => e.jenis === 'ai').map((e) => e.id);
 const INPUT = { rumusan: ['Bagaimana validitas akal dalam Misykat al-Anwar?'], tujuan: ['Untuk menganalisis validitas akal.'] };
 
@@ -47,7 +48,7 @@ test('pelaksana Worker: mengirim isian dan kode, menyaring id, meneruskan sisa',
   assert.equal(h.find((x) => x.id === 'B4').status, 'terpenuhi');
   assert.equal(h.find((x) => x.id === 'B5').status, 'tidak_yakin');
   assert.equal(dikirim.init.headers['X-Kode-Akses'], 'kode-uji');
-  assert.deepEqual(Object.keys(JSON.parse(dikirim.init.body)).sort(), ['konsep', 'objek', 'rumusan', 'teori', 'tujuan']);
+  assert.deepEqual(Object.keys(JSON.parse(dikirim.init.body)).sort(), ['bagian', 'konsep', 'objek', 'rumusan', 'teori', 'tujuan']);
 });
 
 test('pelaksana Worker: galat 429 menampilkan pesan dari Worker', async () => {
@@ -76,4 +77,31 @@ test('validasi: label "Rumusan 1:" atau "Tujuan 2:" di awal kutipan dibuang, buk
   const h = validasiHasil(entri, [{ id: 'B4', status: 'terpenuhi', alasan: 'x',
     bukti: ['Rumusan 1: Bagaimana validitas akal dalam Misykat al-Anwar?', 'Tujuan 1: Untuk menganalisis validitas akal.', 'Rumusan 2: kalimat karangan'] }], INPUT);
   assert.deepEqual(h[0].bukti, ['Bagaimana validitas akal dalam Misykat al-Anwar?', 'Untuk menganalisis validitas akal.']);
+});
+
+const LATAR = 'Di tengah arus modernisasi, manusia mengalami krisis otentisitas.\n\nTradisi Kungkum bertahan sebagai ruang sakral yang bergeser menjadi komoditas.';
+
+test('bagian A: data tiruan memberi satu hasil per kriteria AI dengan bukti dari latar', async () => {
+  const h = await periksaMakna(RUBRIK_A, { latar: LATAR });
+  assert.deepEqual(h.map((x) => x.id), ['A1', 'A2', 'A3', 'A4', 'A5', 'A6']);
+  assert.ok(h.every((x) => x.bukti.length === 1 && LATAR.includes(x.bukti[0])));
+});
+
+test('bagian A: Worker dipanggil dengan bagian A dan hanya mengirim latar', async () => {
+  let dikirim;
+  const f = async (url, init) => { dikirim = JSON.parse(init.body); return new Response(JSON.stringify({ hasil: [] }), { status: 200 }); };
+  const p = buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', bagian: 'A', fetchFn: f });
+  await periksaMakna(RUBRIK_A, { latar: LATAR, rumusan: ['tidak ikut'] }, p);
+  assert.deepEqual(Object.keys(dikirim).sort(), ['bagian', 'latar']);
+  assert.equal(dikirim.bagian, 'A');
+});
+
+test('bagian A: kutipan dengan label [P2] dan spasi berbeda diterima, karangan ditolak', () => {
+  const entri = RUBRIK_A.filter((e) => e.id === 'A1');
+  const h = validasiHasil(entri, [{ id: 'A1', status: 'terpenuhi', alasan: 'x', bukti: [
+    '[P1] Di tengah arus modernisasi, manusia   mengalami krisis otentisitas.',
+    'Paragraf 2: Tradisi Kungkum bertahan sebagai ruang sakral',
+    'kalimat yang tidak pernah ditulis'] }], { latar: LATAR });
+  assert.equal(h[0].bukti.length, 2);
+  assert.ok(h[0].bukti[0].startsWith('Di tengah arus'));
 });

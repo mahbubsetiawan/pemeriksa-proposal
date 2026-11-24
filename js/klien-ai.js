@@ -1,5 +1,5 @@
 // Klien pemeriksaan makna (jenis AI).
-// Dua pelaksana dengan antarmuka sama: `pelaksanaTiruan` (tanpa jaringan) dan `buatPelaksanaWorker` (lewat Worker perantara).
+// Dua pelaksana berantarmuka sama: `pelaksanaTiruan` (tanpa jaringan) dan `buatPelaksanaWorker` (lewat Worker perantara).
 // Kunci API tidak pernah ada di sini; kunci hanya ada sebagai rahasia di Worker.
 import { STATUS, butirTerisi } from './aturan.js';
 
@@ -13,31 +13,48 @@ const SKENARIO_TIRUAN = {
   B4: { status: 'terpenuhi', sumber: 'rumusan', alasan: 'Data tiruan: rumusan tampak memuat konsep teori dan objek material.' },
   B5: { status: 'tidak_yakin', sumber: 'rumusan', alasan: 'Data tiruan: hubungan konsep teori dengan objek pada rumusan pertama belum dapat dipastikan.' },
   B6: { status: 'belum', sumber: 'rumusan', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' },
-  C3: { status: 'tidak_yakin', sumber: 'tujuan', alasan: 'Data tiruan: kesesuaian tujuan dengan rumusan belum dapat dipastikan.' }
+  C3: { status: 'tidak_yakin', sumber: 'tujuan', alasan: 'Data tiruan: kesesuaian tujuan dengan rumusan belum dapat dipastikan.' },
+  A1: { status: 'terpenuhi', sumber: 'latar', alasan: 'Data tiruan: konteks umum tampak ada.' },
+  A2: { status: 'terpenuhi', sumber: 'latar', alasan: 'Data tiruan: objek material tampak dijelaskan.' },
+  A3: { status: 'tidak_yakin', sumber: 'latar', alasan: 'Data tiruan: perspektif teori belum dapat dipastikan.' },
+  A4: { status: 'belum', sumber: 'latar', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' },
+  A5: { status: 'terpenuhi', sumber: 'latar', alasan: 'Data tiruan: muara kalimat tampak ada.' },
+  A6: { status: 'tidak_yakin', sumber: 'latar', alasan: 'Data tiruan: alur makro ke mikro belum dapat dipastikan.' }
 };
+
+const rapat = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
+
+/** Bukti contoh dari isian: butir pertama bila daftar, kalimat pertama bila teks panjang. */
+function buktiTiruan(nilai) {
+  if (Array.isArray(nilai)) {
+    const b = butirTerisi(nilai);
+    return b.length ? [b[0].teks] : [];
+  }
+  const kalimat = rapat(nilai).split(/(?<=[.!?])\s+/)[0];
+  return kalimat ? [kalimat] : [];
+}
 
 /** Pelaksana tiruan: hasil tetap, bukti diambil dari tulisan pengguna agar kontrak "bukti = kutipan" ikut teruji. */
 export async function pelaksanaTiruan(entriAi, input) {
   return entriAi.map((e) => {
     const s = SKENARIO_TIRUAN[e.id] ?? { status: 'tidak_yakin', sumber: 'rumusan', alasan: 'Data tiruan: tidak ada skenario.' };
-    const butir = butirTerisi(input[s.sumber]);
-    return {
-      id: e.id,
-      status: s.status,
-      bukti: butir.length ? [butir[0].teks] : [],
-      alasan: s.alasan,
-      rujukan: e.rujukan
-    };
+    return { id: e.id, status: s.status, bukti: buktiTiruan(input[s.sumber]), alasan: s.alasan, rujukan: e.rujukan };
   });
 }
 
-/** Pelaksana sungguhan: memanggil Worker perantara. Hanya mengirim isian pengguna, kode akses, dan id perangkat acak. */
-export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, fetchFn = (...a) => fetch(...a) }) {
+/**
+ * Pelaksana sungguhan: memanggil Worker perantara. Hanya mengirim isian pengguna, kode akses, dan id perangkat acak.
+ * `bagian` memilih jenis pemeriksaan: 'BC' (rumusan dan tujuan) atau 'A' (latar belakang).
+ */
+export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC', fetchFn = (...a) => fetch(...a) }) {
   return async (entriAi, input) => {
+    const badan = bagian === 'A'
+      ? { bagian: 'A', latar: input.latar }
+      : { bagian: 'BC', rumusan: input.rumusan, tujuan: input.tujuan, teori: input.teori, konsep: input.konsep, objek: input.objek };
     const res = await fetchFn(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Kode-Akses': kodeAkses, 'X-Id-Perangkat': idPerangkat },
-      body: JSON.stringify({ rumusan: input.rumusan, tujuan: input.tujuan, teori: input.teori, konsep: input.konsep, objek: input.objek })
+      body: JSON.stringify(badan)
     });
     let data = {};
     try { data = await res.json(); } catch { /* badan bukan JSON */ }
@@ -56,18 +73,19 @@ export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, fetchFn = (..
  * bukti berupa kutipan nyata dari tulisan pengguna. Yang melanggar diturunkan menjadi "tidak yakin".
  */
 export function validasiHasil(entriAi, mentah, input) {
-  const isian = [input.teori, input.konsep, input.objek].map((t) => String(t ?? '').trim()).filter(Boolean);
-  const korpus = [...butirTerisi(input.rumusan), ...butirTerisi(input.tujuan)].map((b) => b.teks).concat(isian);
+  const isian = [input.teori, input.konsep, input.objek, input.latar];
+  const korpus = [...butirTerisi(input.rumusan), ...butirTerisi(input.tujuan)].map((b) => b.teks).concat(isian)
+    .map(rapat).filter(Boolean);
   const sah = new Set(Object.values(STATUS_AI));
   const peta = new Map((Array.isArray(mentah) ? mentah : []).map((h) => [h?.id, h]));
+  // Model kadang menyalin label dari prompt ("Rumusan 1: ...", "[P2] ..."); label bukan bagian tulisan mahasiswa.
+  const tanpaLabel = (b) => rapat(b).replace(/^(?:\[P\d+\]|(?:rumusan|tujuan|paragraf)\s*\d+\s*:)\s*/i, '').trim();
   return entriAi.map((e) => {
     const h = peta.get(e.id);
     const dasar = { id: e.id, bagian: e.bagian, jenis: e.jenis, kriteria: e.kriteria, tingkat: e.tingkat, rujukan: e.rujukan };
     if (!h || !sah.has(h.status)) {
       return { ...dasar, status: STATUS_AI.TIDAK_YAKIN, bukti: [], pesan: 'Keluaran pemeriksaan makna tidak sesuai bentuk yang diharapkan.' };
     }
-    // Model kadang menyalin label dari prompt ("Rumusan 1: ..."); label bukan bagian tulisan mahasiswa.
-    const tanpaLabel = (b) => b.replace(/^\s*(?:rumusan|tujuan)\s*\d+\s*:\s*/i, '').trim();
     const bukti = (Array.isArray(h.bukti) ? h.bukti : [])
       .filter((b) => typeof b === 'string')
       .map(tanpaLabel)

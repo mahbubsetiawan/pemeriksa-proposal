@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { tangani, susunPermintaan, bersihkanMasukan, MODEL, BATAS } from '../worker/index.js';
+import { tangani, susunPermintaan, susunPermintaanLatar, bersihkanMasukan, bersihkanMasukanLatar, MODEL, BATAS } from '../worker/index.js';
 
 const ASAL = 'https://mahbubsetiawan.github.io';
 const kv = () => {
@@ -114,4 +114,51 @@ test('tidak ada pola kunci API di repositori', () => {
   };
   telusur(fileURLToPath(new URL('..', import.meta.url)));
   assert.deepEqual(ada, []);
+});
+
+const HASIL_A = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
+const LATAR = 'Paragraf satu tentang konteks.\n\nParagraf dua tentang objek.';
+
+test('bagian A: masukan dibersihkan, dibagi paragraf, dan dibatasi panjangnya', () => {
+  const m = bersihkanMasukanLatar({ latar: LATAR });
+  assert.equal(m.paragraf.length, 2);
+  assert.ok(bersihkanMasukanLatar({ latar: '   ' }).galat);
+  assert.equal(bersihkanMasukanLatar({ latar: 'a'.repeat(BATAS.latar + 1) }).status, 413);
+});
+
+test('bagian A: prompt memuat kriteria A1-A6, petunjuk STARE, dan paragraf bernomor; tanpa kriteria B dan C', () => {
+  const b = susunPermintaanLatar(bersihkanMasukanLatar({ latar: LATAR }));
+  assert.equal(b.model, MODEL);
+  assert.equal(b.max_tokens, BATAS.maxTokensLatar);
+  assert.match(b.system, /Situation/);
+  assert.match(b.system, /Jangan menulis ulang/);
+  for (const id of ['A1', 'A2', 'A3', 'A4', 'A5', 'A6']) assert.match(b.messages[0].content, new RegExp(`- ${id}:`));
+  assert.doesNotMatch(b.messages[0].content, /- B4:/);
+  assert.match(b.messages[0].content, /\[P1\] Paragraf satu/);
+  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['A1', 'A2', 'A3', 'A4', 'A5', 'A6']);
+});
+
+test('bagian A: permintaan sah diteruskan; bagian BC tetap memakai kriteria B dan C', async () => {
+  let dikirim;
+  const f = async (url, init) => { dikirim = JSON.parse(init.body); return hasilAnthropic(HASIL_A)(); };
+  const r = await tangani(req({ bagian: 'A', latar: LATAR }), env(), f);
+  assert.equal(r.status, 200);
+  assert.match(dikirim.messages[0].content, /- A1:/);
+  const r2 = await tangani(req(BADAN), env(), async (u, init) => { dikirim = JSON.parse(init.body); return hasilAnthropic(HASIL)(); });
+  assert.equal(r2.status, 200);
+  assert.match(dikirim.messages[0].content, /- B4:/);
+  assert.doesNotMatch(dikirim.messages[0].content, /- A1:/);
+});
+
+test('bagian A: latar kosong atau terlalu besar ditolak sebelum memakai kuota', async () => {
+  const e = env();
+  assert.equal((await tangani(req({ bagian: 'A', latar: '' }), e, hasilAnthropic(HASIL_A))).status, 400);
+  assert.equal((await tangani(req({ bagian: 'A', latar: 'a'.repeat(BATAS.latar + 1) }), e, hasilAnthropic(HASIL_A))).status, 413);
+  assert.equal(await e.PEMAKAIAN.get(`p:${new Date().toISOString().slice(0, 10)}:perangkat-0001`), null);
+});
+
+test('bagian A: penolakan layanan menghasilkan tidak_yakin untuk A1-A6', async () => {
+  const tolak = async () => new Response(JSON.stringify({ stop_reason: 'refusal', content: [] }));
+  const j = await (await tangani(req({ bagian: 'A', latar: LATAR }), env(), tolak)).json();
+  assert.deepEqual(j.hasil.map((h) => h.id), ['A1', 'A2', 'A3', 'A4', 'A5', 'A6']);
 });

@@ -13,55 +13,85 @@
 <body>
   <header>
     <h1>Pemeriksa Proposal Skripsi</h1>
-    <p class="sub">Bagian B (Rumusan Masalah) dan C (Tujuan Penelitian)</p>
+    <p class="sub">Pilih bagian proposal yang ingin diperiksa.</p>
   </header>
   <main>
     <p class="pernyataan" role="note">Hasil ini hanya bantuan awal, bukan penilaian final dosen pembimbing. Aplikasi ini menunjukkan kriteria yang sudah dan belum terpenuhi; aplikasi tidak menulis ulang tulisan Anda.</p>
 
-    <form id="form" novalidate>
-      <fieldset>
-        <legend>Isian terstruktur</legend>
-        <label for="teori">Nama teori <span class="bantu">(objek formal; misalnya eksistensialisme Jean-Paul Sartre)</span></label>
-        <input id="teori" type="text" autocomplete="off">
-        <label for="konsep">Konsep teori <span class="bantu">(paling banyak tiga; pisahkan dengan koma)</span></label>
-        <input id="konsep" type="text" autocomplete="off">
-        <label for="objek">Objek material <span class="bantu">(teks atau lapangan yang diteliti)</span></label>
-        <input id="objek" type="text" autocomplete="off">
-      </fieldset>
+    <div class="tab" role="tablist" aria-label="Bagian proposal">
+      <button type="button" role="tab" id="tab-a" aria-controls="panel-a" aria-selected="true" data-panel="a">A. Latar belakang</button>
+      <button type="button" role="tab" id="tab-bc" aria-controls="panel-bc" aria-selected="false" data-panel="bc">B–C. Rumusan dan tujuan</button>
+    </div>
 
-      <fieldset>
-        <legend>Rumusan masalah</legend>
-        <div id="daftar-rumusan" class="daftar"></div>
-        <button type="button" class="tambah" data-untuk="rumusan">Tambah rumusan</button>
-      </fieldset>
+    <details id="layanan-ai" class="layanan" hidden open>
+      <summary>Layanan AI: kode akses dan persetujuan</summary>
+      <label for="kode">Kode akses kelas</label>
+      <input id="kode" type="password" autocomplete="off">
+      <label class="pilihan"><input id="setuju" type="checkbox"> <span>Saya setuju tulisan saya dikirim ke layanan Claude (Anthropic) untuk pemeriksaan makna. Menurut ketentuan Anthropic untuk API, data tidak dipakai melatih model secara bawaan dan dihapus dari sistem mereka dalam 30 hari. Server perantara aplikasi ini tidak menyimpan tulisan Anda.</span></label>
+    </details>
 
-      <fieldset>
-        <legend>Tujuan penelitian</legend>
-        <div id="daftar-tujuan" class="daftar"></div>
-        <button type="button" class="tambah" data-untuk="tujuan">Tambah tujuan</button>
-      </fieldset>
-
-      <button type="submit" class="utama">Periksa</button>
-    </form>
-
-    <section id="hasil" aria-live="polite" hidden>
-      <h2>Hasil pemeriksaan</h2>
-      <p id="ringkasan"></p>
-      <div id="kotak-makna" hidden>
-        <p id="mode-makna" class="bantu"></p>
-        <div id="isian-ai" hidden>
-          <label for="kode">Kode akses kelas</label>
-          <input id="kode" type="password" autocomplete="off">
-          <label class="pilihan"><input id="setuju" type="checkbox"> <span>Saya setuju tulisan saya dikirim ke layanan Claude (Anthropic) untuk pemeriksaan makna. Menurut ketentuan Anthropic untuk API, data tidak dipakai melatih model secara bawaan dan dihapus dari sistem mereka dalam 30 hari. Server perantara aplikasi ini tidak menyimpan tulisan Anda.</span></label>
+    <section id="panel-a" class="panel" role="tabpanel" aria-labelledby="tab-a">
+      <form id="form-a" novalidate>
+        <fieldset>
+          <legend>Latar belakang masalah</legend>
+          <label for="latar">Tempel latar belakang Anda <span class="bantu">(pisahkan paragraf dengan satu baris kosong; paling banyak 12.000 karakter)</span></label>
+          <textarea id="latar" class="panjang" rows="14"></textarea>
+          <p id="hitung-latar" class="bantu" aria-live="polite"></p>
+        </fieldset>
+        <button type="submit" class="utama">Periksa</button>
+      </form>
+      <section class="hasil" aria-live="polite" hidden>
+        <h2>Hasil pemeriksaan</h2>
+        <p class="ringkasan"></p>
+        <div class="kotak-makna" hidden>
+          <p class="mode-makna bantu"></p>
+          <button type="button" class="jalankan-makna">Jalankan pemeriksaan makna</button>
+          <p class="pesan-makna" role="status"></p>
         </div>
-        <button type="button" id="jalankan-makna">Jalankan pemeriksaan makna</button>
-        <p id="pesan-makna" role="status"></p>
-      </div>
-      <div id="isi-hasil"></div>
+        <div class="isi-hasil"></div>
+      </section>
+    </section>
+
+    <section id="panel-bc" class="panel" role="tabpanel" aria-labelledby="tab-bc" hidden>
+      <form id="form-bc" novalidate>
+        <fieldset>
+          <legend>Isian terstruktur</legend>
+          <label for="teori">Nama teori <span class="bantu">(objek formal; misalnya eksistensialisme Jean-Paul Sartre)</span></label>
+          <input id="teori" type="text" autocomplete="off">
+          <label for="konsep">Konsep teori <span class="bantu">(paling banyak tiga; pisahkan dengan koma)</span></label>
+          <input id="konsep" type="text" autocomplete="off">
+          <label for="objek">Objek material <span class="bantu">(teks atau lapangan yang diteliti)</span></label>
+          <input id="objek" type="text" autocomplete="off">
+        </fieldset>
+
+        <fieldset>
+          <legend>Rumusan masalah</legend>
+          <div id="daftar-rumusan" class="daftar"></div>
+          <button type="button" class="tambah" data-untuk="rumusan">Tambah rumusan</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>Tujuan penelitian</legend>
+          <div id="daftar-tujuan" class="daftar"></div>
+          <button type="button" class="tambah" data-untuk="tujuan">Tambah tujuan</button>
+        </fieldset>
+
+        <button type="submit" class="utama">Periksa</button>
+      </form>
+      <section class="hasil" aria-live="polite" hidden>
+        <h2>Hasil pemeriksaan</h2>
+        <p class="ringkasan"></p>
+        <div class="kotak-makna" hidden>
+          <p class="mode-makna bantu"></p>
+          <button type="button" class="jalankan-makna">Jalankan pemeriksaan makna</button>
+          <p class="pesan-makna" role="status"></p>
+        </div>
+        <div class="isi-hasil"></div>
+      </section>
     </section>
   </main>
   <footer>
-    <p>Pemeriksaan ini mengacu pada panduan struktur penulisan skripsi model analisis-teoretis yang disusun Dr. Mahbub Setiawan sebagai alat bantu belajar mahasiswa. Panduan itu bukan dokumen resmi fakultas atau program studi, dan pembimbing Anda tetap menjadi rujukan akhir. Tulisan Anda diperiksa di perangkat ini dan tidak dikirim ke mana pun.</p>
+    <p>Pemeriksaan ini mengacu pada panduan struktur penulisan skripsi model analisis-teoretis yang disusun Dr. Mahbub Setiawan sebagai alat bantu belajar mahasiswa. Panduan itu bukan dokumen resmi fakultas atau program studi, dan pembimbing Anda tetap menjadi rujukan akhir. Pemeriksaan aturan berjalan di perangkat ini. Pemeriksaan makna oleh AI mengirim tulisan Anda ke layanan Claude hanya setelah Anda menyetujuinya.</p>
   </footer>
   <script type="module" src="js/tampilan.js"></script>
 </body>

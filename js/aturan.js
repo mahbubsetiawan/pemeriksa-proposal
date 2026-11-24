@@ -111,7 +111,21 @@ export function periksaC2(tujuan) {
   return hasil(STATUS.BELUM, { nomor: gagal.map((x) => x.nomor), bukti: gagal.map((x) => x.teks) });
 }
 
+const POLA_METODE = /teknik pengumpulan data|kisi-kisi|triangulasi|purposive|snowball|wawancara mendalam|observasi (?:non-?)?partisipan|instrumen penelitian|sumber data (?:primer|sekunder)|analisis data (?:dilakukan|akan)/i;
+const POLA_DAFTAR_PENELITIAN = /penelitian (?:pertama|kedua|ketiga|keempat)\s+(?:oleh|dari|dilakukan)/i;
+
+/** A7: peringatan bila ada kalimat yang tampak memuat detail metode atau daftar penelitian terdahulu. */
+export function periksaA7(latar) {
+  const teks = String(latar ?? '').replace(/\s+/g, ' ').trim();
+  if (!teks) return kosong('latar belakang');
+  const kalimat = teks.split(/(?<=[.!?])\s+/);
+  const curiga = kalimat.filter((k) => POLA_METODE.test(k) || POLA_DAFTAR_PENELITIAN.test(k));
+  if (!curiga.length) return hasil(STATUS.TERPENUHI);
+  return hasil(STATUS.PERINGATAN, { bukti: curiga.slice(0, 3) });
+}
+
 export const PEMERIKSA = {
+  A7: (i) => periksaA7(i.latar),
   B1: (i) => periksaB1(i.rumusan),
   B2: (i) => periksaB2(i.rumusan),
   B3: (i) => periksaB3(i.rumusan),
