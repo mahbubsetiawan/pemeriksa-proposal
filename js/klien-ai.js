@@ -66,7 +66,12 @@ export function validasiHasil(entriAi, mentah, input) {
     if (!h || !sah.has(h.status)) {
       return { ...dasar, status: STATUS_AI.TIDAK_YAKIN, bukti: [], pesan: 'Keluaran pemeriksaan makna tidak sesuai bentuk yang diharapkan.' };
     }
-    const bukti = (Array.isArray(h.bukti) ? h.bukti : []).filter((b) => typeof b === 'string' && korpus.some((k) => k.includes(b)));
+    // Model kadang menyalin label dari prompt ("Rumusan 1: ..."); label bukan bagian tulisan mahasiswa.
+    const tanpaLabel = (b) => b.replace(/^\s*(?:rumusan|tujuan)\s*\d+\s*:\s*/i, '').trim();
+    const bukti = (Array.isArray(h.bukti) ? h.bukti : [])
+      .filter((b) => typeof b === 'string')
+      .map(tanpaLabel)
+      .filter((b) => b && korpus.some((k) => k.includes(b)));
     return { ...dasar, status: h.status, bukti, pesan: String(h.alasan ?? '') };
   });
 }

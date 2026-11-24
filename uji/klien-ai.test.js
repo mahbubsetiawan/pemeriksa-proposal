@@ -70,3 +70,10 @@ test('validasi: kutipan dari isian terstruktur (teori, konsep, objek) diterima',
   const h = validasiHasil(entri, [{ id: 'B6', status: 'tidak_yakin', bukti: ['kebebasan radikal, itikad buruk', 'kalimat karangan'], alasan: 'x' }], masukan);
   assert.deepEqual(h[0].bukti, ['kebebasan radikal, itikad buruk']);
 });
+
+test('validasi: label "Rumusan 1:" atau "Tujuan 2:" di awal kutipan dibuang, bukan membuang kutipannya', () => {
+  const entri = RUBRIK.filter((e) => e.id === 'B4');
+  const h = validasiHasil(entri, [{ id: 'B4', status: 'terpenuhi', alasan: 'x',
+    bukti: ['Rumusan 1: Bagaimana validitas akal dalam Misykat al-Anwar?', 'Tujuan 1: Untuk menganalisis validitas akal.', 'Rumusan 2: kalimat karangan'] }], INPUT);
+  assert.deepEqual(h[0].bukti, ['Bagaimana validitas akal dalam Misykat al-Anwar?', 'Untuk menganalisis validitas akal.']);
+});
