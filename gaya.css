@@ -122,11 +122,11 @@ button:disabled { opacity:.6; cursor:progress; }
 .belum_dijalankan { --w:var(--netral); --wb:var(--netral-bg); }
 .ikon { flex:none; width:1.7rem; height:1.7rem; display:grid; place-items:center; border-radius:50%; font-weight:600; font-size:.85rem; color:var(--w); background:var(--wb); }
 .idk { flex:none; color:var(--aksen); font-weight:600; font-size:.8rem; min-width:1.6rem; }
-.judul { flex:1 1 auto; font-size:.94rem; }
+.judul { flex:1 1 auto; font-size:.96rem; font-weight:600; color:var(--teks); line-height:1.4; }
 .baris summary::after { content:""; flex:none; width:.5rem; height:.5rem; border-right:1.5px solid var(--redup2); border-bottom:1.5px solid var(--redup2); transform:rotate(45deg) translateY(-2px); transition:transform .2s; }
 .baris[open] summary::after { transform:rotate(225deg) translateY(-2px); }
 .baris .isi { padding:0 .1rem 1rem 2.6rem; animation:muncul .25s ease both; }
-.baris .isi p { margin:.1rem 0 .5rem; font-size:.93rem; color:var(--teks); }
+.baris .isi p { margin:.1rem 0 .6rem; padding:.65rem .9rem; border-radius:12px; background:var(--wb); color:var(--teks); font-size:.9rem; line-height:1.6; }
 blockquote { margin:.5rem 0; padding:.1rem 0 .1rem .9rem; border-left:2px solid var(--aksen); color:var(--redup); font-family:var(--serif); font-size:.98rem; font-style:italic; }
 .memuat svg { animation:putar 1.2s linear infinite; }
 @keyframes putar { to { transform:rotate(360deg); } }
