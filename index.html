@@ -17,6 +17,8 @@
     <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
     <symbol id="i-kunci" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8m-3 3 3 3m-6-6 2 2"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></symbol>
+    <symbol id="i-manfaat" viewBox="0 0 24 24"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7C10 7 8 6 8 4.5S11 3 12 7zM12 7c2 0 4-1 4-2.5S13 3 12 7z"/></symbol>
+    <symbol id="i-daftar" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
     <symbol id="i-kilau" viewBox="0 0 24 24"><path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
   </svg>
 
@@ -48,14 +50,17 @@
             <svg class="ik" aria-hidden="true"><use href="#i-target"/></svg>
             <span class="nama"><b>B–C</b> Rumusan dan tujuan</span>
           </button>
-        </div>
-        <div class="segera" aria-label="Segera hadir">
-          <p class="judul-menu">Segera hadir</p>
-          <span class="butir-menu mati"><span class="nama"><b>D</b> Manfaat</span><em>Segera</em></span>
-          <span class="butir-menu mati"><span class="nama"><b>E</b> Tinjauan terdahulu</span><em>Segera</em></span>
-          <span class="butir-menu mati"><span class="nama"><b>F</b> Landasan teori</span><em>Segera</em></span>
-          <span class="butir-menu mati"><span class="nama"><b>G</b> Metode</span><em>Segera</em></span>
-          <span class="butir-menu mati"><span class="nama"><b>H</b> Sistematika</span><em>Segera</em></span>
+          <button type="button" role="tab" id="tab-d" aria-controls="panel-d" aria-selected="false" data-panel="d" class="butir-menu">
+            <svg class="ik" aria-hidden="true"><use href="#i-manfaat"/></svg>
+            <span class="nama"><b>D</b> Manfaat</span>
+          </button>
+          <span class="butir-menu mati" aria-hidden="true"><span class="nama"><b>E</b> Tinjauan terdahulu</span><em>Segera</em></span>
+          <span class="butir-menu mati" aria-hidden="true"><span class="nama"><b>F</b> Landasan teori</span><em>Segera</em></span>
+          <span class="butir-menu mati" aria-hidden="true"><span class="nama"><b>G</b> Metode</span><em>Segera</em></span>
+          <button type="button" role="tab" id="tab-h" aria-controls="panel-h" aria-selected="false" data-panel="h" class="butir-menu">
+            <svg class="ik" aria-hidden="true"><use href="#i-daftar"/></svg>
+            <span class="nama"><b>H</b> Sistematika</span>
+          </button>
         </div>
       </nav>
     </aside>
@@ -109,6 +114,58 @@
             <div id="daftar-tujuan" class="daftar"></div>
           </div>
 
+          <div class="aksi">
+            <button type="submit" class="utama">Periksa</button>
+            <button type="button" class="contoh sekunder">Isi contoh</button>
+            <button type="button" class="kosongkan sekunder">Kosongkan</button>
+          </div>
+        </form>
+        <section class="hasil" aria-live="polite" hidden>
+          <div class="ringkas"><div class="skor"></div><div class="chip-wadah"></div><button type="button" class="jalankan-makna utama"><svg class="ik" aria-hidden="true"><use href="#i-kilau"/></svg><span>Periksa makna (AI)</span></button></div>
+          <p class="pesan-makna bantu" role="status"></p>
+          <div class="isi-hasil"></div>
+        </section>
+      </section>
+
+      <section id="panel-d" class="panel" role="tabpanel" aria-labelledby="tab-d" hidden>
+        <div class="judul-kerja">
+          <h2>Manfaat penelitian</h2>
+          <p>Dua dimensi: manfaat teoretis dan manfaat praktis.</p>
+          <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
+        </div>
+        <form id="form-d" novalidate>
+          <div class="kartu-isian">
+            <label for="manfaat-teoretis">Manfaat teoretis</label>
+            <textarea id="manfaat-teoretis" rows="4" placeholder="Kontribusi bagi pengembangan keilmuan yang spesifik di Prodi AFI."></textarea>
+          </div>
+          <div class="kartu-isian">
+            <label for="manfaat-praktis">Manfaat praktis</label>
+            <textarea id="manfaat-praktis" rows="4" placeholder="Rekomendasi atau kegunaan bagi aktor, masyarakat, atau lembaga tertentu di lapangan."></textarea>
+          </div>
+          <div class="aksi">
+            <button type="submit" class="utama">Periksa</button>
+            <button type="button" class="contoh sekunder">Isi contoh</button>
+            <button type="button" class="kosongkan sekunder">Kosongkan</button>
+          </div>
+        </form>
+        <section class="hasil" aria-live="polite" hidden>
+          <div class="ringkas"><div class="skor"></div><div class="chip-wadah"></div><button type="button" class="jalankan-makna utama"><svg class="ik" aria-hidden="true"><use href="#i-kilau"/></svg><span>Periksa makna (AI)</span></button></div>
+          <p class="pesan-makna bantu" role="status"></p>
+          <div class="isi-hasil"></div>
+        </section>
+      </section>
+
+      <section id="panel-h" class="panel" role="tabpanel" aria-labelledby="tab-h" hidden>
+        <div class="judul-kerja">
+          <h2>Sistematika penulisan</h2>
+          <p>Pola "Bab … berisi …": isi spesifik tiap bab dan kaitannya dengan analisis.</p>
+          <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
+        </div>
+        <form id="form-h" novalidate>
+          <div class="kartu-isian">
+            <label for="sistematika" class="sr">Sistematika penulisan</label>
+            <textarea id="sistematika" class="panjang" rows="12" placeholder="Tulis tiap bab pada paragraf sendiri, diawali Bab I, Bab II, dan seterusnya."></textarea>
+          </div>
           <div class="aksi">
             <button type="submit" class="utama">Periksa</button>
             <button type="button" class="contoh sekunder">Isi contoh</button>

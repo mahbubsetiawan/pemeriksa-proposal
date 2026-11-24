@@ -6,15 +6,19 @@
 import rubrikA from '../rubrik/A-latar.json' with { type: 'json' };
 import rubrikB from '../rubrik/B-rumusan.json' with { type: 'json' };
 import rubrikC from '../rubrik/C-tujuan.json' with { type: 'json' };
+import rubrikD from '../rubrik/D-manfaat.json' with { type: 'json' };
+import rubrikH from '../rubrik/H-sistematika.json' with { type: 'json' };
 
 export const MODEL = 'claude-haiku-5-5';
 export const BATAS = Object.freeze({
   butir: 3, panjangButir: 600, panjangIsian: 200, totalKarakter: 3000,
-  latar: 12000, badanMaks: 30000,
-  perPerangkatPerHari: 20, globalPerHari: 300, maxTokens: 4000, maxTokensLatar: 6000
+  latar: 12000, manfaat: 2000, sistematika: 6000, badanMaks: 30000,
+  perPerangkatPerHari: 20, globalPerHari: 300, maxTokens: 4000, maxTokensLatar: 6000, maxTokensKecil: 3500
 });
 const AI_BC = [...rubrikB, ...rubrikC].filter((e) => e.jenis === 'ai');
 const AI_A = rubrikA.filter((e) => e.jenis === 'ai');
+const AI_D = rubrikD.filter((e) => e.jenis === 'ai');
+const AI_H = rubrikH.filter((e) => e.jenis === 'ai');
 
 const SISTEM_UMUM = (objek) => `Anda pemeriksa awal ${objek}, memakai kriteria yang diberikan.
 Tugas Anda hanya mendiagnosis: menyatakan tiap kriteria terpenuhi, belum, atau tidak_yakin.
@@ -43,6 +47,21 @@ Petunjuk membaca latar belakang (rumus STARE dari panduan penulisan):
 - E Ends: penegasan akhir yang menjustifikasi masalah pokok atau tujuan penelitian.
 - Nilailah berdasarkan isi, bukan label ataupun jumlah paragraf. Satu paragraf boleh memuat lebih dari satu unsur, dan satu unsur boleh tersebar.
 - Alur yang diharapkan deduktif dari makro ke mikro dan memotret kesenjangan antara kenyataan (Das Sein) dan kondisi ideal (Das Sollen).
+- Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
+
+const HINT_D = `
+Petunjuk membaca manfaat penelitian (dari panduan penulisan):
+- Manfaat teoretis: kontribusi bagi pengembangan keilmuan yang spesifik di Prodi Akidah dan Filsafat Islam, bukan klaim umum.
+- Manfaat praktis: rekomendasi atau kegunaan bagi aktor, masyarakat, atau lembaga pemangku kebijakan di lapangan, dengan pihak yang disebut spesifik (siapa) dan kegunaannya jelas (untuk apa).
+- Manfaat yang normatif dan klise (misalnya "menambah wawasan") tidak memenuhi kriteria. Pihak yang hanya disebut umum seperti "masyarakat" atau "pembaca" tanpa kegunaan yang jelas belum spesifik.
+- Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
+
+const HINT_H = `
+Petunjuk membaca sistematika penulisan (dari panduan penulisan):
+- Rumus: BAB [X] berisi [isi spesifik teks atau data objek material] + [kaitan dengan analisis atau teori].
+- Sistematika harus menerangkan logika fungsional dan isi spesifik dari bab ke bab guna menjawab rumusan masalah secara runtut; bukan sekadar daftar judul bab.
+- Penulisan naratif, langsung pada deskripsi materi per bab, tanpa kalimat pembuka yang bertele-tele.
+- Nilailah berdasarkan isi. Bab terakhir (penutup) biasanya memuat simpulan, keterbatasan, dan saran.
 - Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
 
 const buatSkema = (ids) => ({
@@ -115,6 +134,27 @@ export function bersihkanMasukanLatar(b) {
   return { latar, paragraf };
 }
 
+export function bersihkanMasukanManfaat(b) {
+  if (!b || typeof b !== 'object') return { galat: 'Isi permintaan tidak valid.' };
+  const teoretis = String(b.teoretis ?? '').trim();
+  const praktis = String(b.praktis ?? '').trim();
+  if (!teoretis && !praktis) return { galat: 'Isi manfaat penelitian terlebih dahulu.' };
+  if (teoretis.length > BATAS.manfaat || praktis.length > BATAS.manfaat) {
+    return { galat: `Manfaat terlalu panjang (paling banyak ${BATAS.manfaat} karakter per bagian).`, status: 413 };
+  }
+  return { teoretis, praktis };
+}
+
+export function bersihkanMasukanSistematika(b) {
+  if (!b || typeof b !== 'object') return { galat: 'Isi permintaan tidak valid.' };
+  const sistematika = String(b.sistematika ?? '').trim();
+  if (!sistematika) return { galat: 'Isi sistematika penulisan terlebih dahulu.' };
+  if (sistematika.length > BATAS.sistematika) {
+    return { galat: `Sistematika terlalu panjang (paling banyak ${BATAS.sistematika} karakter).`, status: 413 };
+  }
+  return { sistematika };
+}
+
 const daftarKriteria = (entri) => entri.map((e) => `- ${e.id}: ${e.kriteria} (dasar: ${e.dasar})`).join('\n');
 
 export function susunPermintaan(m) {
@@ -156,9 +196,44 @@ export function susunPermintaanLatar(m) {
   };
 }
 
+export function susunPermintaanManfaat(m) {
+  const isi = [
+    'Kriteria yang diperiksa:', daftarKriteria(AI_D), '',
+    '<tulisan_mahasiswa>',
+    `Manfaat teoretis: ${m.teoretis || '(kosong)'}`,
+    `Manfaat praktis: ${m.praktis || '(kosong)'}`,
+    '</tulisan_mahasiswa>', '',
+    'Kembalikan satu entri untuk setiap id kriteria. Kutip tanpa label "Manfaat teoretis:" atau "Manfaat praktis:".'
+  ].join('\n');
+  return {
+    model: MODEL,
+    max_tokens: BATAS.maxTokensKecil,
+    system: SISTEM_UMUM('manfaat penelitian proposal skripsi') + HINT_D,
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema: buatSkema(AI_D.map((e) => e.id)) } },
+    messages: [{ role: 'user', content: isi }]
+  };
+}
+
+export function susunPermintaanSistematika(m) {
+  const isi = [
+    'Kriteria yang diperiksa:', daftarKriteria(AI_H), '',
+    '<tulisan_mahasiswa>', m.sistematika, '</tulisan_mahasiswa>', '',
+    'Kembalikan satu entri untuk setiap id kriteria.'
+  ].join('\n');
+  return {
+    model: MODEL,
+    max_tokens: BATAS.maxTokensKecil,
+    system: SISTEM_UMUM('sistematika penulisan proposal skripsi') + HINT_H,
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema: buatSkema(AI_H.map((e) => e.id)) } },
+    messages: [{ role: 'user', content: isi }]
+  };
+}
+
 const PROFIL = {
   BC: { ids: AI_BC.map((e) => e.id), bersihkan: bersihkanMasukan, susun: susunPermintaan },
-  A: { ids: AI_A.map((e) => e.id), bersihkan: bersihkanMasukanLatar, susun: susunPermintaanLatar }
+  A: { ids: AI_A.map((e) => e.id), bersihkan: bersihkanMasukanLatar, susun: susunPermintaanLatar },
+  D: { ids: AI_D.map((e) => e.id), bersihkan: bersihkanMasukanManfaat, susun: susunPermintaanManfaat },
+  H: { ids: AI_H.map((e) => e.id), bersihkan: bersihkanMasukanSistematika, susun: susunPermintaanSistematika }
 };
 
 async function hitung(kv, kunci, batas) {
@@ -193,7 +268,7 @@ export async function tangani(request, env, fetchFn = fetch) {
   if (teks.length > BATAS.badanMaks) return galat('Permintaan terlalu besar.', 413, cors);
   let badan;
   try { badan = JSON.parse(teks); } catch { return galat('Isi permintaan bukan JSON yang valid.', 400, cors); }
-  const profil = PROFIL[badan?.bagian === 'A' ? 'A' : 'BC'];
+  const profil = PROFIL[['A', 'D', 'H'].includes(badan?.bagian) ? badan.bagian : 'BC'];
   const m = profil.bersihkan(badan);
   if (m.galat) return galat(m.galat, m.status ?? 400, cors);
 

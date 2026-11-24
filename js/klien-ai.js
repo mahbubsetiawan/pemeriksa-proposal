@@ -19,7 +19,12 @@ const SKENARIO_TIRUAN = {
   A3: { status: 'tidak_yakin', sumber: 'latar', alasan: 'Data tiruan: perspektif teori belum dapat dipastikan.' },
   A4: { status: 'belum', sumber: 'latar', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' },
   A5: { status: 'terpenuhi', sumber: 'latar', alasan: 'Data tiruan: muara kalimat tampak ada.' },
-  A6: { status: 'tidak_yakin', sumber: 'latar', alasan: 'Data tiruan: alur makro ke mikro belum dapat dipastikan.' }
+  A6: { status: 'tidak_yakin', sumber: 'latar', alasan: 'Data tiruan: alur makro ke mikro belum dapat dipastikan.' },
+  D3: { status: 'terpenuhi', sumber: 'teoretis', alasan: 'Data tiruan: kontribusi keilmuan tampak disebut.' },
+  D4: { status: 'tidak_yakin', sumber: 'praktis', alasan: 'Data tiruan: kespesifikan pihak belum dapat dipastikan.' },
+  H3: { status: 'terpenuhi', sumber: 'sistematika', alasan: 'Data tiruan: isi bab tampak diterangkan.' },
+  H4: { status: 'tidak_yakin', sumber: 'sistematika', alasan: 'Data tiruan: kerunutan alur belum dapat dipastikan.' },
+  H5: { status: 'belum', sumber: 'sistematika', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' }
 };
 
 const rapat = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
@@ -48,9 +53,12 @@ export async function pelaksanaTiruan(entriAi, input) {
  */
 export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC', fetchFn = (...a) => fetch(...a) }) {
   return async (entriAi, input) => {
-    const badan = bagian === 'A'
-      ? { bagian: 'A', latar: input.latar }
-      : { bagian: 'BC', rumusan: input.rumusan, tujuan: input.tujuan, teori: input.teori, konsep: input.konsep, objek: input.objek };
+    const badan = {
+      A: { bagian: 'A', latar: input.latar },
+      D: { bagian: 'D', teoretis: input.teoretis, praktis: input.praktis },
+      H: { bagian: 'H', sistematika: input.sistematika },
+      BC: { bagian: 'BC', rumusan: input.rumusan, tujuan: input.tujuan, teori: input.teori, konsep: input.konsep, objek: input.objek }
+    }[bagian] ?? { bagian: 'BC' };
     let res;
     try {
       res = await fetchFn(url, {
@@ -79,13 +87,13 @@ export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC'
  * bukti berupa kutipan nyata dari tulisan pengguna. Yang melanggar diturunkan menjadi "tidak yakin".
  */
 export function validasiHasil(entriAi, mentah, input) {
-  const isian = [input.teori, input.konsep, input.objek, input.latar];
+  const isian = [input.teori, input.konsep, input.objek, input.latar, input.teoretis, input.praktis, input.sistematika];
   const korpus = [...butirTerisi(input.rumusan), ...butirTerisi(input.tujuan)].map((b) => b.teks).concat(isian)
     .map(rapat).filter(Boolean);
   const sah = new Set(Object.values(STATUS_AI));
   const peta = new Map((Array.isArray(mentah) ? mentah : []).map((h) => [h?.id, h]));
   // Model kadang menyalin label dari prompt ("Rumusan 1: ...", "[P2] ..."); label bukan bagian tulisan mahasiswa.
-  const tanpaLabel = (b) => rapat(b).replace(/^(?:\[P\d+\]|(?:rumusan|tujuan|paragraf)\s*\d+\s*:)\s*/i, '').trim();
+  const tanpaLabel = (b) => rapat(b).replace(/^(?:\[P\d+\]|(?:rumusan|tujuan|paragraf)\s*\d+\s*:|manfaat\s+(?:teoretis|praktis)\s*:)\s*/i, '').trim();
   return entriAi.map((e) => {
     const h = peta.get(e.id);
     const dasar = { id: e.id, bagian: e.bagian, jenis: e.jenis, kriteria: e.kriteria, tingkat: e.tingkat, rujukan: e.rujukan };

@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  STATUS, bersihkan, kataPertama, periksaA7, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
+  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaH1, periksaH2, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
 } from '../js/aturan.js';
 
 const baca = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
-const RUBRIK = [...baca('../rubrik/A-latar.json'), ...baca('../rubrik/B-rumusan.json'), ...baca('../rubrik/C-tujuan.json')];
+const RUBRIK = ['A-latar', 'B-rumusan', 'C-tujuan', 'D-manfaat', 'H-sistematika'].flatMap((n) => baca(`../rubrik/${n}.json`));
 
 // Contoh benar dari Panduan Bab I.B dan I.C (kasus Kungkum Pengging - Sartre).
 const RM_BENAR = [
@@ -119,7 +119,7 @@ test('periksaSemua: pesan terisi dan jenis AI belum dijalankan', () => {
 });
 
 test('periksaSemua: contoh benar dari panduan lolos semua kriteria aturan', () => {
-  const hasil = periksaSemua(RUBRIK.filter((e) => e.bagian !== 'A'), { rumusan: RM_BENAR, tujuan: T_BENAR });
+  const hasil = periksaSemua(RUBRIK.filter((e) => ['B', 'C'].includes(e.bagian)), { rumusan: RM_BENAR, tujuan: T_BENAR });
   for (const h of hasil.filter((x) => x.jenis === 'aturan')) assert.equal(h.status, STATUS.TERPENUHI, h.id);
 });
 
@@ -129,7 +129,7 @@ test('rubrik: bentuk entri dan rujukan panduan', () => {
     for (const k of ['id', 'bagian', 'jenis', 'kriteria', 'tingkat', 'rujukan', 'pesan_gagal', 'dasar']) {
       assert.ok(e[k], `${e.id} tanpa ${k}`);
     }
-    assert.match(e.rujukan, /^Panduan Bab I\.[ABC]$/);
+    assert.match(e.rujukan, /^Panduan Bab I\.[A-E]$/);
     assert.ok(e.bagian_panduan);
     assert.ok(['aturan', 'ai'].includes(e.jenis));
     assert.ok(!ids.has(e.id));
@@ -165,4 +165,70 @@ test('periksaSemua untuk bagian A: aturan A7 jalan, kriteria STARE belum dijalan
   const per = Object.fromEntries(hasil.map((h) => [h.id, h]));
   assert.equal(per.A7.status, STATUS.TERPENUHI);
   for (const id of ['A1', 'A2', 'A3', 'A4', 'A5', 'A6']) assert.equal(per[id].status, STATUS.BELUM_DIJALANKAN);
+});
+
+// Contoh benar dari panduan Bab I.D dan I.E (kasus Kungkum Pengging - Sartre).
+const MANFAAT_T = 'Penelitian ini diharapkan berkontribusi dalam memperkaya khazanah kajian Akidah dan Filsafat Islam, khususnya memberikan pembacaan alternatif menggunakan pisau filsafat eksistensialisme terhadap fenomena budaya dan ritual keagamaan lokal kontemporer.';
+const MANFAAT_P = 'Penelitian ini dapat dijadikan bahan refleksi bagi pengelola Umbul Pengging dan Dinas Pariwisata Kabupaten Boyolali dalam menyusun regulasi zonasi spiritual.';
+const SISTEMATIKA_BENAR = [
+  'BAB I: PENDAHULUAN. Bab ini berisi paparan latar belakang masalah mengenai pergeseran makna spiritualitas pada Tradisi Kungkum di Umbul Pengging menggunakan formula STARE, rumusan masalah, dan tujuan penelitian.',
+  'BAB II: TINJAUAN PUSTAKA DAN LANDASAN TEORI. Bab ini berisi telaah terhadap hasil penelitian terdahulu yang disusun menggunakan metode sintesis CAP-G serta landasan teori Eksistensialisme Jean-Paul Sartre sebagai pisau analisis.',
+  'BAB V: PENUTUP. Bab ini berisi simpulan final teoretis yang menjawab pemaknaan eksistensial pelaku Tradisi Kungkum, keterbatasan penelitian, dan saran bagi peneliti selanjutnya.'
+].join('\n\n');
+
+test('D1: manfaat teoretis dan praktis keduanya wajib ada', () => {
+  assert.equal(periksaD1(MANFAAT_T, MANFAAT_P).status, STATUS.TERPENUHI);
+  const r = periksaD1(MANFAAT_T, '  ');
+  assert.equal(r.status, STATUS.BELUM);
+  assert.equal(r.data.kurang, 'praktis');
+  assert.equal(periksaD1('', MANFAAT_P).data.kurang, 'teoretis');
+  assert.equal(periksaD1('', '').status, STATUS.TIDAK_DAPAT);
+});
+
+test('D2: "menambah wawasan" gagal, frasa serupa peringatan, contoh panduan lolos', () => {
+  assert.equal(periksaD2(MANFAAT_T, MANFAAT_P).status, STATUS.TERPENUHI);
+  const r = periksaD2('Penelitian ini bermanfaat untuk menambah wawasan pembaca.', MANFAAT_P);
+  assert.equal(r.status, STATUS.BELUM);
+  assert.match(r.bukti[0], /menambah wawasan/);
+  assert.equal(periksaD2(MANFAAT_T, 'Hasilnya menambah pengetahuan masyarakat.').status, STATUS.PERINGATAN);
+  assert.equal(periksaD2('', '').status, STATUS.TIDAK_DAPAT);
+});
+
+test('pecahBab: memecah per bab dan tidak terkecoh oleh "Bab ini" di awal baris', () => {
+  const bab = pecahBab('Pengantar singkat.\nBab I berisi latar belakang.\nBab ini juga memuat tujuan.\nBAB II: TEORI. Bab ini berisi teori.');
+  assert.deepEqual(bab.map((b) => b.label), ['I', 'II']);
+  assert.deepEqual(pecahBab('Tanpa kepala bab sama sekali.'), []);
+  assert.deepEqual(pecahBab('Bab 3 berisi metode.\n\nBab 4 berisi hasil.').map((b) => b.label), ['3', '4']);
+});
+
+test('H1: pola "Bab ... berisi ..." pada contoh panduan lolos; bab tanpa "berisi" gagal', () => {
+  assert.equal(periksaH1(SISTEMATIKA_BENAR).status, STATUS.TERPENUHI);
+  const salah = SISTEMATIKA_BENAR + '\n\nBAB III: METODE PENELITIAN. Membahas jenis penelitian dan teknik pengumpulan data yang dipakai peneliti.';
+  const r = periksaH1(salah);
+  assert.equal(r.status, STATUS.BELUM);
+  assert.deepEqual(r.nomor, ['III']);
+  assert.equal(periksaH1('Pendahuluan, teori, metode.').status, STATUS.TIDAK_DAPAT);
+  assert.equal(periksaH1('  ').status, STATUS.TIDAK_DAPAT);
+});
+
+test('H2: bab yang hanya berupa judul menjadi peringatan', () => {
+  assert.equal(periksaH2(SISTEMATIKA_BENAR).status, STATUS.TERPENUHI);
+  const r = periksaH2('BAB I: PENDAHULUAN\n\nBAB II: LANDASAN TEORI\n\nBab III berisi uraian metode penelitian lapangan beserta sumber data primer dan sekunder yang dipakai.');
+  assert.equal(r.status, STATUS.PERINGATAN);
+  assert.deepEqual(r.nomor, ['I', 'II']);
+});
+
+test('periksaSemua bagian D dan H: aturan jalan, kriteria makna menunggu AI, pesan terisi', () => {
+  const d = periksaSemua(RUBRIK.filter((e) => e.bagian === 'D'), { teoretis: 'Menambah wawasan pembaca.', praktis: '' });
+  const pd = Object.fromEntries(d.map((h) => [h.id, h]));
+  assert.equal(pd.D1.status, STATUS.BELUM);
+  assert.match(pd.D1.pesan, /praktis/);
+  assert.equal(pd.D2.status, STATUS.BELUM);
+  assert.equal(pd.D3.status, STATUS.BELUM_DIJALANKAN);
+  const h = periksaSemua(RUBRIK.filter((e) => e.bagian === 'H'), { sistematika: SISTEMATIKA_BENAR });
+  const ph = Object.fromEntries(h.map((x) => [x.id, x]));
+  assert.equal(ph.H1.status, STATUS.TERPENUHI);
+  assert.equal(ph.H2.status, STATUS.TERPENUHI);
+  assert.equal(ph.H3.status, STATUS.BELUM_DIJALANKAN);
+  assert.ok([...d, ...h].every((x) => !/\{\w+\}/.test(x.pesan)));
 });

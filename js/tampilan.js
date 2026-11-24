@@ -182,7 +182,10 @@ function gambarSkor(wadah, hasil) {
     const c = document.createElementNS(SVG, 'circle');
     c.setAttribute('cx', '38'); c.setAttribute('cy', '38'); c.setAttribute('r', '32');
     c.setAttribute('class', kelas);
-    if (kelas === 'isi-cincin') c.setAttribute('stroke-dasharray', `${(baik / dinilai.length) * keliling} ${keliling}`);
+    if (kelas === 'isi-cincin') {
+      if (!baik) continue; // tanpa bagian hijau bila belum ada yang terpenuhi (menghindari titik)
+      c.setAttribute('stroke-dasharray', `${(baik / dinilai.length) * keliling} ${keliling}`);
+    }
     svg.append(c);
   }
   const angka = el('div', 'angka');
@@ -225,7 +228,35 @@ function sajikan(akar, hasil, { pesan = '', gulir = true } = {}) {
 }
 
 /* ---------- panel ---------- */
+const CONTOH_D = {
+  teoretis: 'Penelitian ini diharapkan berkontribusi dalam memperkaya khazanah kajian Akidah dan Filsafat Islam, khususnya memberikan pembacaan alternatif menggunakan pisau filsafat eksistensialisme terhadap fenomena budaya dan ritual keagamaan lokal kontemporer, bukan sekadar kajian sosiologis murni.',
+  praktis: 'Penelitian ini dapat dijadikan bahan refleksi bagi pengelola Umbul Pengging dan Dinas Pariwisata Kabupaten Boyolali dalam menyusun regulasi zonasi spiritual, agar arus komersialisasi tidak memberangus ruang eksistensial dan kesakralan ritual masyarakat.'
+};
+const CONTOH_H = [
+  'BAB I: PENDAHULUAN. Bab ini berisi paparan latar belakang masalah mengenai pergeseran makna spiritualitas pada Tradisi Kungkum di Umbul Pengging menggunakan formula STARE, identifikasi masalah, batasan masalah, rumusan masalah yang mengawinkan aspek tradisi dengan konsep eksistensialisme, tujuan penelitian, manfaat penelitian baik secara teoretis maupun praktis, serta sistematika penulisan skripsi.',
+  'BAB II: TINJAUAN PUSTAKA DAN LANDASAN TEORI. Bab ini berisi telaah terhadap hasil penelitian terdahulu yang disusun menggunakan metode sintesis CAP-G guna memetakan celah akademik (gap research), landasan teori Eksistensialisme Jean-Paul Sartre yang membedah konsep kebebasan radikal, kesadaran otentik, serta bad faith (itikad buruk) sebagai pisau analisis, dan diakhiri dengan bagan kerangka pemikiran penulisan.',
+  'BAB III: METODE PENELITIAN. Bab ini berisi uraian mengenai jenis penelitian lapangan (field research) dengan pendekatan kualitatif-filosofis, penentuan sumber data primer dan sekunder, teknik pengumpulan data melalui observasi, wawancara mendalam, dan dokumentasi, teknik analisis data menggunakan metode interpretatif-hermeneutis (deskripsi, verstehen, interpretasi), serta keabsahan data melalui triangulasi sumber dan metode.',
+  'BAB IV: HASIL PENELITIAN DAN PEMBAHASAN. Bab ini berisi gambaran umum lokasi Umbul Pengging Boyolali dan deskripsi historis-sosiologis pelaksanaan Tradisi Kungkum, analisis kritis mengenai konstruksi kebebasan radikal dan kesadaran otentik pelaku, serta pembahasan dinamika bad faith dalam pusaran komodifikasi spiritual.',
+  'BAB V: PENUTUP. Bab ini berisi simpulan final teoretis yang menjawab pemaknaan eksistensial pelaku Tradisi Kungkum, pernyataan jujur mengenai keterbatasan penelitian, serta saran-saran akademis bagi peneliti selanjutnya dan saran praktis bagi pemangku adat serta pengelola wisata Umbul Pengging.'
+].join('\n\n');
+
 const PANEL = {
+  d: {
+    berkas: ['rubrik/D-manfaat.json'],
+    bagian: 'D',
+    ambil: () => ({ teoretis: $('#manfaat-teoretis').value, praktis: $('#manfaat-praktis').value }),
+    isiContoh: () => { $('#manfaat-teoretis').value = CONTOH_D.teoretis; $('#manfaat-praktis').value = CONTOH_D.praktis; },
+    ada: () => $('#manfaat-teoretis').value.trim().length > 0 || $('#manfaat-praktis').value.trim().length > 0,
+    kosongkan: () => { $('#manfaat-teoretis').value = ''; $('#manfaat-praktis').value = ''; }
+  },
+  h: {
+    berkas: ['rubrik/H-sistematika.json'],
+    bagian: 'H',
+    ambil: () => ({ sistematika: $('#sistematika').value }),
+    isiContoh: () => { $('#sistematika').value = CONTOH_H; },
+    ada: () => $('#sistematika').value.trim().length > 0,
+    kosongkan: () => { $('#sistematika').value = ''; }
+  },
   a: {
     berkas: ['rubrik/A-latar.json'],
     bagian: 'A',
@@ -308,7 +339,7 @@ function pasangPanel(nama, rubrik) {
 
 /* ---------- menu, dialog, hitung ---------- */
 function pasangMenu() {
-  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  const tabs = [...document.querySelectorAll('[role="tab"][data-panel]')];
   const pilih = (nama) => {
     for (const t of tabs) {
       const aktif = t.dataset.panel === nama;

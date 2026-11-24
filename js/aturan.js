@@ -124,7 +124,68 @@ export function periksaA7(latar) {
   return hasil(STATUS.PERINGATAN, { bukti: curiga.slice(0, 3) });
 }
 
+const KLISE_GAGAL = /menambah\s+wawasan/i;
+const KLISE_PERINGATAN = /menambah\s+(?:pengetahuan|ilmu|referensi)|bermanfaat\s+bagi\s+(?:semua|banyak)\s+pihak/i;
+const kalimatDari = (t) => String(t ?? '').replace(/\s+/g, ' ').trim().split(/(?<=[.!?])\s+/).filter(Boolean);
+const terisi = (t) => String(t ?? '').trim().length > 0;
+
+/** D1: manfaat teoretis dan manfaat praktis keduanya ada. */
+export function periksaD1(teoretis, praktis) {
+  if (!terisi(teoretis) && !terisi(praktis)) return kosong('manfaat penelitian');
+  const kurang = [];
+  if (!terisi(teoretis)) kurang.push('teoretis');
+  if (!terisi(praktis)) kurang.push('praktis');
+  return kurang.length ? hasil(STATUS.BELUM, { data: { kurang: kurang.join(' dan ') } }) : hasil(STATUS.TERPENUHI);
+}
+
+/** D2: "menambah wawasan" gagal; frasa klise serupa hanya peringatan. */
+export function periksaD2(teoretis, praktis) {
+  const kalimat = [...kalimatDari(teoretis), ...kalimatDari(praktis)];
+  if (!kalimat.length) return kosong('manfaat penelitian');
+  const gagal = kalimat.filter((k) => KLISE_GAGAL.test(k));
+  if (gagal.length) return hasil(STATUS.BELUM, { bukti: gagal.slice(0, 3) });
+  const waspada = kalimat.filter((k) => KLISE_PERINGATAN.test(k));
+  if (waspada.length) return hasil(STATUS.PERINGATAN, { bukti: waspada.slice(0, 3) });
+  return hasil(STATUS.TERPENUHI);
+}
+
+const KEPALA_BAB = /^\s*bab\s+(?:[ivxlc]+|\d+)\b/i;
+
+/** Pecah sistematika menjadi butir per bab: [{ label: 'I', teks }]. Teks sebelum "Bab …" pertama diabaikan. */
+export function pecahBab(sistematika) {
+  const t = String(sistematika ?? '').replace(/\r/g, '').trim();
+  return t.split(/(?=^[ \t]*bab\s+(?:[ivxlc]+|\d+)\b)/im)
+    .filter((b) => KEPALA_BAB.test(b))
+    .map((b) => ({ label: b.match(/^\s*bab\s+([ivxlc]+|\d+)\b/i)[1].toUpperCase(), teks: b.replace(/\s+/g, ' ').trim() }));
+}
+
+const alasanTanpaBab = 'Tulis sistematika per bab, masing-masing diawali "Bab I", "Bab II", dan seterusnya.';
+
+/** H1: tiap bab memakai pola "Bab … berisi …". */
+export function periksaH1(sistematika) {
+  if (!terisi(sistematika)) return kosong('sistematika penulisan');
+  const bab = pecahBab(sistematika);
+  if (!bab.length) return hasil(STATUS.TIDAK_DAPAT, { data: { alasan: alasanTanpaBab } });
+  const gagal = bab.filter((b) => !/\bberisi\b/i.test(b.teks));
+  if (!gagal.length) return hasil(STATUS.TERPENUHI);
+  return hasil(STATUS.BELUM, { nomor: gagal.map((b) => b.label), bukti: gagal.map((b) => b.teks.slice(0, 160)) });
+}
+
+/** H2: peringatan bila uraian bab kurang dari 12 kata setelah judul bab. */
+export function periksaH2(sistematika) {
+  if (!terisi(sistematika)) return kosong('sistematika penulisan');
+  const bab = pecahBab(sistematika);
+  if (!bab.length) return hasil(STATUS.TIDAK_DAPAT, { data: { alasan: alasanTanpaBab } });
+  const singkat = bab.filter((b) => b.teks.replace(/^\s*bab\s+(?:[ivxlc]+|\d+)\s*[:.\-–]?\s*/i, '').split(/\s+/).filter(Boolean).length < 12);
+  if (!singkat.length) return hasil(STATUS.TERPENUHI);
+  return hasil(STATUS.PERINGATAN, { nomor: singkat.map((b) => b.label), bukti: singkat.map((b) => b.teks.slice(0, 160)) });
+}
+
 export const PEMERIKSA = {
+  D1: (i) => periksaD1(i.teoretis, i.praktis),
+  D2: (i) => periksaD2(i.teoretis, i.praktis),
+  H1: (i) => periksaH1(i.sistematika),
+  H2: (i) => periksaH2(i.sistematika),
   A7: (i) => periksaA7(i.latar),
   B1: (i) => periksaB1(i.rumusan),
   B2: (i) => periksaB2(i.rumusan),

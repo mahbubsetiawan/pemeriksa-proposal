@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { tangani, susunPermintaan, susunPermintaanLatar, bersihkanMasukan, bersihkanMasukanLatar, MODEL, BATAS } from '../worker/index.js';
+import { tangani, susunPermintaan, susunPermintaanLatar, susunPermintaanManfaat, susunPermintaanSistematika, bersihkanMasukan, bersihkanMasukanLatar, bersihkanMasukanManfaat, bersihkanMasukanSistematika, MODEL, BATAS } from '../worker/index.js';
 
 const ASAL = 'https://mahbubsetiawan.github.io';
 const kv = () => {
@@ -161,4 +161,40 @@ test('bagian A: penolakan layanan menghasilkan tidak_yakin untuk A1-A6', async (
   const tolak = async () => new Response(JSON.stringify({ stop_reason: 'refusal', content: [] }));
   const j = await (await tangani(req({ bagian: 'A', latar: LATAR }), env(), tolak)).json();
   assert.deepEqual(j.hasil.map((h) => h.id), ['A1', 'A2', 'A3', 'A4', 'A5', 'A6']);
+});
+
+const HASIL_D = ['D3', 'D4'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
+const HASIL_H = ['H3', 'H4', 'H5'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
+
+test('bagian D: masukan dibersihkan, prompt memuat D3-D4 dan petunjuk manfaat, tanpa kriteria lain', () => {
+  assert.ok(bersihkanMasukanManfaat({ teoretis: '', praktis: '  ' }).galat);
+  assert.equal(bersihkanMasukanManfaat({ teoretis: 'a'.repeat(BATAS.manfaat + 1) }).status, 413);
+  const b = susunPermintaanManfaat(bersihkanMasukanManfaat({ teoretis: 'Memperkaya kajian AFI.', praktis: 'Bahan bagi Dinas.' }));
+  assert.equal(b.model, MODEL);
+  assert.match(b.system, /menambah wawasan/);
+  assert.match(b.system, /Jangan menulis ulang/);
+  assert.match(b.messages[0].content, /- D3:/);
+  assert.match(b.messages[0].content, /Manfaat praktis: Bahan bagi Dinas\./);
+  assert.doesNotMatch(b.messages[0].content, /- D1:|- A1:|- B4:/);
+  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['D3', 'D4']);
+});
+
+test('bagian H: masukan dibersihkan, prompt memuat H3-H5 dan rumus "Bab ... berisi ..."', () => {
+  assert.ok(bersihkanMasukanSistematika({ sistematika: '' }).galat);
+  assert.equal(bersihkanMasukanSistematika({ sistematika: 'a'.repeat(BATAS.sistematika + 1) }).status, 413);
+  const b = susunPermintaanSistematika(bersihkanMasukanSistematika({ sistematika: 'Bab I berisi latar belakang.' }));
+  assert.match(b.system, /BAB \[X\] berisi/);
+  assert.match(b.messages[0].content, /- H3:/);
+  assert.match(b.messages[0].content, /Bab I berisi latar belakang\./);
+  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['H3', 'H4', 'H5']);
+});
+
+test('bagian D dan H lewat Worker: kriteria yang dikirim ke model sesuai bagian', async () => {
+  let dikirim;
+  const f = (hasil) => async (url, init) => { dikirim = JSON.parse(init.body); return hasilAnthropic(hasil)(); };
+  assert.equal((await tangani(req({ bagian: 'D', teoretis: 'Memperkaya kajian AFI.', praktis: '' }), env(), f(HASIL_D))).status, 200);
+  assert.match(dikirim.messages[0].content, /- D4:/);
+  assert.equal((await tangani(req({ bagian: 'H', sistematika: 'Bab I berisi latar belakang.' }), env(), f(HASIL_H))).status, 200);
+  assert.match(dikirim.messages[0].content, /- H5:/);
+  assert.equal((await tangani(req({ bagian: 'D', teoretis: '', praktis: '' }), env(), f(HASIL_D))).status, 400);
 });

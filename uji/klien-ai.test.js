@@ -112,3 +112,26 @@ test('galat jaringan atau CORS ditampilkan sebagai pesan Indonesia, bukan "Faile
   const h = await periksaMakna(RUBRIK, INPUT, p);
   assert.ok(h.every((x) => /tidak dapat dihubungi/i.test(x.pesan) && !/Failed to fetch/.test(x.pesan)));
 });
+
+const RUBRIK_D = baca('../rubrik/D-manfaat.json');
+const RUBRIK_H = baca('../rubrik/H-sistematika.json');
+
+test('bagian D dan H: data tiruan memberi bukti dari isian dan Worker menerima isian yang tepat', async () => {
+  const dTiruan = await periksaMakna(RUBRIK_D, { teoretis: 'Memperkaya kajian AFI.', praktis: 'Bahan refleksi bagi pengelola umbul.' });
+  assert.deepEqual(dTiruan.map((x) => x.id), ['D3', 'D4']);
+  assert.ok(dTiruan.every((x) => x.bukti.length === 1));
+  const bodi = {};
+  const f = async (url, init) => { Object.assign(bodi, JSON.parse(init.body)); return new Response(JSON.stringify({ hasil: [] }), { status: 200 }); };
+  await periksaMakna(RUBRIK_D, { teoretis: 'a', praktis: 'b', latar: 'tidak ikut' },
+    buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', bagian: 'D', fetchFn: f }));
+  assert.deepEqual(Object.keys(bodi).sort(), ['bagian', 'praktis', 'teoretis']);
+  await periksaMakna(RUBRIK_H, { sistematika: 'Bab I berisi x.', teoretis: 'tidak ikut' },
+    buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', bagian: 'H', fetchFn: f }));
+  assert.ok('sistematika' in bodi);
+});
+
+test('bagian D: kutipan berlabel "Manfaat teoretis:" diterima setelah label dibuang', () => {
+  const entri = RUBRIK_D.filter((e) => e.id === 'D3');
+  const h = validasiHasil(entri, [{ id: 'D3', status: 'terpenuhi', alasan: 'x', bukti: ['Manfaat teoretis: Memperkaya kajian AFI.', 'karangan'] }], { teoretis: 'Memperkaya kajian AFI.', praktis: '' });
+  assert.deepEqual(h[0].bukti, ['Memperkaya kajian AFI.']);
+});

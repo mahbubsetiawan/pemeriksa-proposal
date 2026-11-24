@@ -1,0 +1,47 @@
+[
+  {
+    "id": "D1",
+    "bagian": "D",
+    "jenis": "aturan",
+    "kriteria": "Manfaat dibagi tegas menjadi dua dimensi: teoretis dan praktis",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.D",
+    "bagian_panduan": "Bab I.D, Kaidah Akademik dan Rumus",
+    "dasar": "\"Manfaat harus dibagi secara tegas ke dalam dua dimensi operasional: Manfaat Teoretis (Akademis) dan Manfaat Praktis (Aplikatif)\".",
+    "pesan_gagal": "Manfaat {kurang} belum diisi; panduan meminta dua dimensi, yaitu manfaat teoretis dan manfaat praktis."
+  },
+  {
+    "id": "D2",
+    "bagian": "D",
+    "jenis": "aturan",
+    "kriteria": "Tidak memakai kalimat klise seperti \"menambah wawasan\"",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.D",
+    "bagian_panduan": "Bab I.D, Kaidah Akademik",
+    "dasar": "\"Manfaat penelitian dilarang ditulis secara normatif dan klise (misal: 'untuk menambah wawasan').\" Hanya frasa contoh itu yang dinilai gagal; frasa serupa seperti \"menambah pengetahuan\" hanya diberi peringatan karena itu tafsiran.",
+    "pesan_gagal": "Ada kalimat klise (\"menambah wawasan\"); panduan melarang manfaat yang normatif dan klise.",
+    "pesan_peringatan": "Ada kalimat yang menyerupai manfaat klise (misalnya \"menambah pengetahuan\" atau \"bermanfaat bagi semua pihak\"). Pastikan kontribusinya spesifik."
+  },
+  {
+    "id": "D3",
+    "bagian": "D",
+    "jenis": "ai",
+    "kriteria": "Manfaat teoretis menyebut kontribusi bagi pengembangan keilmuan yang spesifik di Prodi AFI",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.D",
+    "bagian_panduan": "Bab I.D, Rumus",
+    "dasar": "\"Manfaat Teoretis: Kontribusi bagi pengembangan keilmuan spesifik di Prodi AFI.\"",
+    "pesan_gagal": "Manfaat teoretis belum menyebut kontribusi keilmuan yang spesifik."
+  },
+  {
+    "id": "D4",
+    "bagian": "D",
+    "jenis": "ai",
+    "kriteria": "Manfaat praktis menyebut pihak atau lembaga yang spesifik beserta kegunaannya",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.D",
+    "bagian_panduan": "Bab I.D, Kaidah Akademik dan Rumus",
+    "dasar": "\"Manfaat Praktis: Rekomendasi/kegunaan bagi aktor, masyarakat, atau lembaga pemangku kebijakan di lapangan\"; manfaat harus \"menembak langsung subjek/lembaga spesifik\".",
+    "pesan_gagal": "Manfaat praktis belum menyebut pihak atau lembaga yang spesifik dan kegunaannya."
+  }
+]
