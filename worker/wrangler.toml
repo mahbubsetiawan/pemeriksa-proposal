@@ -5,7 +5,7 @@ workers_dev = true
 preview_urls = false
 
 [vars]
-ASAL_DIIZINKAN = "https://mahbubsetiawan.github.io,http://localhost:8765"
+ASAL_DIIZINKAN = "https://mahbubsetiawan.github.io"
 BATAS_GLOBAL = "300"
 
 # Pemilik membuat namespace KV sendiri (npx wrangler kv namespace create PEMAKAIAN)
