@@ -1,0 +1,8 @@
+Huruf yang disertakan di folder ini:
+
+- Inter (c) The Inter Project Authors, https://github.com/rsms/inter
+- Source Serif 4 (c) Adobe, https://github.com/adobe-fonts/source-serif
+
+Keduanya dilisensikan di bawah SIL Open Font License, Versi 1.1
+(https://openfontlicense.org). Berkas diunduh dari Google Fonts
+(fonts.googleapis.com) pada 24 November 2026, hanya bagian aksara Latin.

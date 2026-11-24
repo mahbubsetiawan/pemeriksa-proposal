@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#14110f">
+  <meta name="theme-color" content="#fafbfc">
+  <meta name="color-scheme" content="light">
   <title>Pemeriksa Proposal Skripsi AFI</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="ikon/ikon-192.png">
@@ -11,16 +12,28 @@
   <link rel="stylesheet" href="gaya.css">
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-dokumen" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></symbol>
+    <symbol id="i-kunci" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8m-3 3 3 3m-6-6 2 2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></symbol>
+    <symbol id="i-kilau" viewBox="0 0 24 24"><path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
+  </svg>
+
   <div class="app">
     <header class="atas">
       <div class="merek">
-        <img src="ikon/ikon-192.png" alt="" width="40" height="40">
+        <img src="ikon/ikon-192.png" alt="" width="38" height="38">
         <div>
-          <h1>Pemeriksa Proposal Skripsi</h1>
+          <h1>Pemeriksa Proposal</h1>
           <p class="deskripsi">Periksa bagian proposal Anda terhadap panduan penulisan skripsi.</p>
         </div>
       </div>
-      <span class="lencana-atas" role="note">Bantuan awal, bukan penilaian final</span>
+      <div class="kanan-atas">
+        <span class="lencana-atas" role="note">Bantuan awal, bukan penilaian final</span>
+        <button type="button" id="buka-kode" class="ikon-tombol" aria-label="Kode akses" title="Kode akses" hidden><svg class="ik" aria-hidden="true"><use href="#i-kunci"/></svg></button>
+        <button type="button" id="buka-tentang" class="ikon-tombol" aria-label="Tentang aplikasi" title="Tentang"><svg class="ik" aria-hidden="true"><use href="#i-info"/></svg></button>
+      </div>
     </header>
 
     <aside class="samping">
@@ -28,32 +41,31 @@
         <p class="judul-menu">Bagian proposal</p>
         <div role="tablist" aria-orientation="vertical" class="daftar-menu">
           <button type="button" role="tab" id="tab-a" aria-controls="panel-a" aria-selected="true" data-panel="a" class="butir-menu">
-            <span class="huruf">A</span><span class="nama">Latar belakang</span>
+            <svg class="ik" aria-hidden="true"><use href="#i-dokumen"/></svg>
+            <span class="nama"><b>A</b> Latar belakang</span>
           </button>
           <button type="button" role="tab" id="tab-bc" aria-controls="panel-bc" aria-selected="false" data-panel="bc" class="butir-menu">
-            <span class="huruf">B–C</span><span class="nama">Rumusan dan tujuan</span>
+            <svg class="ik" aria-hidden="true"><use href="#i-target"/></svg>
+            <span class="nama"><b>B–C</b> Rumusan dan tujuan</span>
           </button>
         </div>
         <div class="segera" aria-label="Segera hadir">
           <p class="judul-menu">Segera hadir</p>
-          <span class="butir-menu mati"><span class="huruf">D</span><span class="nama">Manfaat</span></span>
-          <span class="butir-menu mati"><span class="huruf">E</span><span class="nama">Tinjauan terdahulu</span></span>
-          <span class="butir-menu mati"><span class="huruf">F</span><span class="nama">Landasan teori</span></span>
-          <span class="butir-menu mati"><span class="huruf">G</span><span class="nama">Metode</span></span>
-          <span class="butir-menu mati"><span class="huruf">H</span><span class="nama">Sistematika</span></span>
+          <span class="butir-menu mati"><span class="nama"><b>D</b> Manfaat</span><em>Segera</em></span>
+          <span class="butir-menu mati"><span class="nama"><b>E</b> Tinjauan terdahulu</span><em>Segera</em></span>
+          <span class="butir-menu mati"><span class="nama"><b>F</b> Landasan teori</span><em>Segera</em></span>
+          <span class="butir-menu mati"><span class="nama"><b>G</b> Metode</span><em>Segera</em></span>
+          <span class="butir-menu mati"><span class="nama"><b>H</b> Sistematika</span><em>Segera</em></span>
         </div>
       </nav>
-      <div class="aksi-samping">
-        <button type="button" id="buka-kode" class="tautan" hidden>Kode akses</button>
-        <button type="button" id="buka-tentang" class="tautan">Tentang</button>
-      </div>
     </aside>
 
     <main class="kerja">
       <section id="panel-a" class="panel" role="tabpanel" aria-labelledby="tab-a">
         <div class="judul-kerja">
-          <h2>A. Latar belakang masalah</h2>
+          <h2>Latar belakang masalah</h2>
           <p>Rumus STARE: situasi, target, pendekatan, tinjauan, muara.</p>
+          <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-a" novalidate>
           <div class="kartu-isian">
@@ -68,7 +80,7 @@
           </div>
         </form>
         <section class="hasil" aria-live="polite" hidden>
-          <div class="ringkas"><div class="chip-wadah"></div><button type="button" class="jalankan-makna sekunder">Periksa makna (AI)</button></div>
+          <div class="ringkas"><div class="skor"></div><div class="chip-wadah"></div><button type="button" class="jalankan-makna utama"><svg class="ik" aria-hidden="true"><use href="#i-kilau"/></svg><span>Periksa makna (AI)</span></button></div>
           <p class="pesan-makna bantu" role="status"></p>
           <div class="isi-hasil"></div>
         </section>
@@ -76,8 +88,9 @@
 
       <section id="panel-bc" class="panel" role="tabpanel" aria-labelledby="tab-bc" hidden>
         <div class="judul-kerja">
-          <h2>B–C. Rumusan dan tujuan</h2>
+          <h2>Rumusan dan tujuan</h2>
           <p>Kata tanya analitis, konsep teori, dan tujuan yang selaras.</p>
+          <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-bc" novalidate>
           <div class="kartu-isian tiga">
@@ -103,7 +116,7 @@
           </div>
         </form>
         <section class="hasil" aria-live="polite" hidden>
-          <div class="ringkas"><div class="chip-wadah"></div><button type="button" class="jalankan-makna sekunder">Periksa makna (AI)</button></div>
+          <div class="ringkas"><div class="skor"></div><div class="chip-wadah"></div><button type="button" class="jalankan-makna utama"><svg class="ik" aria-hidden="true"><use href="#i-kilau"/></svg><span>Periksa makna (AI)</span></button></div>
           <p class="pesan-makna bantu" role="status"></p>
           <div class="isi-hasil"></div>
         </section>
@@ -128,6 +141,15 @@
         <button type="submit" class="utama" value="lanjut">Lanjutkan</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog id="dialog-kosong" aria-labelledby="judul-kosong">
+    <h2 id="judul-kosong">Kosongkan isian?</h2>
+    <p>Semua tulisan di bagian ini akan terhapus dan tidak bisa dikembalikan.</p>
+    <div class="aksi-dialog">
+      <button type="button" id="batal-kosong" class="sekunder">Batal</button>
+      <button type="button" id="ya-kosong" class="utama">Kosongkan</button>
+    </div>
   </dialog>
 
   <dialog id="dialog-tentang" aria-labelledby="judul-tentang">

@@ -134,6 +134,18 @@ async function pastikanIzin() {
   return bukaDialogAi();
 }
 
+/** Konfirmasi di dalam aplikasi (jendela confirm bawaan peramban tidak selalu tampil di panel atau aplikasi terpasang). */
+function tanyaKosongkan() {
+  return new Promise((selesai) => {
+    const dlg = $('#dialog-kosong');
+    const tutup = (jawab) => { dlg.close(); selesai(jawab); };
+    $('#ya-kosong').onclick = () => tutup(true);
+    $('#batal-kosong').onclick = () => tutup(false);
+    dlg.oncancel = () => selesai(false);
+    dlg.showModal();
+  });
+}
+
 /* ---------- hasil ---------- */
 function barisHasil(h, terbuka) {
   const d = el('details', `baris ${h.status}`);
@@ -153,6 +165,41 @@ function barisHasil(h, terbuka) {
   return d;
 }
 
+const SVG = 'http://www.w3.org/2000/svg';
+
+/** Cincin skor: bagian kriteria terpenuhi dari kriteria yang sudah dinilai. */
+function gambarSkor(wadah, hasil) {
+  wadah.replaceChildren();
+  const dinilai = hasil.filter((h) => h.status !== STATUS.BELUM_DIJALANKAN);
+  if (!dinilai.length) { wadah.hidden = true; return; }
+  wadah.hidden = false;
+  const baik = dinilai.filter((h) => h.status === STATUS.TERPENUHI).length;
+  const keliling = 2 * Math.PI * 32;
+  const svg = document.createElementNS(SVG, 'svg');
+  svg.setAttribute('viewBox', '0 0 76 76');
+  svg.setAttribute('aria-hidden', 'true');
+  for (const kelas of ['dasar', 'isi-cincin']) {
+    const c = document.createElementNS(SVG, 'circle');
+    c.setAttribute('cx', '38'); c.setAttribute('cy', '38'); c.setAttribute('r', '32');
+    c.setAttribute('class', kelas);
+    if (kelas === 'isi-cincin') c.setAttribute('stroke-dasharray', `${(baik / dinilai.length) * keliling} ${keliling}`);
+    svg.append(c);
+  }
+  const angka = el('div', 'angka');
+  angka.append(el('b', '', `${baik}/${dinilai.length}`), el('small', '', 'baik'));
+  wadah.append(svg, angka);
+  wadah.setAttribute('role', 'img');
+  wadah.setAttribute('aria-label', `${baik} dari ${dinilai.length} kriteria yang sudah dinilai terpenuhi`);
+}
+
+/** Langkah 1 Isi, 2 Periksa, 3 Lihat hasil. */
+function setLangkah(akar, n) {
+  [...akar.querySelectorAll('.langkah li')].forEach((li, i) => {
+    li.classList.toggle('selesai', i < n - 1);
+    li.classList.toggle('aktif', i === n - 1);
+  });
+}
+
 function sajikan(akar, hasil, { pesan = '', gulir = true } = {}) {
   const isi = $('.isi-hasil', akar);
   isi.replaceChildren();
@@ -167,8 +214,10 @@ function sajikan(akar, hasil, { pesan = '', gulir = true } = {}) {
     butir.forEach((h) => bag.append(barisHasil(h, k.buka)));
     isi.append(bag);
   }
+  gambarSkor($('.skor', akar), hasil);
+  setLangkah(akar, 3);
   const tombol = $('.jalankan-makna', akar);
-  tombol.textContent = hasil.some((h) => h.status === STATUS.BELUM_DIJALANKAN) ? 'Periksa makna (AI)' : 'Ulangi pemeriksaan AI';
+  $('span', tombol).textContent = hasil.some((h) => h.status === STATUS.BELUM_DIJALANKAN) ? 'Periksa makna (AI)' : 'Ulangi pemeriksaan AI';
   $('.pesan-makna', akar).textContent = pesan;
   const bagianHasil = $('.hasil', akar);
   bagianHasil.hidden = false;
@@ -303,13 +352,14 @@ async function mulai() {
   for (const [nama, cfg] of Object.entries(PANEL)) {
     $(`#form-${nama}`).addEventListener('submit', (e) => e.preventDefault());
     $('.contoh', $(`#panel-${nama}`)).addEventListener('click', cfg.isiContoh);
-    $('.kosongkan', $(`#panel-${nama}`)).addEventListener('click', () => {
-      if (cfg.ada() && !confirm('Kosongkan semua isian di bagian ini? Tulisan yang sudah diisi akan terhapus.')) return;
+    $('.kosongkan', $(`#panel-${nama}`)).addEventListener('click', async () => {
+      if (cfg.ada() && !(await tanyaKosongkan())) return;
       cfg.kosongkan();
       const akar = $(`#panel-${nama}`);
       $('.isi-hasil', akar).replaceChildren();
       $('.pesan-makna', akar).textContent = '';
       $('.hasil', akar).hidden = true;
+      setLangkah(akar, 1);
     });
   }
   try {

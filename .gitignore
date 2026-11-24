@@ -10,3 +10,6 @@ CLAUDE.md
 .wrangler/
 .dev.vars
 *.log
+
+# Teks uji pribadi (contoh tulisan nyata); jangan ikut diunggah.
+uji/privat/
