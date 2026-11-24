@@ -51,11 +51,17 @@ export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC'
     const badan = bagian === 'A'
       ? { bagian: 'A', latar: input.latar }
       : { bagian: 'BC', rumusan: input.rumusan, tujuan: input.tujuan, teori: input.teori, konsep: input.konsep, objek: input.objek };
-    const res = await fetchFn(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Kode-Akses': kodeAkses, 'X-Id-Perangkat': idPerangkat },
-      body: JSON.stringify(badan)
-    });
+    let res;
+    try {
+      res = await fetchFn(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Kode-Akses': kodeAkses, 'X-Id-Perangkat': idPerangkat },
+        body: JSON.stringify(badan)
+      });
+    } catch {
+      // Kegagalan jaringan atau penolakan asal (CORS) tampil di peramban sebagai "Failed to fetch".
+      throw new Error('Layanan pemeriksaan tidak dapat dihubungi. Periksa sambungan internet, dan pastikan aplikasi dibuka dari alamat resminya.');
+    }
     let data = {};
     try { data = await res.json(); } catch { /* badan bukan JSON */ }
     if (!res.ok) {

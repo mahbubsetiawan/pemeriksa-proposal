@@ -1,6 +1,6 @@
 // Service worker: cakupan otomatis hanya folder tempat berkas ini berada.
 // Hanya menyimpan berkas aplikasi sendiri; tidak ada panggilan jaringan lain.
-const NAMA_CACHE = 'pemeriksa-proposal-v18';
+const NAMA_CACHE = 'pemeriksa-proposal-v19';
 const BERKAS = [
   './', './index.html', './manifest.webmanifest', './gaya.css',
   './js/aturan.js', './js/klien-ai.js', './js/konfigurasi.js', './rubrik/A-latar.json', './js/tampilan.js',

@@ -105,3 +105,10 @@ test('bagian A: kutipan dengan label [P2] dan spasi berbeda diterima, karangan d
   assert.equal(h[0].bukti.length, 2);
   assert.ok(h[0].bukti[0].startsWith('Di tengah arus'));
 });
+
+test('galat jaringan atau CORS ditampilkan sebagai pesan Indonesia, bukan "Failed to fetch"', async () => {
+  const f = async () => { throw new TypeError('Failed to fetch'); };
+  const p = buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', fetchFn: f });
+  const h = await periksaMakna(RUBRIK, INPUT, p);
+  assert.ok(h.every((x) => /tidak dapat dihubungi/i.test(x.pesan) && !/Failed to fetch/.test(x.pesan)));
+});
