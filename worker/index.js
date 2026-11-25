@@ -62,10 +62,12 @@ Petunjuk membaca manfaat penelitian (dari panduan penulisan):
 
 const HINT_H = `
 Petunjuk membaca sistematika penulisan (dari panduan penulisan):
-- Rumus: BAB [X] berisi [isi spesifik teks atau data objek material] + [kaitan dengan analisis atau teori].
+- Pola: Bab [kata bilangan] berisi [isi spesifik teks atau data objek material] + [kaitan dengan analisis atau teori]. Tiap bab ditulis sebagai narasi isi bab, dengan nomor berupa kata (pertama, kedua, dan seterusnya), bukan judul bab, angka, atau huruf kapital semua.
+- Nama rumus penulisan (misalnya STARE, CAP-G, D-K-R) tidak disebut dalam narasi bab.
 - Sistematika harus menerangkan logika fungsional dan isi spesifik dari bab ke bab guna menjawab rumusan masalah secara runtut; bukan sekadar daftar judul bab.
 - Penulisan naratif, langsung pada deskripsi materi per bab, tanpa kalimat pembuka yang bertele-tele.
-- Nilailah berdasarkan isi. Bab terakhir (penutup) biasanya memuat simpulan, keterbatasan, dan saran.
+- Struktur skripsi yang berlaku saat ini (Fakultas Ushuluddin, Prodi AFI): bab pertama pendahuluan yang memuat latar belakang masalah, rumusan masalah, tujuan penelitian, manfaat penelitian, tinjauan pustaka, metode penelitian, dan sistematika penulisan; bab kedua objek material penelitian; bab ketiga objek formal penelitian (teori yang dipakai); bab keempat temuan penelitian dan pembahasannya; bab kelima penutup yang memuat kesimpulan serta saran atau rekomendasi. Nilai urutan bab terhadap struktur ini, dan jangan menuntut bab yang tidak ada dalam struktur itu.
+- Nilailah berdasarkan isi. Bila jumlah atau urutan bab berbeda dari struktur di atas, sebutkan hal konkret yang berbeda.
 - Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
 
 const HINT_E = `

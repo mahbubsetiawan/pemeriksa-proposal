@@ -149,19 +149,33 @@ export function periksaD2(teoretis, praktis) {
   return hasil(STATUS.TERPENUHI);
 }
 
-const KEPALA_BAB = /^\s*bab\s+(?:[ivxlc]+|\d+)\b/i;
+const BILANGAN = 'pertama|kedua|ketiga|keempat|kelima|keenam|ketujuh|kedelapan|kesembilan|kesepuluh';
+const PENOMOR = `(?:${BILANGAN}|[ivxlc]+|\\d+)`;
+const KEPALA_BAB = new RegExp(`^\\s*bab\\s+${PENOMOR}\\b`, 'i');
+const POTONG_BAB = new RegExp(`(?=^[ \\t]*bab\\s+${PENOMOR}\\b)`, 'im');
+const AMBIL_PENOMOR = new RegExp(`^\\s*bab\\s+(${PENOMOR})\\b`, 'i');
+const BUANG_KEPALA = new RegExp(`^\\s*bab\\s+${PENOMOR}\\s*[:.\\-–]?\\s*`, 'i');
+const KEPALA_JUDUL = new RegExp(`^\\s*bab\\s+${PENOMOR}\\s*[:\\-–.]`, 'i');
+const KATA_BILANGAN = new RegExp(`^(?:${BILANGAN})$`, 'i');
+const RUMUS_NAMA = /\b(?:STARE|CAP-?G|D-?K-?R|M-?3P|B-?A-?T|S-?K-?S|D-?V-?I)\b/i;
+const RUMUS_NAMA_SEMUA = /\b(?:STARE|CAP-?G|D-?K-?R|M-?3P|B-?A-?T|S-?K-?S|D-?V-?I)\b/gi;
+const RUMUS_UMUM = /\b(?:formula|rumus)\b/i;
 
-/** Pecah sistematika menjadi butir per bab: [{ label: 'I', teks }]. Teks sebelum "Bab …" pertama diabaikan. */
+/** Pecah sistematika per bab: [{ label, kata, teks }]. `kata` benar bila nomor ditulis dengan kata (pertama, kedua, ...). */
 export function pecahBab(sistematika) {
   const t = String(sistematika ?? '').replace(/\r/g, '').trim();
-  return t.split(/(?=^[ \t]*bab\s+(?:[ivxlc]+|\d+)\b)/im)
+  return t.split(POTONG_BAB)
     .filter((b) => KEPALA_BAB.test(b))
-    .map((b) => ({ label: b.match(/^\s*bab\s+([ivxlc]+|\d+)\b/i)[1].toUpperCase(), teks: b.replace(/\s+/g, ' ').trim() }));
+    .map((b) => {
+      const nomor = b.match(AMBIL_PENOMOR)[1];
+      const kata = KATA_BILANGAN.test(nomor);
+      return { label: kata ? nomor.toLowerCase() : nomor.toUpperCase(), kata, teks: b.replace(/\s+/g, ' ').trim() };
+    });
 }
 
-const alasanTanpaBab = 'Tulis sistematika per bab, masing-masing diawali "Bab I", "Bab II", dan seterusnya.';
+const alasanTanpaBab = 'Tulis sistematika per bab, masing-masing diawali "Bab pertama", "Bab kedua", dan seterusnya.';
 
-/** H1: tiap bab memakai pola "Bab … berisi …". */
+/** H1: tiap bab memakai pola "Bab ... berisi ...". */
 export function periksaH1(sistematika) {
   if (!terisi(sistematika)) return kosong('sistematika penulisan');
   const bab = pecahBab(sistematika);
@@ -171,12 +185,38 @@ export function periksaH1(sistematika) {
   return hasil(STATUS.BELUM, { nomor: gagal.map((b) => b.label), bukti: gagal.map((b) => b.teks.slice(0, 160)) });
 }
 
-/** H2: peringatan bila uraian bab kurang dari 12 kata setelah judul bab. */
+function bentukJudul(b) {
+  const tanpaRumus = b.teks.replace(RUMUS_NAMA_SEMUA, '');
+  const kapitalSemua = /\b[A-ZÀ-Ý]{2,}(?:\s+[A-ZÀ-Ý]{2,})+\b/.test(tanpaRumus) || /\b[A-ZÀ-Ý]{7,}\b/.test(tanpaRumus);
+  return !b.kata || KEPALA_JUDUL.test(b.teks) || kapitalSemua;
+}
+
+/** H2: nomor bab dengan kata; tanpa angka, judul berhuruf kapital semua, atau format judul ("Bab pertama: ..."). */
 export function periksaH2(sistematika) {
   if (!terisi(sistematika)) return kosong('sistematika penulisan');
   const bab = pecahBab(sistematika);
   if (!bab.length) return hasil(STATUS.TIDAK_DAPAT, { data: { alasan: alasanTanpaBab } });
-  const singkat = bab.filter((b) => b.teks.replace(/^\s*bab\s+(?:[ivxlc]+|\d+)\s*[:.\-–]?\s*/i, '').split(/\s+/).filter(Boolean).length < 12);
+  const gagal = bab.filter(bentukJudul);
+  if (!gagal.length) return hasil(STATUS.TERPENUHI);
+  return hasil(STATUS.BELUM, { nomor: gagal.map((b) => b.label), bukti: gagal.map((b) => b.teks.slice(0, 160)) });
+}
+
+/** H3: nama rumus (STARE, CAP-G, ...) gagal; kata "rumus" atau "formula" peringatan. */
+export function periksaH3(sistematika) {
+  const kalimat = kalimatDari(sistematika);
+  if (!kalimat.length) return kosong('sistematika penulisan');
+  const nama = kalimat.filter((k) => RUMUS_NAMA.test(k));
+  if (nama.length) return hasil(STATUS.BELUM, { bukti: nama.slice(0, 3) });
+  const umum = kalimat.filter((k) => RUMUS_UMUM.test(k));
+  return umum.length ? hasil(STATUS.PERINGATAN, { bukti: umum.slice(0, 3) }) : hasil(STATUS.TERPENUHI);
+}
+
+/** H4: peringatan bila uraian bab kurang dari 12 kata setelah nomor bab. */
+export function periksaH4(sistematika) {
+  if (!terisi(sistematika)) return kosong('sistematika penulisan');
+  const bab = pecahBab(sistematika);
+  if (!bab.length) return hasil(STATUS.TIDAK_DAPAT, { data: { alasan: alasanTanpaBab } });
+  const singkat = bab.filter((b) => b.teks.replace(BUANG_KEPALA, '').split(/\s+/).filter(Boolean).length < 12);
   if (!singkat.length) return hasil(STATUS.TERPENUHI);
   return hasil(STATUS.PERINGATAN, { nomor: singkat.map((b) => b.label), bukti: singkat.map((b) => b.teks.slice(0, 160)) });
 }
@@ -239,6 +279,10 @@ export const PEMERIKSA = {
   D2: (i) => periksaD2(i.teoretis, i.praktis),
   H1: (i) => periksaH1(i.sistematika),
   H2: (i) => periksaH2(i.sistematika),
+  H3: (i) => periksaH3(i.sistematika),
+  H4: (i) => periksaH4(i.sistematika),
+  H3: (i) => periksaH3(i.sistematika),
+  H4: (i) => periksaH4(i.sistematika),
   A7: (i) => periksaA7(i.latar),
   B1: (i) => periksaB1(i.rumusan),
   B2: (i) => periksaB2(i.rumusan),

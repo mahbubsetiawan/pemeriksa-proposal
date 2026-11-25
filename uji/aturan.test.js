@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaE1, periksaE2, periksaF1, periksaF2, pecahKonsep, periksaH1, periksaH2, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
+  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaE1, periksaE2, periksaF1, periksaF2, pecahKonsep, periksaH1, periksaH2, periksaH3, periksaH4, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
 } from '../js/aturan.js';
 
 const baca = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
@@ -171,9 +171,13 @@ test('periksaSemua untuk bagian A: aturan A7 jalan, kriteria STARE belum dijalan
 const MANFAAT_T = 'Penelitian ini diharapkan berkontribusi dalam memperkaya khazanah kajian Akidah dan Filsafat Islam, khususnya memberikan pembacaan alternatif menggunakan pisau filsafat eksistensialisme terhadap fenomena budaya dan ritual keagamaan lokal kontemporer.';
 const MANFAAT_P = 'Penelitian ini dapat dijadikan bahan refleksi bagi pengelola Umbul Pengging dan Dinas Pariwisata Kabupaten Boyolali dalam menyusun regulasi zonasi spiritual.';
 const SISTEMATIKA_BENAR = [
-  'BAB I: PENDAHULUAN. Bab ini berisi paparan latar belakang masalah mengenai pergeseran makna spiritualitas pada Tradisi Kungkum di Umbul Pengging menggunakan formula STARE, rumusan masalah, dan tujuan penelitian.',
-  'BAB II: TINJAUAN PUSTAKA DAN LANDASAN TEORI. Bab ini berisi telaah terhadap hasil penelitian terdahulu yang disusun menggunakan metode sintesis CAP-G serta landasan teori Eksistensialisme Jean-Paul Sartre sebagai pisau analisis.',
-  'BAB V: PENUTUP. Bab ini berisi simpulan final teoretis yang menjawab pemaknaan eksistensial pelaku Tradisi Kungkum, keterbatasan penelitian, dan saran bagi peneliti selanjutnya.'
+  'Bab pertama berisi paparan latar belakang masalah mengenai pergeseran makna spiritualitas pada Tradisi Kungkum di Umbul Pengging, rumusan masalah, dan tujuan penelitian.',
+  'Bab kedua berisi telaah penelitian terdahulu untuk memetakan celah akademik serta landasan teori eksistensialisme Jean-Paul Sartre sebagai pisau analisis.',
+  'Bab kelima berisi simpulan teoretis yang menjawab pemaknaan eksistensial pelaku Tradisi Kungkum, keterbatasan penelitian, dan saran bagi peneliti selanjutnya.'
+].join('\n\n');
+const SISTEMATIKA_LAMA = [
+  'BAB I: PENDAHULUAN. Bab ini berisi paparan latar belakang masalah mengenai pergeseran makna spiritualitas pada Tradisi Kungkum di Umbul Pengging menggunakan formula STARE.',
+  'BAB II: TINJAUAN PUSTAKA DAN LANDASAN TEORI. Bab ini berisi telaah penelitian terdahulu yang disusun dengan metode sintesis CAP-G serta landasan teori Sartre.'
 ].join('\n\n');
 
 test('D1: manfaat teoretis dan praktis keduanya wajib ada', () => {
@@ -194,28 +198,54 @@ test('D2: "menambah wawasan" gagal, frasa serupa peringatan, contoh panduan lolo
   assert.equal(periksaD2('', '').status, STATUS.TIDAK_DAPAT);
 });
 
-test('pecahBab: memecah per bab dan tidak terkecoh oleh "Bab ini" di awal baris', () => {
-  const bab = pecahBab('Pengantar singkat.\nBab I berisi latar belakang.\nBab ini juga memuat tujuan.\nBAB II: TEORI. Bab ini berisi teori.');
-  assert.deepEqual(bab.map((b) => b.label), ['I', 'II']);
+test('pecahBab: memecah per bab bernomor kata, mengenali angka Romawi dan angka, dan tidak terkecoh "Bab ini"', () => {
+  const bab = pecahBab('Pengantar singkat.\nBab pertama berisi latar belakang.\nBab ini juga memuat tujuan.\nBab kedua berisi teori.');
+  assert.deepEqual(bab.map((b) => b.label), ['pertama', 'kedua']);
+  assert.ok(bab.every((b) => b.kata));
+  const lama = pecahBab('BAB I: PENDAHULUAN. Bab ini berisi x.\n\nBab 3 berisi metode.');
+  assert.deepEqual(lama.map((b) => b.label), ['I', '3']);
+  assert.ok(lama.every((b) => !b.kata));
   assert.deepEqual(pecahBab('Tanpa kepala bab sama sekali.'), []);
-  assert.deepEqual(pecahBab('Bab 3 berisi metode.\n\nBab 4 berisi hasil.').map((b) => b.label), ['3', '4']);
 });
 
-test('H1: pola "Bab ... berisi ..." pada contoh panduan lolos; bab tanpa "berisi" gagal', () => {
+test('H1: pola "Bab ... berisi ..." pada contoh benar lolos; bab tanpa "berisi" gagal', () => {
   assert.equal(periksaH1(SISTEMATIKA_BENAR).status, STATUS.TERPENUHI);
-  const salah = SISTEMATIKA_BENAR + '\n\nBAB III: METODE PENELITIAN. Membahas jenis penelitian dan teknik pengumpulan data yang dipakai peneliti.';
-  const r = periksaH1(salah);
+  const r = periksaH1(SISTEMATIKA_BENAR + '\n\nBab ketiga membahas jenis penelitian dan teknik pengumpulan data yang dipakai peneliti.');
   assert.equal(r.status, STATUS.BELUM);
-  assert.deepEqual(r.nomor, ['III']);
+  assert.deepEqual(r.nomor, ['ketiga']);
   assert.equal(periksaH1('Pendahuluan, teori, metode.').status, STATUS.TIDAK_DAPAT);
   assert.equal(periksaH1('  ').status, STATUS.TIDAK_DAPAT);
 });
 
-test('H2: bab yang hanya berupa judul menjadi peringatan', () => {
+test('H2: nomor bab dengan kata lolos; angka Romawi, angka, judul kapital, dan format judul gagal', () => {
   assert.equal(periksaH2(SISTEMATIKA_BENAR).status, STATUS.TERPENUHI);
-  const r = periksaH2('BAB I: PENDAHULUAN\n\nBAB II: LANDASAN TEORI\n\nBab III berisi uraian metode penelitian lapangan beserta sumber data primer dan sekunder yang dipakai.');
+  const lama = periksaH2(SISTEMATIKA_LAMA);
+  assert.equal(lama.status, STATUS.BELUM);
+  assert.deepEqual(lama.nomor, ['I', 'II']);
+  assert.equal(periksaH2('Bab 1 berisi latar belakang masalah dan rumusan masalah penelitian yang dikaji.').status, STATUS.BELUM);
+  assert.equal(periksaH2('Bab pertama: Pendahuluan berisi latar belakang masalah dan rumusan masalah penelitian.').status, STATUS.BELUM);
+  assert.equal(periksaH2('Bab pertama berisi PENDAHULUAN dan latar belakang masalah serta rumusan masalah penelitian.').status, STATUS.BELUM);
+  assert.equal(periksaH2('Bab pertama berisi HASIL PENELITIAN dan pembahasan temuan lapangan secara menyeluruh.').status, STATUS.BELUM);
+  assert.equal(periksaH2('Bab kedua berisi telaah pustaka, landasan teori Sartre, dan kerangka pemikiran penelitian ini.').status, STATUS.TERPENUHI);
+  assert.equal(periksaH2('Pendahuluan saja.').status, STATUS.TIDAK_DAPAT);
+});
+
+test('H3: nama rumus (STARE, CAP-G, D-K-R) gagal; kata "rumus" atau "formula" peringatan; contoh benar lolos', () => {
+  assert.equal(periksaH3(SISTEMATIKA_BENAR).status, STATUS.TERPENUHI);
+  const nama = periksaH3('Bab pertama berisi latar belakang dengan formula STARE dan rumusan masalah penelitian.');
+  assert.equal(nama.status, STATUS.BELUM);
+  assert.match(nama.bukti[0], /STARE/);
+  assert.equal(periksaH3('Bab kedua berisi tinjauan yang disintesis dengan CAP-G dan landasan teori.').status, STATUS.BELUM);
+  assert.equal(periksaH3('Bab kedua berisi landasan teori dengan sistematika D-K-R.').status, STATUS.BELUM);
+  assert.equal(periksaH3('Bab ketiga berisi uraian yang mengikuti rumus penulisan tertentu.').status, STATUS.PERINGATAN);
+  assert.equal(periksaH3('Bab ketiga berisi perumusan masalah dan formulasi tujuan.').status, STATUS.TERPENUHI);
+  assert.equal(periksaH3('  ').status, STATUS.TIDAK_DAPAT);
+});
+test('H4: bab yang hanya berupa judul atau terlalu singkat menjadi peringatan', () => {
+  assert.equal(periksaH4(SISTEMATIKA_BENAR).status, STATUS.TERPENUHI);
+  const r = periksaH4('Bab pertama berisi pendahuluan.\n\nBab kedua berisi landasan teori.\n\nBab ketiga berisi uraian metode penelitian lapangan beserta sumber data primer dan sekunder yang dipakai.');
   assert.equal(r.status, STATUS.PERINGATAN);
-  assert.deepEqual(r.nomor, ['I', 'II']);
+  assert.deepEqual(r.nomor, ['pertama', 'kedua']);
 });
 
 test('periksaSemua bagian D dan H: aturan jalan, kriteria makna menunggu AI, pesan terisi', () => {
@@ -225,12 +255,16 @@ test('periksaSemua bagian D dan H: aturan jalan, kriteria makna menunggu AI, pes
   assert.match(pd.D1.pesan, /praktis/);
   assert.equal(pd.D2.status, STATUS.BELUM);
   assert.equal(pd.D3.status, STATUS.BELUM_DIJALANKAN);
-  const h = periksaSemua(RUBRIK.filter((e) => e.bagian === 'H'), { sistematika: SISTEMATIKA_BENAR });
-  const ph = Object.fromEntries(h.map((x) => [x.id, x]));
-  assert.equal(ph.H1.status, STATUS.TERPENUHI);
-  assert.equal(ph.H2.status, STATUS.TERPENUHI);
-  assert.equal(ph.H3.status, STATUS.BELUM_DIJALANKAN);
-  assert.ok([...d, ...h].every((x) => !/\{\w+\}/.test(x.pesan)));
+  const benar = periksaSemua(RUBRIK.filter((e) => e.bagian === 'H'), { sistematika: SISTEMATIKA_BENAR });
+  const pb = Object.fromEntries(benar.map((x) => [x.id, x]));
+  for (const id of ['H1', 'H2', 'H3', 'H4']) assert.equal(pb[id].status, STATUS.TERPENUHI, id);
+  for (const id of ['H5', 'H6', 'H7']) assert.equal(pb[id].status, STATUS.BELUM_DIJALANKAN, id);
+  const lama = periksaSemua(RUBRIK.filter((e) => e.bagian === 'H'), { sistematika: SISTEMATIKA_LAMA });
+  const pl = Object.fromEntries(lama.map((x) => [x.id, x]));
+  assert.equal(pl.H2.status, STATUS.BELUM);
+  assert.match(pl.H2.pesan, /Bab I dan II/);
+  assert.equal(pl.H3.status, STATUS.BELUM);
+  assert.ok([...d, ...benar, ...lama].every((x) => !/\{\w+\}/.test(x.pesan)));
 });
 
 // Contoh benar dari panduan Bab II.A (CAP-G) dan Bab II.B (D-K-R), kasus Kungkum Pengging - Sartre.

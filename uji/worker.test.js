@@ -164,7 +164,7 @@ test('bagian A: penolakan layanan menghasilkan tidak_yakin untuk A1-A6', async (
 });
 
 const HASIL_D = ['D3', 'D4'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
-const HASIL_H = ['H3', 'H4', 'H5'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
+const HASIL_H = ['H5', 'H6', 'H7'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
 
 test('bagian D: masukan dibersihkan, prompt memuat D3-D4 dan petunjuk manfaat, tanpa kriteria lain', () => {
   assert.ok(bersihkanMasukanManfaat({ teoretis: '', praktis: '  ' }).galat);
@@ -179,14 +179,19 @@ test('bagian D: masukan dibersihkan, prompt memuat D3-D4 dan petunjuk manfaat, t
   assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['D3', 'D4']);
 });
 
-test('bagian H: masukan dibersihkan, prompt memuat H3-H5 dan rumus "Bab ... berisi ..."', () => {
+test('bagian H: masukan dibersihkan, prompt memuat H5-H7, pola kata bilangan, dan larangan nama rumus', () => {
   assert.ok(bersihkanMasukanSistematika({ sistematika: '' }).galat);
   assert.equal(bersihkanMasukanSistematika({ sistematika: 'a'.repeat(BATAS.sistematika + 1) }).status, 413);
-  const b = susunPermintaanSistematika(bersihkanMasukanSistematika({ sistematika: 'Bab I berisi latar belakang.' }));
-  assert.match(b.system, /BAB \[X\] berisi/);
-  assert.match(b.messages[0].content, /- H3:/);
-  assert.match(b.messages[0].content, /Bab I berisi latar belakang\./);
-  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['H3', 'H4', 'H5']);
+  const b = susunPermintaanSistematika(bersihkanMasukanSistematika({ sistematika: 'Bab pertama berisi latar belakang.' }));
+  assert.match(b.system, /Bab \[kata bilangan\] berisi/);
+  assert.match(b.system, /huruf kapital semua/);
+  assert.match(b.system, /Nama rumus penulisan/);
+  assert.match(b.system, /bab kedua objek material penelitian; bab ketiga objek formal/);
+  assert.match(b.system, /tinjauan pustaka, metode penelitian, dan sistematika penulisan/);
+  assert.match(b.messages[0].content, /- H5:/);
+  assert.doesNotMatch(b.messages[0].content, /- H1:|- H4:/);
+  assert.match(b.messages[0].content, /Bab pertama berisi latar belakang\./);
+  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['H5', 'H6', 'H7']);
 });
 
 test('bagian D dan H lewat Worker: kriteria yang dikirim ke model sesuai bagian', async () => {
@@ -195,7 +200,7 @@ test('bagian D dan H lewat Worker: kriteria yang dikirim ke model sesuai bagian'
   assert.equal((await tangani(req({ bagian: 'D', teoretis: 'Memperkaya kajian AFI.', praktis: '' }), env(), f(HASIL_D))).status, 200);
   assert.match(dikirim.messages[0].content, /- D4:/);
   assert.equal((await tangani(req({ bagian: 'H', sistematika: 'Bab I berisi latar belakang.' }), env(), f(HASIL_H))).status, 200);
-  assert.match(dikirim.messages[0].content, /- H5:/);
+  assert.match(dikirim.messages[0].content, /- H7:/);
   assert.equal((await tangani(req({ bagian: 'D', teoretis: '', praktis: '' }), env(), f(HASIL_D))).status, 400);
 });
 
