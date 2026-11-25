@@ -193,3 +193,23 @@ test('bagian G: kutipan berlabel bagian ("Sumber data: ...") diterima setelah la
     { sumber: 'Data primer dan sekunder.' });
   assert.deepEqual(h[0].bukti, ['Data primer dan sekunder.']);
 });
+
+const RUBRIK_K = baca('../rubrik/K-koherensi.json');
+
+test('bagian K: data tiruan memberi hasil, dan Worker menerima semua bagian yang dikumpulkan', async () => {
+  const masukan = { latar: 'Latar belakang.', teori: 'Sartre', konsep: 'kebebasan', objek: 'Kungkum', rumusan: ['Bagaimana x?'], tujuan: ['Untuk menganalisis x.'], tinjauan: 'Tinjauan.', landasan: 'Landasan.', kerangka: 'Kerangka.', kisi: 'Kisi.', sistematika: 'Bab pertama berisi.' };
+  const tiruan = await periksaMakna(RUBRIK_K, masukan);
+  assert.deepEqual(tiruan.map((x) => x.id), ['K6', 'K7', 'K8', 'K9', 'K10']);
+  const bodi = {};
+  const f = async (url, init) => { Object.assign(bodi, JSON.parse(init.body)); return new Response(JSON.stringify({ hasil: [] }), { status: 200 }); };
+  await periksaMakna(RUBRIK_K, { ...masukan, jenis: 'tidak ikut' },
+    buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', bagian: 'K', fetchFn: f }));
+  assert.deepEqual(Object.keys(bodi).sort(), ['bagian', 'kerangka', 'kisi', 'konsep', 'landasan', 'latar', 'objek', 'rumusan', 'sistematika', 'teori', 'tinjauan', 'tujuan']);
+});
+
+test('bagian K: kutipan dari bagian mana pun diterima, label bagian dibuang, karangan ditolak', () => {
+  const entri = RUBRIK_K.filter((e) => e.id === 'K8');
+  const h = validasiHasil(entri, [{ id: 'K8', status: 'terpenuhi', alasan: 'x', bukti: ['Kerangka pemikiran: Alur dari makro ke mikro.', 'Landasan teori: Konsep pokok Sartre.', 'karangan'] }],
+    { kerangka: 'Alur dari makro ke mikro.', landasan: 'Konsep pokok Sartre.' });
+  assert.deepEqual(h[0].bukti, ['Alur dari makro ke mikro.', 'Konsep pokok Sartre.']);
+});

@@ -11,11 +11,12 @@ import rubrikH from '../rubrik/H-sistematika.json' with { type: 'json' };
 import rubrikE from '../rubrik/E-tinjauan.json' with { type: 'json' };
 import rubrikF from '../rubrik/F-landasan.json' with { type: 'json' };
 import rubrikG from '../rubrik/G-metode.json' with { type: 'json' };
+import rubrikK from '../rubrik/K-koherensi.json' with { type: 'json' };
 
 export const MODEL = 'claude-haiku-5-5';
 export const BATAS = Object.freeze({
   butir: 3, panjangButir: 600, panjangIsian: 200, totalKarakter: 3000,
-  latar: 12000, manfaat: 2000, sistematika: 6000, tinjauan: 8000, landasan: 8000, kerangka: 3000, konsepF: 400, metode: 3000, kisi: 4000, badanMaks: 30000,
+  latar: 12000, manfaat: 2000, sistematika: 6000, tinjauan: 8000, landasan: 8000, kerangka: 3000, konsepF: 400, metode: 3000, kisi: 4000, badanMaks: 45000,
   perPerangkatPerHari: 20, globalPerHari: 300, maxTokens: 4000, maxTokensLatar: 6000, maxTokensKecil: 3500
 });
 const AI_BC = [...rubrikB, ...rubrikC].filter((e) => e.jenis === 'ai');
@@ -25,6 +26,7 @@ const AI_H = rubrikH.filter((e) => e.jenis === 'ai');
 const AI_E = rubrikE.filter((e) => e.jenis === 'ai');
 const AI_F = rubrikF.filter((e) => e.jenis === 'ai');
 const AI_G = rubrikG.filter((e) => e.jenis === 'ai');
+const AI_K = rubrikK.filter((e) => e.jenis === 'ai');
 
 const SISTEM_UMUM = (objek) => `Anda pemeriksa awal ${objek}, memakai kriteria yang diberikan.
 Tugas Anda hanya mendiagnosis: menyatakan tiap kriteria terpenuhi, belum, atau tidak_yakin.
@@ -102,6 +104,17 @@ Petunjuk membaca metode penelitian (dari panduan penulisan):
 - Proposal ditulis dalam bahasa rencana ("akan dilakukan"), bukan bahasa laporan.
 - Bila kolom yang relevan dengan suatu kriteria kosong, jawab kriteria itu dengan tidak_yakin dan alasan bahwa kolomnya kosong.
 - Nilailah berdasarkan isi, bukan label. Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
+
+const HINT_K = `
+Petunjuk memeriksa koherensi antarbagian proposal (dari panduan penulisan):
+- Setiap kriteria membandingkan dua bagian atau lebih. Bila bagian yang dibutuhkan suatu kriteria kosong, jawab tidak_yakin dan sebut bagian yang kosong.
+- Nilai kesesuaian isi dan istilah, bukan kesamaan kalimat. Istilah yang berbeda tetapi bermakna sama (misalnya being-for-itself dan kesadaran otentik pada teori Sartre) dianggap konsisten bila hubungannya jelas.
+- Muara latar belakang (Ends), rumusan masalah, dan tujuan penelitian harus menunjuk masalah yang sama.
+- Celah yang disebut di latar belakang (Review) dan di tinjauan penelitian terdahulu (Position and Gap) harus sejalan.
+- Kerangka pemikiran menerjemahkan alur latar belakang: Situation, Target (objek yang sama), Approach (teori yang sama), Review (celah yang sama), dan Ends (muara yang sama).
+- Kisi-kisi menurunkan konsep di rumusan menjadi kategori analitik dan indikator, dan turunannya harus berasal dari uraian konsep di landasan teori, bukan disusun sendiri.
+- Sistematika harus selaras dengan isi bagian lain dan menjawab rumusan masalah secara runtut.
+- Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
 
 const buatSkema = (ids) => ({
   type: 'object',
@@ -224,6 +237,24 @@ export function bersihkanMasukanMetode(b) {
   if (Object.entries(m).some(([k, v]) => v.length > (k === 'kisi' ? BATAS.kisi : BATAS.metode))) {
     return { galat: 'Ada isian metode yang terlalu panjang.', status: 413 };
   }
+  return m;
+}
+
+export function bersihkanMasukanKoherensi(b) {
+  if (!b || typeof b !== 'object') return { galat: 'Isi permintaan tidak valid.' };
+  const batas = { latar: 6000, tinjauan: 5000, landasan: 5000, kerangka: 2500, kisi: 3000, sistematika: 3000, teori: 400, konsep: 400, objek: 400 };
+  const m = {};
+  for (const [k, maks] of Object.entries(batas)) {
+    const v = String(b[k] ?? '').trim();
+    if (v.length > maks) return { galat: `Bagian ${k} terlalu panjang (paling banyak ${maks} karakter).`, status: 413 };
+    m[k] = v;
+  }
+  const daftar = (x) => (Array.isArray(x) ? x : []).map((t) => String(t ?? '').trim()).filter(Boolean).slice(0, BATAS.butir);
+  m.rumusan = daftar(b.rumusan);
+  m.tujuan = daftar(b.tujuan);
+  if ([...m.rumusan, ...m.tujuan].some((t) => t.length > BATAS.panjangButir)) return { galat: 'Ada rumusan atau tujuan yang terlalu panjang.', status: 413 };
+  const terisiN = [m.latar, m.tinjauan, m.landasan, m.kerangka, m.kisi, m.sistematika, m.rumusan.join(''), m.tujuan.join('')].filter(Boolean).length;
+  if (terisiN < 2) return { galat: 'Isi minimal dua bagian proposal terlebih dahulu.' };
   return m;
 }
 
@@ -358,6 +389,32 @@ export function susunPermintaanMetode(m) {
   };
 }
 
+export function susunPermintaanKoherensi(m) {
+  const baris = (nama, nilai) => `${nama}: ${nilai || '(kosong)'}`;
+  const daftar = (nama, arr) => `${nama}: ${arr.length ? arr.map((t, i) => `(${i + 1}) ${t}`).join(' ') : '(kosong)'}`;
+  const isi = [
+    'Kriteria yang diperiksa:', daftarKriteria(AI_K), '',
+    '<tulisan_mahasiswa>',
+    baris('Nama teori', m.teori), baris('Konsep teori', m.konsep), baris('Objek material', m.objek),
+    baris('Latar belakang masalah', m.latar),
+    daftar('Rumusan masalah', m.rumusan), daftar('Tujuan penelitian', m.tujuan),
+    baris('Tinjauan penelitian terdahulu', m.tinjauan),
+    baris('Landasan teori', m.landasan),
+    baris('Kerangka pemikiran', m.kerangka),
+    baris('Kisi-kisi instrumen', m.kisi),
+    baris('Sistematika penulisan', m.sistematika),
+    '</tulisan_mahasiswa>', '',
+    'Kembalikan satu entri untuk setiap id kriteria. Kutip tanpa label bagian seperti "Landasan teori:".'
+  ].join('\n');
+  return {
+    model: MODEL,
+    max_tokens: BATAS.maxTokensLatar,
+    system: SISTEM_UMUM('koherensi antarbagian proposal skripsi') + HINT_K,
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema: buatSkema(AI_K.map((e) => e.id)) } },
+    messages: [{ role: 'user', content: isi }]
+  };
+}
+
 const PROFIL = {
   BC: { ids: AI_BC.map((e) => e.id), bersihkan: bersihkanMasukan, susun: susunPermintaan },
   A: { ids: AI_A.map((e) => e.id), bersihkan: bersihkanMasukanLatar, susun: susunPermintaanLatar },
@@ -365,7 +422,8 @@ const PROFIL = {
   H: { ids: AI_H.map((e) => e.id), bersihkan: bersihkanMasukanSistematika, susun: susunPermintaanSistematika },
   E: { ids: AI_E.map((e) => e.id), bersihkan: bersihkanMasukanTinjauan, susun: susunPermintaanTinjauan },
   F: { ids: AI_F.map((e) => e.id), bersihkan: bersihkanMasukanLandasan, susun: susunPermintaanLandasan },
-  G: { ids: AI_G.map((e) => e.id), bersihkan: bersihkanMasukanMetode, susun: susunPermintaanMetode }
+  G: { ids: AI_G.map((e) => e.id), bersihkan: bersihkanMasukanMetode, susun: susunPermintaanMetode },
+  K: { ids: AI_K.map((e) => e.id), bersihkan: bersihkanMasukanKoherensi, susun: susunPermintaanKoherensi }
 };
 
 async function hitung(kv, kunci, batas) {
@@ -400,7 +458,7 @@ export async function tangani(request, env, fetchFn = fetch) {
   if (teks.length > BATAS.badanMaks) return galat('Permintaan terlalu besar.', 413, cors);
   let badan;
   try { badan = JSON.parse(teks); } catch { return galat('Isi permintaan bukan JSON yang valid.', 400, cors); }
-  const profil = PROFIL[['A', 'D', 'E', 'F', 'G', 'H'].includes(badan?.bagian) ? badan.bagian : 'BC'];
+  const profil = PROFIL[['A', 'D', 'E', 'F', 'G', 'H', 'K'].includes(badan?.bagian) ? badan.bagian : 'BC'];
   const m = profil.bersihkan(badan);
   if (m.galat) return galat(m.galat, m.status ?? 400, cors);
 

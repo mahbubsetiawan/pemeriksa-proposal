@@ -1,0 +1,117 @@
+[
+  {
+    "id": "K1",
+    "bagian": "K",
+    "jenis": "aturan",
+    "kriteria": "Setiap konsep teori yang diisi muncul di rumusan masalah",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab I.B",
+    "bagian_panduan": "Bab I.B, Kaidah Akademik",
+    "dasar": "\"Yang dimunculkan dalam rumusan masalah adalah konsep teori\" dan konsep itu langsung dikawinkan dengan objek material sejak pertanyaan pertama. Pemeriksaan ini hanya mencocokkan istilah, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Konsep {n} belum ditemukan di rumusan masalah.",
+    "pesan_peringatan": "Konsep {n} belum ditemukan di rumusan masalah dengan istilah yang sama. Pastikan konsep teori dimunculkan di rumusan."
+  },
+  {
+    "id": "K2",
+    "bagian": "K",
+    "jenis": "aturan",
+    "kriteria": "Setiap konsep di rumusan muncul di kisi-kisi instrumen (bagian G)",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab III.C",
+    "bagian_panduan": "Bab III.C, Rumus Kisi-Kisi",
+    "dasar": "Kisi-kisi menghubungkan \"Fokus Masalah (konsep dari rumusan masalah dan Bab II)\" ke kategori analitik dan indikator. Pemeriksaan ini hanya mencocokkan istilah, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Konsep {n} belum ditemukan di kisi-kisi instrumen.",
+    "pesan_peringatan": "Konsep {n} belum ditemukan di kisi-kisi instrumen dengan istilah yang sama. Kisi-kisi diturunkan dari konsep di rumusan dan landasan teori."
+  },
+  {
+    "id": "K3",
+    "bagian": "K",
+    "jenis": "aturan",
+    "kriteria": "Setiap konsep di rumusan muncul di kerangka pemikiran",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab II.C",
+    "bagian_panduan": "Bab II.C, Rumus",
+    "dasar": "Langkah Approach pada kerangka pemikiran memuat \"Teori/konsep yang dibawa peneliti\". Pemeriksaan ini hanya mencocokkan istilah, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Konsep {n} belum ditemukan di kerangka pemikiran.",
+    "pesan_peringatan": "Konsep {n} belum ditemukan di kerangka pemikiran dengan istilah yang sama. Langkah Approach memuat teori dan konsep yang dibawa peneliti."
+  },
+  {
+    "id": "K4",
+    "bagian": "K",
+    "jenis": "aturan",
+    "kriteria": "Nama teori yang sama disebut di latar belakang, tinjauan terdahulu, landasan teori, dan kerangka pemikiran",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab II.A",
+    "bagian_panduan": "Bab I.A (Approach), Bab II.A (Position and Gap), Bab II.B, dan Bab II.C",
+    "dasar": "Approach pada latar belakang \"mengenalkan sudut pandang teori/filsafat\"; posisi penelitian pada tinjauan dipertegas \"menggunakan teori yang dipilih\"; landasan teori menguraikan teori itu; kerangka pemikiran membawanya sebagai Approach. Pemeriksaan ini hanya mencari kata kunci nama teori, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Nama teori belum ditemukan di: {n}.",
+    "pesan_peringatan": "Nama teori belum ditemukan di: {n}. Teori yang dipilih seharusnya konsisten dari latar belakang sampai kerangka pemikiran."
+  },
+  {
+    "id": "K5",
+    "bagian": "K",
+    "jenis": "aturan",
+    "kriteria": "Objek material yang sama disebut di latar belakang dan rumusan masalah",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab I.A",
+    "bagian_panduan": "Bab I.A (Target) dan Bab I.B",
+    "dasar": "Target pada latar belakang menjelaskan \"lokus lapangan/teks yang menjadi target bidik\"; rumusan mengawinkan konsep teori dengan \"objek material\". Pemeriksaan ini hanya mencari kata kunci objek, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Objek material belum ditemukan di: {n}.",
+    "pesan_peringatan": "Objek material belum ditemukan di: {n}. Objek di latar belakang (Target) dan di rumusan seharusnya sama."
+  },
+  {
+    "id": "K6",
+    "bagian": "K",
+    "jenis": "ai",
+    "kriteria": "Muara latar belakang (masalah pokok) sejalan dengan rumusan masalah dan tujuan penelitian",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.A",
+    "bagian_panduan": "Bab I.A (Ends) dan Bab I.C",
+    "dasar": "Ends adalah \"muara kalimat yang menjastifikasi tujuan utama penelitian\"; tujuan \"harus senada dan linear dengan rumusan masalah\". Sambungan antarbagian ini tersirat dari panduan.",
+    "pesan_gagal": "Muara latar belakang, rumusan, dan tujuan belum menunjuk masalah yang sama."
+  },
+  {
+    "id": "K7",
+    "bagian": "K",
+    "jenis": "ai",
+    "kriteria": "Celah di latar belakang (Review) sejalan dengan celah di tinjauan penelitian terdahulu",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.A",
+    "bagian_panduan": "Bab I.A (Review) dan Bab II.A (Position and Gap)",
+    "dasar": "Review pada latar belakang adalah \"cuplikan singkat mengenai keterbatasan fokus peneliti terdahulu (research gap)\"; tinjauan menegaskan \"letak celah akademik yang tersisa\". Sambungan antarbagian ini tersirat dari panduan.",
+    "pesan_gagal": "Celah di latar belakang dan di tinjauan terdahulu belum sejalan."
+  },
+  {
+    "id": "K8",
+    "bagian": "K",
+    "jenis": "ai",
+    "kriteria": "Kerangka pemikiran menerjemahkan alur latar belakang (objek, teori, celah, dan muara yang sama)",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.C",
+    "bagian_panduan": "Bab II.C, Rumus",
+    "dasar": "\"Rumus ini menerjemahkan formula STARE dari Latar Belakang (Bab I) menjadi alur visual.\"",
+    "pesan_gagal": "Kerangka pemikiran belum selaras dengan alur latar belakang."
+  },
+  {
+    "id": "K9",
+    "bagian": "K",
+    "jenis": "ai",
+    "kriteria": "Kisi-kisi menurunkan konsep rumusan menjadi kategori analitik dan indikator dari uraian landasan teori",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.C",
+    "bagian_panduan": "Bab II.B dan Bab III.C",
+    "dasar": "Kategori analitik dan indikator \"diturunkan dari uraian tersebut, bukan disusun sendiri oleh peneliti\"; kisi-kisi \"disusun dengan jenjang konsep → kategori analitik → indikator yang diturunkan dari uraian konsep di Bab II\".",
+    "pesan_gagal": "Kisi-kisi belum tampak diturunkan dari konsep di rumusan dan uraian landasan teori."
+  },
+  {
+    "id": "K10",
+    "bagian": "K",
+    "jenis": "ai",
+    "kriteria": "Sistematika selaras dengan isi proposal dan menjawab rumusan masalah secara runtut",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab I.E",
+    "bagian_panduan": "Bab I.E (Sistematika Penulisan)",
+    "dasar": "Sistematika harus menerangkan isi dari bab ke bab \"guna menjawab rumusan masalah secara runtut\". Keselarasan dengan bagian lain proposal tersirat dari panduan.",
+    "pesan_gagal": "Sistematika belum selaras dengan isi proposal atau belum menjawab rumusan secara runtut."
+  }
+]

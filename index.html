@@ -22,6 +22,7 @@
     <symbol id="i-buku" viewBox="0 0 24 24"><path d="M4 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H4zM20 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/></symbol>
     <symbol id="i-lapis" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5zM3 12.5l9 5 9-5M3 17l9 5 9-5"/></symbol>
     <symbol id="i-metode" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+    <symbol id="i-tautan" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
     <symbol id="i-kilau" viewBox="0 0 24 24"><path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
   </svg>
 
@@ -72,6 +73,10 @@
           <button type="button" role="tab" id="tab-h" aria-controls="panel-h" aria-selected="false" data-panel="h" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-daftar"/></svg>
             <span class="nama"><b>H</b> Sistematika</span>
+          </button>
+          <button type="button" role="tab" id="tab-k" aria-controls="panel-k" aria-selected="false" data-panel="k" class="butir-menu">
+            <svg class="ik" aria-hidden="true"><use href="#i-tautan"/></svg>
+            <span class="nama"><b>↔</b> Koherensi</span>
           </button>
         </div>
       </nav>
@@ -291,6 +296,29 @@
           <div class="isi-hasil"></div>
         </section>
       </section>
+      <section id="panel-k" class="panel" role="tabpanel" aria-labelledby="tab-k" hidden>
+        <div class="judul-kerja">
+          <h2>Koherensi antarbagian</h2>
+          <p>Memeriksa apakah konsep, teori, objek, dan alur konsisten di seluruh bagian yang sudah Anda isi.</p>
+          <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
+        </div>
+        <form id="form-k" novalidate>
+          <div class="kartu-isian">
+            <h3>Bagian yang terbaca</h3>
+            <ul id="daftar-sumber-k" class="daftar-sumber"></ul>
+            <p class="bantu">Tab ini tidak punya kolom isian. Isi dulu bagian lain; makin lengkap, makin banyak yang bisa diperiksa. Bagian yang kosong tidak disalahkan.</p>
+          </div>
+          <div class="aksi">
+            <button type="submit" class="utama">Periksa koherensi</button>
+          </div>
+        </form>
+        <section class="hasil" aria-live="polite" hidden>
+          <div class="ringkas"><div class="skor"></div><div class="chip-wadah"></div><button type="button" class="jalankan-makna utama"><svg class="ik" aria-hidden="true"><use href="#i-kilau"/></svg><span>Periksa makna (AI)</span></button></div>
+          <p class="pesan-makna bantu" role="status"></p>
+          <div class="isi-hasil"></div>
+        </section>
+      </section>
+
     </main>
 
     <footer class="kaki">

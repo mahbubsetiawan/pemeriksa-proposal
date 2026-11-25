@@ -257,7 +257,38 @@ const CONTOH_G = {
 };
 const KOLOM_G = ['jenis', 'sumber', 'teknik', 'kisi', 'analisis', 'triangulasi'];
 
+const SUMBER_K = [['A Latar belakang', 'a'], ['B–C Rumusan dan tujuan', 'bc'], ['E Tinjauan terdahulu', 'e'], ['F Landasan teori', 'f'], ['G Metode', 'g'], ['H Sistematika', 'h']];
+
+/** Kumpulkan isian dari tab-tab lain untuk pemeriksaan koherensi. */
+function kumpulKoherensi() {
+  const a = PANEL.a.ambil();
+  const bc = PANEL.bc.ambil();
+  const e = PANEL.e.ambil();
+  const f = PANEL.f.ambil();
+  const g = PANEL.g.ambil();
+  const h = PANEL.h.ambil();
+  return {
+    latar: a.latar, teori: bc.teori, konsep: bc.konsep.trim() ? bc.konsep : f.konsep, objek: bc.objek,
+    rumusan: bc.rumusan, tujuan: bc.tujuan, tinjauan: e.tinjauan, landasan: f.landasan, kerangka: f.kerangka,
+    kisi: g.kisi, sistematika: h.sistematika
+  };
+}
+
+function perbaruiSumberK() {
+  const daftar = $('#daftar-sumber-k');
+  daftar.replaceChildren();
+  for (const [nama, kunci] of SUMBER_K) {
+    const ada = PANEL[kunci].ada();
+    daftar.append(el('li', ada ? 'sumber-ok' : 'sumber-kosong', `${ada ? '✓' : '–'} ${nama}`));
+  }
+}
+
 const PANEL = {
+  k: {
+    berkas: ['rubrik/K-koherensi.json'],
+    bagian: 'K',
+    ambil: kumpulKoherensi
+  },
   g: {
     berkas: ['rubrik/G-metode.json'],
     bagian: 'G',
@@ -391,6 +422,7 @@ function pasangMenu() {
   };
   tabs.forEach((t) => t.addEventListener('click', () => {
     pilih(t.dataset.panel);
+    if (t.dataset.panel === 'k') perbaruiSumberK();
     // Koherensi ringan: konsep teori dari tab B–C ikut terisi di tab F bila kolomnya masih kosong.
     if (t.dataset.panel === 'f' && !$('#konsep-f').value.trim() && $('#konsep').value.trim()) $('#konsep-f').value = $('#konsep').value;
   }));
@@ -440,8 +472,8 @@ async function mulai() {
   // Pasang segera, sebelum rubrik selesai dimuat, agar formulir tidak pernah terkirim secara bawaan (memuat ulang halaman).
   for (const [nama, cfg] of Object.entries(PANEL)) {
     $(`#form-${nama}`).addEventListener('submit', (e) => e.preventDefault());
-    $('.contoh', $(`#panel-${nama}`)).addEventListener('click', cfg.isiContoh);
-    $('.kosongkan', $(`#panel-${nama}`)).addEventListener('click', async () => {
+    $('.contoh', $(`#panel-${nama}`))?.addEventListener('click', cfg.isiContoh);
+    $('.kosongkan', $(`#panel-${nama}`))?.addEventListener('click', async () => {
       if (cfg.ada() && !(await tanyaKosongkan())) return;
       cfg.kosongkan();
       const akar = $(`#panel-${nama}`);

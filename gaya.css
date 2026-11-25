@@ -164,3 +164,8 @@ dialog p { margin:.4rem 0; }
 }
 
 #kode, input[type=checkbox] { font-family:var(--sans); }
+
+.daftar-sumber { list-style:none; padding:0; margin:.6rem 0 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:.4rem; }
+.daftar-sumber li { padding:.4rem .75rem; border-radius:10px; background:var(--lembut); font-size:.9rem; }
+.daftar-sumber .sumber-ok { color:var(--baik); background:var(--baik-bg); }
+.daftar-sumber .sumber-kosong { color:var(--redup2); }

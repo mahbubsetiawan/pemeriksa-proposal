@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaE1, periksaF1, periksaF2, pecahKonsep, periksaG1, periksaG2, periksaG3, periksaG4, periksaG5, periksaG6, periksaG7, periksaH1, periksaH2, periksaH3, periksaH4, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
+  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaE1, periksaF1, periksaF2, pecahKonsep, periksaG1, periksaG2, periksaG3, periksaG4, periksaG5, periksaG6, periksaG7, periksaK1, periksaK2, periksaK3, periksaK4, periksaK5, periksaH1, periksaH2, periksaH3, periksaH4, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
 } from '../js/aturan.js';
 
 const baca = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
-const RUBRIK = ['A-latar', 'B-rumusan', 'C-tujuan', 'D-manfaat', 'E-tinjauan', 'F-landasan', 'G-metode', 'H-sistematika'].flatMap((n) => baca(`../rubrik/${n}.json`));
+const RUBRIK = ['A-latar', 'B-rumusan', 'C-tujuan', 'D-manfaat', 'E-tinjauan', 'F-landasan', 'G-metode', 'H-sistematika', 'K-koherensi'].flatMap((n) => baca(`../rubrik/${n}.json`));
 
 // Contoh benar dari Panduan Bab I.B dan I.C (kasus Kungkum Pengging - Sartre).
 const RM_BENAR = [
@@ -411,4 +411,66 @@ test('periksaSemua bagian G: contoh benar lolos semua aturan; contoh salah terta
   assert.match(ps.G6.pesan, /triangulasi teknik/);
   assert.equal(ps.G7.status, STATUS.PERINGATAN);
   assert.ok([...benar, ...salah].every((x) => !/\{\w+\}/.test(x.pesan)));
+});
+
+// Satu proposal yang konsisten (kasus Kungkum Pengging - Sartre) untuk pemeriksaan koherensi.
+const K_KONSEP = 'kebebasan radikal, itikad buruk (bad faith)';
+const K_TEORI = 'Eksistensialisme Jean-Paul Sartre';
+const K_OBJEK = 'Tradisi Kungkum di Umbul Pengging';
+const K_RUMUSAN = ['Bagaimana konstruksi kebebasan radikal para pelaku Tradisi Kungkum di Umbul Pengging?', 'Bagaimana dinamika itikad buruk (bad faith) dalam komodifikasi spiritual pelaku Tradisi Kungkum?'];
+const K_LATAR = 'Tradisi Kungkum di Umbul Pengging bergeser menjadi komoditas spiritual. Penelitian ini memakai perspektif Eksistensialisme Jean-Paul Sartre.';
+const K_TINJAUAN = 'Belum ada studi yang membaca Tradisi Kungkum dengan Eksistensialisme Sartre.';
+const K_LANDASAN = 'Eksistensialisme Sartre menekankan Kebebasan Radikal dan Itikad Buruk (Bad Faith) sebagai konsep pokok.';
+const K_KERANGKA = 'Situation krisis otentisitas, Target Tradisi Kungkum, Approach Eksistensialisme Sartre dengan konsep kebebasan radikal dan bad faith.';
+const K_KISI = 'Fokus masalah | Kategori analitik | Indikator\nKebebasan radikal pelaku | Pilihan sadar | Pelaku memilih berendam\nItikad buruk (bad faith) | Penyangkalan tanggung jawab | Pelaku menyalahkan takdir';
+const K_BENAR = { latar: K_LATAR, teori: K_TEORI, konsep: K_KONSEP, objek: K_OBJEK, rumusan: K_RUMUSAN, tujuan: [], tinjauan: K_TINJAUAN, landasan: K_LANDASAN, kerangka: K_KERANGKA, kisi: K_KISI, sistematika: '' };
+
+test('K1 sampai K3: konsep di rumusan, kisi-kisi, dan kerangka dicocokkan; alias dalam kurung dimaklumi', () => {
+  assert.equal(periksaK1(K_KONSEP, K_RUMUSAN).status, STATUS.TERPENUHI);
+  const r = periksaK1(K_KONSEP + ', kesadaran otentik', K_RUMUSAN);
+  assert.equal(r.status, STATUS.PERINGATAN);
+  assert.deepEqual(r.nomor, ['kesadaran otentik']);
+  assert.equal(periksaK2(K_KONSEP, K_KISI).status, STATUS.TERPENUHI);
+  assert.deepEqual(periksaK2(K_KONSEP, 'Fokus masalah | Kategori analitik\nKebebasan radikal | Pilihan sadar').nomor, ['itikad buruk (bad faith)']);
+  assert.equal(periksaK3(K_KONSEP, K_KERANGKA).status, STATUS.TERPENUHI);
+  assert.equal(periksaK3(K_KONSEP, 'Alur tanpa konsep teori.').status, STATUS.PERINGATAN);
+  assert.equal(periksaK1('', K_RUMUSAN).status, STATUS.TIDAK_DAPAT);
+  assert.equal(periksaK2(K_KONSEP, '  ').status, STATUS.TIDAK_DAPAT);
+  assert.equal(periksaK3(K_KONSEP, '').status, STATUS.TIDAK_DAPAT);
+});
+
+test('K4: nama teori harus muncul di tiap bagian yang sudah diisi; bagian kosong dilewati', () => {
+  assert.equal(periksaK4(K_TEORI, { latar: K_LATAR, tinjauan: K_TINJAUAN, landasan: K_LANDASAN, kerangka: K_KERANGKA }).status, STATUS.TERPENUHI);
+  const r = periksaK4(K_TEORI, { latar: K_LATAR, tinjauan: 'Studi terdahulu membahas ritual air di Jawa.', landasan: K_LANDASAN, kerangka: '' });
+  assert.equal(r.status, STATUS.PERINGATAN);
+  assert.deepEqual(r.nomor, ['tinjauan terdahulu']);
+  assert.equal(periksaK4('', { latar: K_LATAR }).status, STATUS.TIDAK_DAPAT);
+  assert.equal(periksaK4(K_TEORI, {}).status, STATUS.TIDAK_DAPAT);
+});
+
+test('K5: objek material harus muncul di latar belakang dan rumusan', () => {
+  assert.equal(periksaK5(K_OBJEK, K_LATAR, K_RUMUSAN).status, STATUS.TERPENUHI);
+  const r = periksaK5(K_OBJEK, K_LATAR, ['Bagaimana pandangan al-Ghazali tentang akal?']);
+  assert.equal(r.status, STATUS.PERINGATAN);
+  assert.deepEqual(r.nomor, ['rumusan masalah']);
+  assert.equal(periksaK5('', K_LATAR, K_RUMUSAN).status, STATUS.TIDAK_DAPAT);
+  assert.equal(periksaK5(K_OBJEK, '', []).status, STATUS.TIDAK_DAPAT);
+});
+
+test('periksaSemua bagian K: proposal konsisten lolos; isian sebagian tidak disalahkan; kriteria makna menunggu AI', () => {
+  const rubrikK = RUBRIK.filter((e) => e.bagian === 'K');
+  const penuh = Object.fromEntries(periksaSemua(rubrikK, K_BENAR).map((h) => [h.id, h]));
+  for (const id of ['K1', 'K2', 'K3', 'K4', 'K5']) assert.equal(penuh[id].status, STATUS.TERPENUHI, id);
+  for (const id of ['K6', 'K7', 'K8', 'K9', 'K10']) assert.equal(penuh[id].status, STATUS.BELUM_DIJALANKAN, id);
+  const sebagian = periksaSemua(rubrikK, { latar: K_LATAR, teori: K_TEORI, konsep: K_KONSEP, objek: K_OBJEK, rumusan: K_RUMUSAN, tujuan: [] });
+  const ps = Object.fromEntries(sebagian.map((h) => [h.id, h]));
+  assert.equal(ps.K1.status, STATUS.TERPENUHI);
+  assert.equal(ps.K2.status, STATUS.TIDAK_DAPAT);
+  assert.match(ps.K2.pesan, /tab G/);
+  assert.equal(ps.K3.status, STATUS.TIDAK_DAPAT);
+  const salah = periksaSemua(rubrikK, { ...K_BENAR, konsep: K_KONSEP + ', kesadaran otentik', tinjauan: 'Studi ritual air di Jawa.' });
+  const pz = Object.fromEntries(salah.map((h) => [h.id, h]));
+  assert.match(pz.K2.pesan, /kesadaran otentik/);
+  assert.match(pz.K4.pesan, /tinjauan terdahulu/);
+  assert.ok([...periksaSemua(rubrikK, K_BENAR), ...sebagian, ...salah].every((x) => !/\{\w+\}/.test(x.pesan)));
 });

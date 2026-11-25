@@ -39,7 +39,12 @@ const SKENARIO_TIRUAN = {
   G10: { status: 'tidak_yakin', sumber: 'kisi', alasan: 'Data tiruan: penurunan kisi-kisi belum dapat dipastikan.' },
   G11: { status: 'belum', sumber: 'kisi', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' },
   G12: { status: 'terpenuhi', sumber: 'analisis', alasan: 'Data tiruan: tahapan analisis tampak berjenjang.' },
-  G13: { status: 'tidak_yakin', sumber: 'triangulasi', alasan: 'Data tiruan: kekonkretan triangulasi belum dapat dipastikan.' }
+  G13: { status: 'tidak_yakin', sumber: 'triangulasi', alasan: 'Data tiruan: kekonkretan triangulasi belum dapat dipastikan.' },
+  K6: { status: 'terpenuhi', sumber: 'latar', alasan: 'Data tiruan: muara latar belakang tampak sejalan dengan rumusan.' },
+  K7: { status: 'tidak_yakin', sumber: 'tinjauan', alasan: 'Data tiruan: kesejalanan celah belum dapat dipastikan.' },
+  K8: { status: 'terpenuhi', sumber: 'kerangka', alasan: 'Data tiruan: kerangka tampak selaras dengan latar belakang.' },
+  K9: { status: 'belum', sumber: 'kisi', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' },
+  K10: { status: 'terpenuhi', sumber: 'sistematika', alasan: 'Data tiruan: sistematika tampak selaras.' }
 };
 
 const rapat = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
@@ -73,6 +78,7 @@ export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC'
       D: { bagian: 'D', teoretis: input.teoretis, praktis: input.praktis },
       H: { bagian: 'H', sistematika: input.sistematika },
       E: { bagian: 'E', tinjauan: input.tinjauan },
+      K: { bagian: 'K', latar: input.latar, teori: input.teori, konsep: input.konsep, objek: input.objek, rumusan: input.rumusan, tujuan: input.tujuan, tinjauan: input.tinjauan, landasan: input.landasan, kerangka: input.kerangka, kisi: input.kisi, sistematika: input.sistematika },
       G: { bagian: 'G', jenis: input.jenis, sumber: input.sumber, teknik: input.teknik, kisi: input.kisi, analisis: input.analisis, triangulasi: input.triangulasi },
       F: { bagian: 'F', konsep: input.konsep, landasan: input.landasan, kerangka: input.kerangka },
       BC: { bagian: 'BC', rumusan: input.rumusan, tujuan: input.tujuan, teori: input.teori, konsep: input.konsep, objek: input.objek }
@@ -119,7 +125,7 @@ export function validasiHasil(entriAi, mentah, input) {
   const sah = new Set(Object.values(STATUS_AI));
   const peta = new Map((Array.isArray(mentah) ? mentah : []).map((h) => [h?.id, h]));
   // Model kadang menyalin label dari prompt ("Rumusan 1: ...", "[P2] ..."); label bukan bagian tulisan mahasiswa.
-  const tanpaLabel = (b) => rapat(b).replace(/^(?:\[P\d+\]|(?:rumusan|tujuan|paragraf)\s*\d+\s*:|manfaat\s+(?:teoretis|praktis)\s*:|(?:jenis\s+dan\s+pendekatan\s+penelitian|sumber\s+data|teknik\s+pengumpulan\s+data|kisi-kisi\s+instrumen|teknik\s+analisis\s+data|triangulasi)\s*:)\s*/i, '').trim();
+  const tanpaLabel = (b) => rapat(b).replace(/^(?:\[P\d+\]|(?:rumusan|tujuan|paragraf)\s*\d+\s*:|manfaat\s+(?:teoretis|praktis)\s*:|(?:jenis\s+dan\s+pendekatan\s+penelitian|sumber\s+data|teknik\s+pengumpulan\s+data|kisi-kisi\s+instrumen|teknik\s+analisis\s+data|triangulasi|latar\s+belakang\s+masalah|rumusan\s+masalah|tujuan\s+penelitian|tinjauan\s+penelitian\s+terdahulu|landasan\s+teori|kerangka\s+pemikiran|sistematika\s+penulisan)\s*:)\s*/i, '').trim();
   return entriAi.map((e) => {
     const h = peta.get(e.id);
     const dasar = { id: e.id, bagian: e.bagian, jenis: e.jenis, kriteria: e.kriteria, tingkat: e.tingkat, rujukan: e.rujukan };
