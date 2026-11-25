@@ -204,19 +204,19 @@ test('bagian D dan H lewat Worker: kriteria yang dikirim ke model sesuai bagian'
   assert.equal((await tangani(req({ bagian: 'D', teoretis: '', praktis: '' }), env(), f(HASIL_D))).status, 400);
 });
 
-const HASIL_E = ['E3', 'E4', 'E5', 'E6'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
+const HASIL_E = ['E2', 'E3', 'E4', 'E5'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
 const HASIL_F = ['F3', 'F4', 'F5', 'F6', 'F7'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
 
-test('bagian E: masukan dibatasi, prompt memuat E3-E6, petunjuk CAP-G, dan paragraf bernomor', () => {
+test('bagian E: masukan dibatasi, prompt memuat E2-E5, petunjuk CAP-G, dan paragraf bernomor', () => {
   assert.ok(bersihkanMasukanTinjauan({ tinjauan: ' ' }).galat);
   assert.equal(bersihkanMasukanTinjauan({ tinjauan: 'a'.repeat(BATAS.tinjauan + 1) }).status, 413);
   const b = susunPermintaanTinjauan(bersihkanMasukanTinjauan({ tinjauan: 'Paragraf satu.\n\nParagraf dua.' }));
   assert.match(b.system, /CAP-G/);
   assert.match(b.system, /Jangan menulis ulang/);
-  for (const id of ['E3', 'E4', 'E5', 'E6']) assert.match(b.messages[0].content, new RegExp(`- ${id}:`));
+  for (const id of ['E2', 'E3', 'E4', 'E5']) assert.match(b.messages[0].content, new RegExp(`- ${id}:`));
   assert.doesNotMatch(b.messages[0].content, /- E1:|- A1:/);
   assert.match(b.messages[0].content, /\[P2\] Paragraf dua/);
-  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['E3', 'E4', 'E5', 'E6']);
+  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['E2', 'E3', 'E4', 'E5']);
 });
 
 test('bagian F: masukan dibatasi, prompt memuat F3-F7, konsep, landasan bernomor, dan kerangka', () => {
@@ -237,7 +237,7 @@ test('bagian E dan F lewat Worker: kriteria yang dikirim ke model sesuai bagian'
   let dikirim;
   const f = (hasil) => async (url, init) => { dikirim = JSON.parse(init.body); return hasilAnthropic(hasil)(); };
   assert.equal((await tangani(req({ bagian: 'E', tinjauan: 'Paragraf satu.' }), env(), f(HASIL_E))).status, 200);
-  assert.match(dikirim.messages[0].content, /- E5:/);
+  assert.match(dikirim.messages[0].content, /- E4:/);
   assert.equal((await tangani(req({ bagian: 'F', konsep: 'k', landasan: 'Definisi teori.' }), env(), f(HASIL_F))).status, 200);
   assert.match(dikirim.messages[0].content, /- F7:/);
   assert.equal((await tangani(req({ bagian: 'F', landasan: '' }), env(), f(HASIL_F))).status, 400);

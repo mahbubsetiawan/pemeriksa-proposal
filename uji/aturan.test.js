@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaE1, periksaE2, periksaF1, periksaF2, pecahKonsep, periksaH1, periksaH2, periksaH3, periksaH4, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
+  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaE1, periksaF1, periksaF2, pecahKonsep, periksaH1, periksaH2, periksaH3, periksaH4, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
 } from '../js/aturan.js';
 
 const baca = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
@@ -288,12 +288,13 @@ test('E1: sintesis lolos; daftar "Penelitian pertama oleh A..." gagal', () => {
   assert.equal(periksaE1('   ').status, STATUS.TIDAK_DAPAT);
 });
 
-test('E2: tepat tiga paragraf lolos; selain itu peringatan dengan jumlahnya', () => {
-  assert.equal(periksaE2(TINJAUAN_BENAR).status, STATUS.TERPENUHI);
-  const satu = periksaE2('Satu paragraf saja yang panjang. Kalimat kedua. Kalimat ketiga.');
-  assert.equal(satu.status, STATUS.PERINGATAN);
-  assert.equal(satu.data.jumlah, 1);
-  assert.equal(periksaE2(TINJAUAN_BENAR + '\n\nParagraf keempat.').data.jumlah, 4);
+test('E: jumlah paragraf bebas, yang dinilai adalah unsur (tidak ada aturan hitung paragraf)', () => {
+  const satuParagraf = 'Secara tematik literatur dikelompokkan menjadi dua tren. Meskipun sama-sama membahas kungkum, temuannya berbeda tajam. Di sinilah posisi penelitian ini mengisi celah akademik.';
+  const empatParagraf = TINJAUAN_BENAR + '\n\nParagraf tambahan yang menegaskan posisi penelitian.';
+  for (const t of [satuParagraf, TINJAUAN_BENAR, empatParagraf]) assert.equal(periksaE1(t).status, STATUS.TERPENUHI);
+  const hasil = periksaSemua(RUBRIK.filter((x) => x.bagian === 'E'), { tinjauan: satuParagraf });
+  assert.ok(!hasil.some((h) => h.status === STATUS.PERINGATAN));
+  assert.deepEqual(hasil.map((h) => h.id), ['E1', 'E2', 'E3', 'E4', 'E5']);
 });
 
 test('F1: landasan tanpa biografi lolos; kalimat kelahiran atau pendidikan menjadi peringatan', () => {
@@ -318,9 +319,7 @@ test('periksaSemua bagian E dan F: pesan terisi, kriteria makna menunggu AI', ()
   const e = periksaSemua(RUBRIK.filter((x) => x.bagian === 'E'), { tinjauan: 'Penelitian pertama oleh A membahas X.' });
   const pe = Object.fromEntries(e.map((h) => [h.id, h]));
   assert.equal(pe.E1.status, STATUS.BELUM);
-  assert.equal(pe.E2.status, STATUS.PERINGATAN);
-  assert.match(pe.E2.pesan, /1 paragraf/);
-  assert.equal(pe.E3.status, STATUS.BELUM_DIJALANKAN);
+  for (const id of ['E2', 'E3', 'E4', 'E5']) assert.equal(pe[id].status, STATUS.BELUM_DIJALANKAN, id);
   const f = periksaSemua(RUBRIK.filter((x) => x.bagian === 'F'), { konsep: KONSEP_F + ', kesadaran otentik', landasan: LANDASAN_BENAR });
   const pf = Object.fromEntries(f.map((h) => [h.id, h]));
   assert.equal(pf.F1.status, STATUS.TERPENUHI);

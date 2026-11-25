@@ -222,7 +222,6 @@ export function periksaH4(sistematika) {
 }
 
 const POLA_URUT = /penelitian\s+(?:pertama|kedua|ketiga|keempat|kelima)\b/i;
-const paragrafDari = (t) => String(t ?? '').split(/\n\s*\n+/).map((p) => p.trim()).filter(Boolean);
 
 /** E1: dilarang mendaftar penelitian berurutan ("Penelitian pertama oleh A..., kedua oleh B..."). */
 export function periksaE1(tinjauan) {
@@ -230,13 +229,6 @@ export function periksaE1(tinjauan) {
   if (!kalimat.length) return kosong('tinjauan penelitian terdahulu');
   const daftar = kalimat.filter((k) => POLA_URUT.test(k));
   return daftar.length ? hasil(STATUS.BELUM, { bukti: daftar.slice(0, 3) }) : hasil(STATUS.TERPENUHI);
-}
-
-/** E2: rumus CAP-G meminta tiga paragraf; selain itu peringatan (hanya menghitung paragraf). */
-export function periksaE2(tinjauan) {
-  const jumlah = paragrafDari(tinjauan).length;
-  if (!jumlah) return kosong('tinjauan penelitian terdahulu');
-  return jumlah === 3 ? hasil(STATUS.TERPENUHI, { data: { jumlah } }) : hasil(STATUS.PERINGATAN, { data: { jumlah } });
 }
 
 const POLA_BIOGRAFI = /\b(?:lahir|dilahirkan)\s+(?:di|pada|tahun)\b|\bbersekolah\b|\bmenempuh\s+pendidikan\b|\b(?:wafat|meninggal)\s+(?:di|pada|tahun)\b/i;
@@ -272,7 +264,6 @@ export function periksaF2(konsep, landasan) {
 
 export const PEMERIKSA = {
   E1: (i) => periksaE1(i.tinjauan),
-  E2: (i) => periksaE2(i.tinjauan),
   F1: (i) => periksaF1(i.landasan),
   F2: (i) => periksaF2(i.konsep, i.landasan),
   D1: (i) => periksaD1(i.teoretis, i.praktis),

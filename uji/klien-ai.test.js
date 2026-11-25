@@ -141,7 +141,7 @@ const RUBRIK_F = baca('../rubrik/F-landasan.json');
 
 test('bagian E dan F: data tiruan memberi bukti, dan Worker menerima isian yang tepat', async () => {
   const eTiruan = await periksaMakna(RUBRIK_E, { tinjauan: 'Paragraf satu tentang tema.\n\nParagraf dua tentang kontras.' });
-  assert.deepEqual(eTiruan.map((x) => x.id), ['E3', 'E4', 'E5', 'E6']);
+  assert.deepEqual(eTiruan.map((x) => x.id), ['E2', 'E3', 'E4', 'E5']);
   assert.ok(eTiruan.every((x) => x.bukti.length === 1));
   const fTiruan = await periksaMakna(RUBRIK_F, { konsep: 'a', landasan: 'Definisi teori.', kerangka: 'Alur deduktif.' });
   assert.deepEqual(fTiruan.map((x) => x.id), ['F3', 'F4', 'F5', 'F6', 'F7']);
