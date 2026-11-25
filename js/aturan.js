@@ -296,7 +296,7 @@ export function periksaG3(kisi) {
 
 const TAHAP_ANALISIS = [
   ['deskriptif', /deskriptif/i],
-  ['verifikatif (verstehen)', /verifikatif|verstehen/i],
+  ['verstehen', /verstehen|verifikatif/i],
   ['interpretatif', /interpretatif/i]
 ];
 
@@ -304,7 +304,7 @@ const POLA_PUSTAKA = /kepustakaan|studi\s+pustaka|penelitian\s+pustaka|library\s
 const POLA_ANALISIS_ISI = /analisis\s+isi|content\s+analysis/i;
 
 /**
- * G4: analisis data menyebut tiga tahapan (deskriptif, verifikatif, interpretatif).
+ * G4: analisis data menyebut tiga tahapan (deskriptif, verstehen, interpretatif).
  * Untuk penelitian pustaka (dari isian jenis penelitian), yang dituntut adalah analisis isi: tahap verstehen
  * mengandaikan informan atau pelaku lapangan yang tidak ada pada penelitian pustaka (keputusan pemilik, 25 November 2026).
  */

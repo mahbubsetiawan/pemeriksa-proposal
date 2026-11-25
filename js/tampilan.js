@@ -4,6 +4,7 @@
 import { periksaSemua, STATUS } from './aturan.js';
 import { periksaMakna, buatPelaksanaWorker } from './klien-ai.js';
 import { URL_WORKER } from './konfigurasi.js';
+import { pasangUnsur } from './unsur.js';
 
 const LABEL = {
   [STATUS.TERPENUHI]: 'Terpenuhi',
@@ -82,10 +83,7 @@ function tambahButir(untuk, nilai = '') {
   const label = el('label', '', '');
   const id = `${untuk}-${++pencacah}`;
   label.htmlFor = id;
-  const hapus = el('button', 'hapus', 'Hapus');
-  hapus.type = 'button';
-  hapus.addEventListener('click', () => { butir.remove(); nomori(untuk); });
-  baris.append(label, hapus);
+  baris.append(label);
   const isi = el('textarea');
   isi.id = id;
   isi.dataset.untuk = untuk;
@@ -101,9 +99,13 @@ function nomori(untuk) {
   });
 }
 
+// Rumusan masalah dan tujuan penelitian dibatasi dua butir (panduan: maksimal 2 pertanyaan). Dua kolom selalu
+// tampil; tidak ada tombol tambah atau hapus. Butir kedua boleh dibiarkan kosong.
+const JUMLAH_BUTIR = 2;
+
 function aturDaftar(untuk, nilai) {
   $(`#daftar-${untuk}`).replaceChildren();
-  (nilai.length ? nilai : ['']).forEach((v) => tambahButir(untuk, v));
+  for (let i = 0; i < JUMLAH_BUTIR; i++) tambahButir(untuk, nilai[i] ?? '');
 }
 
 const ambilDaftar = (untuk) => [...document.querySelectorAll(`textarea[data-untuk="${untuk}"]`)].map((t) => t.value);
@@ -148,6 +150,18 @@ function tanyaKosongkan() {
     const tutup = (jawab) => { dlg.close(); selesai(jawab); };
     $('#ya-kosong').onclick = () => tutup(true);
     $('#batal-kosong').onclick = () => tutup(false);
+    dlg.oncancel = () => selesai(false);
+    dlg.showModal();
+  });
+}
+
+/** Contoh menimpa isian; bila kolom sudah berisi tulisan, tanyakan dulu. */
+function tanyaContoh() {
+  return new Promise((selesai) => {
+    const dlg = $('#dialog-contoh');
+    const tutup = (jawab) => { dlg.close(); selesai(jawab); };
+    $('#ya-contoh').onclick = () => tutup(true);
+    $('#batal-contoh').onclick = () => tutup(false);
     dlg.oncancel = () => selesai(false);
     dlg.showModal();
   });
@@ -451,7 +465,7 @@ const CONTOH_G = {
   sumber: '1. Data primer akan berupa transkrip wawancara mendalam dengan informan kunci yang berjumlah 5 orang (terdiri dari Juru Kunci Umbul, Pemandu Ritual, dan Pelaku Kungkum reguler), serta catatan lapangan (field notes) hasil observasi tindakan pelaku di Umbul Pengging pada waktu malam hari.\n2. Data sekunder akan berupa profil monografi dan laporan kunjungan wisata dari Kantor Desa atau Pengelola Umbul Pengging, serta literatur teoretis mengenai eksistensialisme Jean-Paul Sartre dari berbagai buku dan jurnal ilmiah.',
   teknik: 'Pengumpulan data di lapangan akan dilakukan secara terpadu melalui observasi non-partisipan, wawancara mendalam, dan dokumentasi. Untuk menjaga arah pencarian data, peneliti akan memedomani matriks kisi-kisi instrumen. Daftar pertanyaan wawancara akan disusun terpisah dan diletakkan di lampiran.',
   kisi: 'Fokus masalah (konsep) | Kategori analitik | Indikator | Sumber data | Teknik pengumpulan data\nKonstruksi kebebasan radikal dan kesadaran otentik pelaku Kungkum | Kesadaran dan pilihan bebas subjek (being-for-itself) | Pilihan sadar subjek (being-for-itself) vs. sekadar mekanis/rutinitas | Pelaku Kungkum, Pemandu Ritual | Wawancara, Observasi\nDinamika itikad buruk (bad faith) dalam komodifikasi spiritual | Penyangkalan tanggung jawab atas pilihan (bad faith) | Pelaku menyalahkan takdir/mitos ekonomi; pergeseran ritual menjadi transaksional | Juru Kunci, Pelaku | Wawancara, Dokumentasi',
-  analisis: 'Analisis data akan dilakukan melalui tiga tahapan bertingkat. Pertama, analisis deskriptif, yakni memaparkan temuan data lapangan secara objektif apa adanya, seperti kutipan wawancara alasan ekonomi pelaku dan pengamatan transaksional di umbul. Kedua, analisis verifikatif (verstehen), yakni menggali motif batin dari sudut pandang para pelaku kungkum tanpa bias subjektif peneliti, untuk memahami bagaimana mereka memaknai keheningan air umbul. Ketiga, analisis interpretatif, yakni melakukan penafsiran akhir dengan membenturkan temuan tersebut menggunakan teori Eksistensialisme Sartre (konsep kebebasan radikal dan bad faith) guna mengungkap kontradiksi eksistensial pelaku komodifikasi spiritual tersebut.',
+  analisis: 'Analisis data akan dilakukan melalui tiga tahapan bertingkat. Pertama, analisis deskriptif, yakni memaparkan temuan data lapangan secara objektif apa adanya, seperti kutipan wawancara alasan ekonomi pelaku dan pengamatan transaksional di umbul. Kedua, analisis verstehen, yakni menggali motif batin dari sudut pandang para pelaku kungkum tanpa bias subjektif peneliti, untuk memahami bagaimana mereka memaknai keheningan air umbul. Ketiga, analisis interpretatif, yakni melakukan penafsiran akhir dengan membenturkan temuan tersebut menggunakan teori Eksistensialisme Sartre (konsep kebebasan radikal dan bad faith) guna mengungkap kontradiksi eksistensial pelaku komodifikasi spiritual tersebut.',
   triangulasi: 'Untuk menjamin bahwa data dan hasil penafsiran eksistensial bersifat sahih dan bebas dari bias subjektivitas, peneliti akan menerapkan: (1) triangulasi sumber, yaitu membandingkan keterangan motif ritual dari pelaku kungkum dengan keterangan pembanding dari Juru Kunci Umbul Pengging serta tokoh adat setempat; dan (2) triangulasi teknik, yaitu mengonfrontasi klaim lisan pelaku bahwa mereka murni mencari keheningan spiritual dengan hasil observasi peneliti dan bukti dokumentasi papan tarif pemandu ritual di lokasi.'
 };
 const KOLOM_G = ['jenis', 'sumber', 'teknik', 'kisi', 'analisis', 'triangulasi'];
@@ -732,9 +746,8 @@ function pasangHitungLatar() {
 async function mulai() {
   aturDaftar('rumusan', []);
   aturDaftar('tujuan', []);
-  document.querySelectorAll('.tambah').forEach((t) =>
-    t.addEventListener('click', () => tambahButir(t.dataset.untuk)));
   pulihkanDraf();
+  pasangUnsur();
   pasangMenu();
   pasangDialog();
   if (SUNGGUHAN && !ambilIdentitas()) bukaGerbangMasuk();
@@ -748,7 +761,10 @@ async function mulai() {
   // Pasang segera, sebelum rubrik selesai dimuat, agar formulir tidak pernah terkirim secara bawaan (memuat ulang halaman).
   for (const [nama, cfg] of Object.entries(PANEL)) {
     $(`#form-${nama}`).addEventListener('submit', (e) => e.preventDefault());
-    $('.contoh', $(`#panel-${nama}`))?.addEventListener('click', cfg.isiContoh);
+    $('.contoh', $(`#panel-${nama}`))?.addEventListener('click', async () => {
+      if (cfg.ada() && !(await tanyaContoh())) return;
+      cfg.isiContoh();
+    });
     $('.kosongkan', $(`#panel-${nama}`))?.addEventListener('click', async () => {
       if (cfg.ada() && !(await tanyaKosongkan())) return;
       cfg.kosongkan();

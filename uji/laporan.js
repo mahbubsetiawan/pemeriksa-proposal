@@ -3,10 +3,11 @@
 // Pemakaian:
 //   node uji/laporan.js                 -> membaca uji/privat/pemeriksaan-mentah.json
 //   node uji/laporan.js --nama          -> tampilkan nama dan NIM di daftar mahasiswa (bawaan: id acak tanpa identitas)
+//   node uji/laporan.js --rekap         -> daftar mahasiswa (No, NIM, Nama, bagian A-H dan K yang dipakai) + berkas CSV untuk Excel
 //   node uji/laporan.js --sertakan-uji  -> ikutkan pemeriksaan uji pemilik (NIM 000000000)
 //   node uji/laporan.js --berkas jalur  -> berkas lain
 // Laporan memuat angka dan, dengan --nama, identitas mahasiswa: jangan dibagikan atau diunggah.
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
@@ -78,6 +79,35 @@ export function formatLaporan(r, { tampilkanNama = false } = {}) {
   return baris.join('\n');
 }
 
+const KOLOM_BAGIAN = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K'];
+
+/** Satu baris per mahasiswa, urut NIM: nomor, NIM, nama, bagian yang dipakai (✓), jumlah pemeriksaan. */
+export function rekapMahasiswa(rekaman, { sertakanUji = false } = {}) {
+  const { mahasiswa } = ringkasLaporan(rekaman, { sertakanUji });
+  return [...mahasiswa].sort((a, b) => a.nim.localeCompare(b.nim)).map((m, i) => ({
+    no: i + 1, nim: m.nim, nama: m.nama,
+    bagian: Object.fromEntries(KOLOM_BAGIAN.map((k) => [k, m.bagian.has(k) ? '✓' : ''])),
+    jumlah: m.pemeriksaan
+  }));
+}
+
+export function formatRekap(baris) {
+  if (!baris.length) return 'Belum ada mahasiswa yang memakai aplikasi.';
+  const kepala = ['No', 'NIM', 'Nama', ...KOLOM_BAGIAN, 'Jumlah'];
+  const isi = baris.map((r) => [String(r.no), r.nim, r.nama, ...KOLOM_BAGIAN.map((k) => r.bagian[k]), String(r.jumlah)]);
+  const lebar = kepala.map((k, i) => Math.max(k.length, ...isi.map((b) => b[i].length)));
+  const cetak = (b) => b.map((c, i) => c.padEnd(lebar[i])).join(' | ').trimEnd();
+  return [cetak(kepala), lebar.map((l) => '-'.repeat(l)).join('-+-'), ...isi.map(cetak)].join('\n');
+}
+
+/** CSV berpenanda UTF-8 (BOM) agar tanda ✓ dan huruf Indonesia terbaca benar di Excel. Pemisah titik koma untuk pengaturan Excel Indonesia. */
+export function csvRekap(baris) {
+  const sel = (v) => `"${String(v).replace(/"/g, '""')}"`;
+  const kepala = ['No', 'NIM', 'Nama', ...KOLOM_BAGIAN, 'Jumlah pemeriksaan'];
+  const garis = baris.map((r) => [r.no, r.nim, r.nama, ...KOLOM_BAGIAN.map((k) => r.bagian[k]), r.jumlah].map(sel).join(';'));
+  return `﻿${[kepala.map(sel).join(';'), ...garis].join('\r\n')}\r\n`;
+}
+
 function utama() {
   const argumen = process.argv.slice(2);
   const i = argumen.indexOf('--berkas');
@@ -87,6 +117,16 @@ function utama() {
     process.exit(1);
   }
   const rekaman = JSON.parse(readFileSync(berkas, 'utf8'));
+  if (argumen.includes('--rekap')) {
+    const baris = rekapMahasiswa(rekaman, { sertakanUji: argumen.includes('--sertakan-uji') });
+    console.log(formatRekap(baris));
+    if (baris.length) {
+      const csv = fileURLToPath(new URL('./privat/rekap-mahasiswa.csv', import.meta.url));
+      writeFileSync(csv, csvRekap(baris), 'utf8');
+      console.log(`\nDisimpan juga sebagai uji\\privat\\rekap-mahasiswa.csv (bisa dibuka di Excel).`);
+    }
+    return;
+  }
   console.log(formatLaporan(ringkasLaporan(rekaman, { sertakanUji: argumen.includes('--sertakan-uji') }), { tampilkanNama: argumen.includes('--nama') }));
 }
 

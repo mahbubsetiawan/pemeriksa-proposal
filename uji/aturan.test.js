@@ -369,8 +369,8 @@ test('G4 dan G5: tiga tahap analisis wajib; model Miles dan Huberman hanya perin
   assert.equal(periksaG4(G_ANALISIS).status, STATUS.TERPENUHI);
   const r = periksaG4('Analisis data akan memakai tahap deskriptif dan interpretatif.');
   assert.equal(r.status, STATUS.BELUM);
-  assert.equal(r.data.kurang, 'verifikatif (verstehen)');
-  assert.equal(periksaG4('Hanya analisis biasa.').data.kurang, 'deskriptif, verifikatif (verstehen), interpretatif');
+  assert.equal(r.data.kurang, 'verstehen');
+  assert.equal(periksaG4('Hanya analisis biasa.').data.kurang, 'deskriptif, verstehen, interpretatif');
   assert.equal(periksaG5(G_ANALISIS).status, STATUS.TERPENUHI);
   const m = periksaG5('Analisis data akan mengikuti model Miles dan Huberman: reduksi data, penyajian data, dan penarikan kesimpulan.');
   assert.equal(m.status, STATUS.PERINGATAN);

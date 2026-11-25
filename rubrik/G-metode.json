@@ -38,7 +38,7 @@
     "id": "G4",
     "bagian": "G",
     "jenis": "aturan",
-    "kriteria": "Analisis data menyebut tiga tahapan: deskriptif, verifikatif (verstehen), dan interpretatif (penelitian pustaka: analisis isi)",
+    "kriteria": "Analisis data menyebut tiga tahapan: deskriptif, verstehen, dan interpretatif (penelitian pustaka: analisis isi)",
     "tingkat": "wajib",
     "rujukan": "Panduan Bab III.D",
     "bagian_panduan": "Bab III.D, Kaidah Akademik dan Rumus",
@@ -55,7 +55,7 @@
     "bagian_panduan": "Bab III.D, Kaidah Akademik",
     "dasar": "\"mahasiswa disarankan tidak menggunakan model analisis kaku yang bersifat reduksi-display (Miles & Huberman).\" Karena berupa saran, hasilnya berupa peringatan.",
     "pesan_gagal": "Ada penyebutan model reduksi-display (Miles dan Huberman).",
-    "pesan_peringatan": "Ada penyebutan model reduksi-display (Miles dan Huberman). Panduan menyarankan tiga tahapan analisis deskriptif, verifikatif, dan interpretatif."
+    "pesan_peringatan": "Ada penyebutan model reduksi-display (Miles dan Huberman). Panduan menyarankan tiga tahapan analisis deskriptif, verstehen, dan interpretatif."
   },
   {
     "id": "G6",

@@ -241,3 +241,47 @@ dialog p { margin:.4rem 0; }
 .merek h1, .kredit { overflow:hidden; text-overflow:ellipsis; }
 
 @media (max-width:430px) { .merek img { width:30px; height:30px; } .merek h1 { font-size:.86rem; } }
+
+/* ---------- kotak "Unsur yang perlu ada" ---------- */
+.unsur { background:var(--lembut); border:1px solid var(--garis2); border-left:3px solid var(--aksen); padding:.65rem .9rem; margin:0 0 .6rem; }
+.unsur-kepala { display:flex; align-items:center; gap:.5rem; }
+.unsur-judul { font-size:.8rem; color:var(--redup); }
+.unsur-label { font-size:.72rem; font-weight:600; padding:.05rem .55rem; border-radius:99px; background:var(--tinta); color:var(--tinta-teks); }
+.unsur-tombol { margin-left:auto; }
+.unsur-isi { margin-top:.3rem; }
+.unsur-baris { display:flex; gap:.7rem; align-items:flex-start; padding:.4rem 0; font-size:.9rem; line-height:1.55; }
+.unsur-baris + .unsur-baris { border-top:1px solid var(--garis); }
+.unsur-huruf { flex:none; min-width:1.6rem; height:1.6rem; padding:0 .3rem; border-radius:6px; display:grid; place-items:center; background:var(--tinta); color:var(--tinta-teks); font-size:.75rem; font-weight:600; }
+.unsur-baris strong { font-weight:600; }
+.unsur-grup { display:flex; align-items:center; gap:.5rem; margin:.6rem 0 .1rem; font-size:.7rem; letter-spacing:.06em; text-transform:uppercase; color:var(--redup2); }
+.unsur-catatan { margin:.45rem 0 0; font-size:.82rem; color:var(--redup); }
+.unsur-alur { display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; margin:.4rem 0 .1rem; font-size:.82rem; }
+.unsur-alur i { font-style:normal; color:var(--redup2); }
+.unsur-chip { padding:.15rem .6rem; border-radius:6px; background:var(--tinta); color:var(--tinta-teks); }
+@media print { .unsur { display:none; } }
+
+/* Judul kolom yang memiliki kotak unsur: menonjol sebagai penanda sub-bagian. */
+.kartu-isian > label.sub-unsur, .kartu-isian > .kepala-daftar.sub-unsur h3 { font:600 1.12rem/1.3 var(--serif); color:var(--teks); letter-spacing:-.005em; }
+.kartu-isian > label.sub-unsur { margin:0 0 .55rem; }
+.kartu-isian > .kepala-daftar.sub-unsur { margin-bottom:.55rem; }
+.kartu-isian > .kepala-daftar.sub-unsur h3 { margin:0; }
+.kartu-isian > label.sub-unsur::before, .kartu-isian > .kepala-daftar.sub-unsur h3::before { content:""; display:inline-block; width:.3rem; height:1.05em; margin-right:.55rem; border-radius:2px; background:var(--aksen); vertical-align:-.18em; }
+
+/* Contoh tabel kisi-kisi di dalam kotak unsur. */
+.unsur-tabel { overflow-x:auto; margin:.2rem 0 .3rem; border:1px solid var(--garis2); border-radius:8px; background:var(--putih); }
+.unsur-tabel:focus-visible { outline:2px solid var(--aksen); outline-offset:2px; }
+.unsur-tabel table { border-collapse:collapse; width:100%; min-width:34rem; font-size:.78rem; line-height:1.45; }
+.unsur-tabel th { background:var(--tinta); color:var(--tinta-teks); font-weight:600; text-align:left; padding:.45rem .6rem; border-bottom:1px solid var(--garis2); vertical-align:bottom; }
+.unsur-tabel td { padding:.5rem .6rem; vertical-align:top; border-top:1px solid var(--garis); color:var(--teks); }
+.unsur-tabel th + th, .unsur-tabel td + td { border-left:1px solid var(--garis); }
+.unsur-tabel td:first-child { font-weight:550; }
+
+/* Contoh bagan kerangka pemikiran. */
+.unsur-bagan { display:flex; flex-direction:column; align-items:stretch; gap:.15rem; margin:.3rem 0 .4rem; }
+.bagan-kotak { display:flex; flex-direction:column; gap:.1rem; background:var(--putih); border:1px solid var(--garis2); border-radius:8px; padding:.5rem .7rem; font-size:.82rem; line-height:1.45; text-align:center; }
+.bagan-kotak strong { font-weight:600; }
+.bagan-label { font-size:.66rem; letter-spacing:.06em; text-transform:uppercase; color:var(--tinta-teks); font-weight:600; }
+.bagan-rincian { color:var(--redup); font-size:.76rem; text-align:left; }
+.bagan-kotak:has(.bagan-rincian) .bagan-label, .bagan-kotak:has(.bagan-rincian) strong { text-align:center; }
+.bagan-panah { text-align:center; color:var(--aksen); font-size:1rem; line-height:1; }
+.bagan-sejajar { display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:.5rem; }

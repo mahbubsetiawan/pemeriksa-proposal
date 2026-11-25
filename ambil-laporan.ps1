@@ -24,4 +24,8 @@ Write-Host ''
 node uji/laporan.js
 
 Write-Host ''
-Write-Host 'Data mentah ada di uji\privat\pemeriksaan-mentah.json. Untuk melihat nama dan NIM, jalankan: node uji/laporan.js --nama'
+Write-Host '== Rekap mahasiswa yang memakai aplikasi ==' -ForegroundColor Cyan
+node uji/laporan.js --rekap
+
+Write-Host ''
+Write-Host 'Data mentah: uji\privat\pemeriksaan-mentah.json. Rekap untuk Excel: uji\privat\rekap-mahasiswa.csv'

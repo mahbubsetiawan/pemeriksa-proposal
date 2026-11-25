@@ -32,3 +32,18 @@ test('formatLaporan: tanpa identitas secara bawaan, dengan identitas bila dimint
   assert.ok(polos.indexOf('\nA6 |') < polos.indexOf('\nA1 |'), 'A6 (100% tidak yakin) mendahului A1');
   assert.equal(formatLaporan(ringkasLaporan([])), 'Pemeriksaan AI: 0 dari 0 mahasiswa.\nBelum ada data.');
 });
+
+import { rekapMahasiswa, formatRekap, csvRekap } from './laporan.js';
+
+test('rekap mahasiswa: urut NIM, tanda bagian yang dipakai, uji pemilik dilewati, CSV Excel', () => {
+  const baris = rekapMahasiswa([...DATA, rek('241121001', 'C', [['C3', 'terpenuhi']])]);
+  assert.deepEqual(baris.map((r) => [r.no, r.nim, r.jumlah]), [[1, '241121001', 1], [2, '241121022', 2], [3, '241121038', 1]]);
+  assert.deepEqual(Object.entries(baris[1].bagian).filter(([, v]) => v).map(([k]) => k), ['A', 'G']);
+  const teks = formatRekap(baris);
+  assert.match(teks, /^No \| NIM +\| Nama +\| A \| B \| C/);
+  assert.ok(teks.includes('NAMA 241121022') && !teks.includes('000000000'));
+  const csv = csvRekap(baris);
+  assert.ok(csv.startsWith('\uFEFF"No";"NIM";"Nama"'));
+  assert.match(csv, /"2";"241121022";"NAMA 241121022";"✓";"";"";"";"";"";"✓";"";"";"2"/);
+  assert.equal(formatRekap([]), 'Belum ada mahasiswa yang memakai aplikasi.');
+});
