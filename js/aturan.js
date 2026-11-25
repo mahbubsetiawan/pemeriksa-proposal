@@ -300,9 +300,19 @@ const TAHAP_ANALISIS = [
   ['interpretatif', /interpretatif/i]
 ];
 
-/** G4: analisis data menyebut tiga tahapan (deskriptif, verifikatif, interpretatif). */
-export function periksaG4(analisis) {
+const POLA_PUSTAKA = /kepustakaan|studi\s+pustaka|penelitian\s+pustaka|library\s+research|studi\s+literatur/i;
+const POLA_ANALISIS_ISI = /analisis\s+isi|content\s+analysis/i;
+
+/**
+ * G4: analisis data menyebut tiga tahapan (deskriptif, verifikatif, interpretatif).
+ * Untuk penelitian pustaka (dari isian jenis penelitian), yang dituntut adalah analisis isi: tahap verstehen
+ * mengandaikan informan atau pelaku lapangan yang tidak ada pada penelitian pustaka (keputusan pemilik, 25 November 2026).
+ */
+export function periksaG4(analisis, jenis = '') {
   if (!terisi(analisis)) return kosong('teknik analisis data');
+  if (POLA_PUSTAKA.test(String(jenis ?? ''))) {
+    return POLA_ANALISIS_ISI.test(analisis) ? hasil(STATUS.TERPENUHI) : hasil(STATUS.BELUM, { data: { kurang: 'analisis isi (content analysis)' } });
+  }
   const hilang = TAHAP_ANALISIS.filter(([, pola]) => !pola.test(analisis)).map(([nama]) => nama);
   return hilang.length ? hasil(STATUS.BELUM, { data: { kurang: hilang.join(', ') } }) : hasil(STATUS.TERPENUHI);
 }
@@ -404,7 +414,7 @@ export const PEMERIKSA = {
   G1: (i) => periksaG1(i.sumber),
   G2: (i) => periksaG2(i.teknik, i.kisi),
   G3: (i) => periksaG3(i.kisi),
-  G4: (i) => periksaG4(i.analisis),
+  G4: (i) => periksaG4(i.analisis, i.jenis),
   G5: (i) => periksaG5(i.analisis),
   G6: (i) => periksaG6(i.triangulasi),
   G7: (i) => periksaG7(i.jenis, i.sumber, i.teknik, i.analisis, i.triangulasi),

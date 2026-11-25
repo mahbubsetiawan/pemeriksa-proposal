@@ -493,3 +493,17 @@ test('bagian B dan C terpisah: B hanya memuat B1-B6, C hanya C1-C3', () => {
   assert.deepEqual(idB, ['B1', 'B2', 'B3', 'B4', 'B5', 'B6']);
   assert.deepEqual(idC, ['C1', 'C2', 'C3']);
 });
+
+test('G4: penelitian pustaka menuntut analisis isi, bukan tiga tahap lapangan', () => {
+  const pustaka = 'Penelitian ini menggunakan pendekatan kualitatif dengan jenis penelitian kepustakaan (library research).';
+  const isi = 'Analisis data memakai metode deskriptif dan analisis isi kualitatif (qualitative content analysis).';
+  assert.equal(periksaG4(isi, pustaka).status, STATUS.TERPENUHI);
+  const r = periksaG4('Analisis data memakai metode deskriptif saja.', pustaka);
+  assert.equal(r.status, STATUS.BELUM);
+  assert.equal(r.data.kurang, 'analisis isi (content analysis)');
+  // Penelitian lapangan, atau jenis tidak diisi: aturan tiga tahap tetap berlaku.
+  assert.equal(periksaG4(isi, G_JENIS).status, STATUS.BELUM);
+  assert.equal(periksaG4(isi).status, STATUS.BELUM);
+  assert.equal(periksaG4(isi, 'Tinjauan pustaka dipakai sebagai data sekunder.').status, STATUS.BELUM);
+  assert.equal(periksaG4('', pustaka).status, STATUS.TIDAK_DAPAT);
+});

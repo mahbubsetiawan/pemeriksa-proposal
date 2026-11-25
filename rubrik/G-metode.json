@@ -38,11 +38,11 @@
     "id": "G4",
     "bagian": "G",
     "jenis": "aturan",
-    "kriteria": "Analisis data menyebut tiga tahapan: deskriptif, verifikatif (verstehen), dan interpretatif",
+    "kriteria": "Analisis data menyebut tiga tahapan: deskriptif, verifikatif (verstehen), dan interpretatif (penelitian pustaka: analisis isi)",
     "tingkat": "wajib",
     "rujukan": "Panduan Bab III.D",
     "bagian_panduan": "Bab III.D, Kaidah Akademik dan Rumus",
-    "dasar": "\"Analisis data harus membedah informasi melalui tiga tahapan analisis alternatif yang saling berkesinambungan.\" Rumus: Deskriptif, Verifikatif (Verstehen), Interpretatif.",
+    "dasar": "\"Analisis data harus membedah informasi melalui tiga tahapan analisis alternatif yang saling berkesinambungan.\" Rumus: Deskriptif, Verifikatif (Verstehen), Interpretatif. Panduan disusun untuk penelitian lapangan (verstehen bertumpu pada informan atau pelaku). Pengecualian atas keputusan pemilik (25 November 2026): bila jenis penelitian adalah penelitian pustaka (kepustakaan, library research), yang dituntut adalah analisis isi (content analysis).",
     "pesan_gagal": "Tahapan analisis yang belum disebut: {kurang}."
   },
   {
@@ -128,11 +128,11 @@
     "id": "G12",
     "bagian": "G",
     "jenis": "ai",
-    "kriteria": "Tiga tahap analisis dijelaskan berjenjang, dan tahap interpretatif memakai teori",
+    "kriteria": "Tiga tahap analisis dijelaskan berjenjang, dan tahap interpretatif memakai teori (penelitian pustaka: analisis isi dijelaskan berjenjang dan ditafsirkan dengan teori atau sumber acuan)",
     "tingkat": "wajib",
     "rujukan": "Panduan Bab III.D",
     "bagian_panduan": "Bab III.D, Rumus D-V-I",
-    "dasar": "\"Deskriptif: menyajikan temuan data secara objektif. Verifikatif (Verstehen): mengulas makna asli, motif, atau persepsi murni dari sudut pandang informan. Interpretatif: mengonfrontasi dan menafsirkan temuan bersih tersebut dengan pisau bedah teori.\"",
+    "dasar": "\"Deskriptif: menyajikan temuan data secara objektif. Verifikatif (Verstehen): mengulas makna asli, motif, atau persepsi murni dari sudut pandang informan. Interpretatif: mengonfrontasi dan menafsirkan temuan bersih tersebut dengan pisau bedah teori.\" Pengecualian atas keputusan pemilik (25 November 2026): untuk penelitian pustaka tidak ada tahap verstehen; yang dinilai adalah analisis isi yang dijelaskan berjenjang.",
     "pesan_gagal": "Tahapan analisis belum dijelaskan secara berjenjang atau tahap interpretatif belum memakai teori."
   },
   {
