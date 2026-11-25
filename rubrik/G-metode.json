@@ -1,0 +1,149 @@
+[
+  {
+    "id": "G1",
+    "bagian": "G",
+    "jenis": "aturan",
+    "kriteria": "Sumber data memuat klasifikasi data primer dan data sekunder",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.B",
+    "bagian_panduan": "Bab III.B, Kaidah Akademik dan Rumus",
+    "dasar": "\"Mahasiswa wajib melakukan klasifikasi tegas antara Data Primer dan Data Sekunder.\"",
+    "pesan_gagal": "{kurang} belum disebut; panduan meminta klasifikasi tegas antara data primer dan data sekunder."
+  },
+  {
+    "id": "G2",
+    "bagian": "G",
+    "jenis": "aturan",
+    "kriteria": "Tidak memuat daftar pertanyaan wawancara yang berderet",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab III.C",
+    "bagian_panduan": "Bab III.C, Kaidah Akademik",
+    "dasar": "\"Mahasiswa dilarang keras memasukkan daftar pertanyaan mentah (item wawancara) secara berderet di dalam Bab III... Daftar pertanyaan fisik wajib diletakkan di bagian Lampiran.\" Pemeriksaan ini hanya menghitung baris berakhiran tanda tanya (tiga atau lebih), jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Ada daftar pertanyaan wawancara yang berderet.",
+    "pesan_peringatan": "Ada tiga baris pertanyaan atau lebih yang berderet. Panduan melarang daftar pertanyaan mentah; letakkan di lampiran dan sajikan kisi-kisi instrumen sebagai gantinya."
+  },
+  {
+    "id": "G3",
+    "bagian": "G",
+    "jenis": "aturan",
+    "kriteria": "Kisi-kisi instrumen memuat lima kolom: fokus masalah, kategori analitik, indikator, sumber data, dan teknik pengumpulan data",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab III.C",
+    "bagian_panduan": "Bab III.C, Rumus",
+    "dasar": "Rumus: \"Menghubungkan Fokus Masalah (konsep dari rumusan masalah dan Bab II) → Kategori Analitik → Indikator → Sumber Data → Teknik Pengumpulan Data.\" Pemeriksaan ini hanya mencari kata kunci kolom, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Kolom kisi-kisi yang belum ditemukan: {kurang}.",
+    "pesan_peringatan": "Kolom kisi-kisi yang belum ditemukan: {kurang}. Panduan meminta lima kolom: fokus masalah, kategori analitik, indikator, sumber data, dan teknik pengumpulan data."
+  },
+  {
+    "id": "G4",
+    "bagian": "G",
+    "jenis": "aturan",
+    "kriteria": "Analisis data menyebut tiga tahapan: deskriptif, verifikatif (verstehen), dan interpretatif",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.D",
+    "bagian_panduan": "Bab III.D, Kaidah Akademik dan Rumus",
+    "dasar": "\"Analisis data harus membedah informasi melalui tiga tahapan analisis alternatif yang saling berkesinambungan.\" Rumus: Deskriptif, Verifikatif (Verstehen), Interpretatif.",
+    "pesan_gagal": "Tahapan analisis yang belum disebut: {kurang}."
+  },
+  {
+    "id": "G5",
+    "bagian": "G",
+    "jenis": "aturan",
+    "kriteria": "Tidak memakai model analisis kaku reduksi-display (Miles dan Huberman)",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab III.D",
+    "bagian_panduan": "Bab III.D, Kaidah Akademik",
+    "dasar": "\"mahasiswa disarankan tidak menggunakan model analisis kaku yang bersifat reduksi-display (Miles & Huberman).\" Karena berupa saran, hasilnya berupa peringatan.",
+    "pesan_gagal": "Ada penyebutan model reduksi-display (Miles dan Huberman).",
+    "pesan_peringatan": "Ada penyebutan model reduksi-display (Miles dan Huberman). Panduan menyarankan tiga tahapan analisis deskriptif, verifikatif, dan interpretatif."
+  },
+  {
+    "id": "G6",
+    "bagian": "G",
+    "jenis": "aturan",
+    "kriteria": "Keabsahan data menyebut triangulasi sumber dan triangulasi teknik",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.E",
+    "bagian_panduan": "Bab III.E, Rumus",
+    "dasar": "Rumus: \"Triangulasi Sumber: Mengecek data yang sama ke narasumber/informan yang berbeda. Triangulasi Teknik: Mengecek data yang sama menggunakan alat/teknik yang berbeda.\"",
+    "pesan_gagal": "Yang belum disebut: {kurang}."
+  },
+  {
+    "id": "G7",
+    "bagian": "G",
+    "jenis": "aturan",
+    "kriteria": "Ditulis dalam bahasa rencana (\"akan dilakukan\"), bukan bahasa laporan (\"telah dilakukan\")",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab III",
+    "bagian_panduan": "Bab III, Kaidah Akademik (Umum)",
+    "dasar": "Draf skripsi memakai bahasa laporan (\"telah dilakukan\"), \"bukan lagi rencana atau prospektif ('akan dilakukan') seperti di draf proposal.\" Karena yang diperiksa adalah proposal, bahasa rencana dipakai. Pemeriksaan ini hanya mencari kata kunci, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Ada kalimat berbahasa laporan (\"telah dilakukan\"); proposal memakai bahasa rencana.",
+    "pesan_peringatan": "Metode di proposal ditulis dalam bahasa rencana (\"akan dilakukan\"). Ada kalimat berbahasa laporan atau belum ada kata \"akan\"."
+  },
+  {
+    "id": "G8",
+    "bagian": "G",
+    "jenis": "ai",
+    "kriteria": "Jenis penelitian disebut tegas dan pendekatannya diberi justifikasi akademis",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.A",
+    "bagian_panduan": "Bab III.A, Kaidah Akademik dan Rumus",
+    "dasar": "\"Mahasiswa harus secara tegas menyebutkan jenis kualitatif yang digunakan serta memberikan justifikasi akademis mengenai alasan pemilihan pendekatan tersebut.\"",
+    "pesan_gagal": "Jenis penelitian atau justifikasi pendekatan belum tegas."
+  },
+  {
+    "id": "G9",
+    "bagian": "G",
+    "jenis": "ai",
+    "kriteria": "Sumber data diklasifikasikan tegas (primer dan sekunder) dan merujuk objek yang spesifik",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.B",
+    "bagian_panduan": "Bab III.B, Kaidah Akademik",
+    "dasar": "\"Sumber data dilarang dicampuradukkan... Semua data harus merujuk pada objek definitif dan spesifik.\"",
+    "pesan_gagal": "Sumber data masih tercampur atau belum merujuk objek yang spesifik."
+  },
+  {
+    "id": "G10",
+    "bagian": "G",
+    "jenis": "ai",
+    "kriteria": "Teknik pengumpulan data jelas dan kisi-kisi diturunkan dari konsep teori (konsep, kategori analitik, indikator)",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.C",
+    "bagian_panduan": "Bab III.C, Kaidah Akademik",
+    "dasar": "\"Kisi-kisi disusun dengan jenjang konsep → kategori analitik → indikator yang diturunkan dari uraian konsep di Bab II.\"",
+    "pesan_gagal": "Kisi-kisi belum tampak diturunkan dari konsep teori secara berjenjang."
+  },
+  {
+    "id": "G11",
+    "bagian": "G",
+    "jenis": "ai",
+    "kriteria": "Indikator berupa ciri yang dicari dalam data, bukan alat ukur kaku",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.C",
+    "bagian_panduan": "Bab III.C, Kaidah Akademik",
+    "dasar": "\"kategori analitik dan indikator berfungsi sebagai pedoman peka (sensitizing) yang mengarahkan pencarian data, bukan alat ukur... Indikator adalah ciri yang dicari dalam data sebagai petunjuk hadirnya suatu kategori analitik, berupa ujaran, tindakan, atau dokumen... gagasan, proposisi, atau istilah kunci dalam teks.\"",
+    "pesan_gagal": "Indikator belum berupa ciri yang dicari dalam data (ujaran, tindakan, dokumen, atau gagasan teks)."
+  },
+  {
+    "id": "G12",
+    "bagian": "G",
+    "jenis": "ai",
+    "kriteria": "Tiga tahap analisis dijelaskan berjenjang, dan tahap interpretatif memakai teori",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.D",
+    "bagian_panduan": "Bab III.D, Rumus D-V-I",
+    "dasar": "\"Deskriptif: menyajikan temuan data secara objektif. Verifikatif (Verstehen): mengulas makna asli, motif, atau persepsi murni dari sudut pandang informan. Interpretatif: mengonfrontasi dan menafsirkan temuan bersih tersebut dengan pisau bedah teori.\"",
+    "pesan_gagal": "Tahapan analisis belum dijelaskan secara berjenjang atau tahap interpretatif belum memakai teori."
+  },
+  {
+    "id": "G13",
+    "bagian": "G",
+    "jenis": "ai",
+    "kriteria": "Triangulasi menguji produk temuan akhir dan memberi contoh konkret sumber serta teknik pembandingnya",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab III.E",
+    "bagian_panduan": "Bab III.E, Kaidah Akademik dan Contoh",
+    "dasar": "\"Sub-bab ini wajib diletakkan di paling akhir Bab III... yang diuji keabsahan serta validitasnya bukanlah sekadar data mentah awal, melainkan produk temuan akhir yang telah diinterpretasikan oleh peneliti.\"",
+    "pesan_gagal": "Triangulasi belum menguji temuan akhir atau belum menyebut sumber dan teknik pembanding yang konkret."
+  }
+]

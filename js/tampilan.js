@@ -247,7 +247,25 @@ const CONTOH_F = {
   kerangka: 'Penelitian ini bermula dari Situation makro, yaitu krisis otentisitas manusia modern akibat kepungan masyarakat industri/modernitas. Krisis ini kemudian ditatap pada sebuah Target konkret, yakni bertahannya Tradisi Kungkum malam hari di Umbul Pengging. Untuk membedah tindakan tersebut, peneliti menggunakan Approach Teori Eksistensialisme Jean-Paul Sartre (konsep: Kebebasan Radikal dan Bad Faith). Setelah melakukan evaluasi melalui Review yang menunjukkan bahwa pendekatan sosiologis/etnografi sebelumnya gagal memotret kedalaman makna eksistensial pelaku, penelitian ini bermuara pada Ends, yakni mengungkap secara kritis konstruksi kebebasan otentik dan dinamika itikad buruk komodifikasi di balik ritual tersebut.'
 };
 
+const CONTOH_G = {
+  jenis: 'Penelitian ini merupakan penelitian kualitatif lapangan (field research) dengan pendekatan filosofis-fenomenologis. Pendekatan ini dipilih karena peneliti akan mendalami fenomena sosial secara alami, memahami makna, dan mengamati interaksi pelaku secara langsung di lokasi Umbul Pengging. Melalui pendekatan ini, peneliti akan bertindak sebagai instrumen kunci (human instrument) untuk mendapatkan data yang mendalam dan kontekstual mengenai kesadaran eksistensial para pelaku ritual.',
+  sumber: '1. Data primer akan berupa transkrip wawancara mendalam dengan informan kunci yang berjumlah 5 orang (terdiri dari Juru Kunci Umbul, Pemandu Ritual, dan Pelaku Kungkum reguler), serta catatan lapangan (field notes) hasil observasi tindakan pelaku di Umbul Pengging pada waktu malam hari.\n2. Data sekunder akan berupa profil monografi dan laporan kunjungan wisata dari Kantor Desa atau Pengelola Umbul Pengging, serta literatur teoretis mengenai eksistensialisme Jean-Paul Sartre dari berbagai buku dan jurnal ilmiah.',
+  teknik: 'Pengumpulan data di lapangan akan dilakukan secara terpadu melalui observasi non-partisipan, wawancara mendalam, dan dokumentasi. Untuk menjaga arah pencarian data, peneliti akan memedomani matriks kisi-kisi instrumen. Daftar pertanyaan wawancara akan disusun terpisah dan diletakkan di lampiran.',
+  kisi: 'Fokus masalah (konsep) | Kategori analitik | Indikator | Sumber data | Teknik pengumpulan data\nKonstruksi kebebasan radikal dan kesadaran otentik pelaku Kungkum | Kesadaran dan pilihan bebas subjek (being-for-itself) | Pilihan sadar subjek (being-for-itself) vs. sekadar mekanis/rutinitas | Pelaku Kungkum, Pemandu Ritual | Wawancara, Observasi\nDinamika itikad buruk (bad faith) dalam komodifikasi spiritual | Penyangkalan tanggung jawab atas pilihan (bad faith) | Pelaku menyalahkan takdir/mitos ekonomi; pergeseran ritual menjadi transaksional | Juru Kunci, Pelaku | Wawancara, Dokumentasi',
+  analisis: 'Analisis data akan dilakukan melalui tiga tahapan bertingkat. Pertama, analisis deskriptif, yakni memaparkan temuan data lapangan secara objektif apa adanya, seperti kutipan wawancara alasan ekonomi pelaku dan pengamatan transaksional di umbul. Kedua, analisis verifikatif (verstehen), yakni menggali motif batin dari sudut pandang para pelaku kungkum tanpa bias subjektif peneliti, untuk memahami bagaimana mereka memaknai keheningan air umbul. Ketiga, analisis interpretatif, yakni melakukan penafsiran akhir dengan membenturkan temuan tersebut menggunakan teori Eksistensialisme Sartre (konsep kebebasan radikal dan bad faith) guna mengungkap kontradiksi eksistensial pelaku komodifikasi spiritual tersebut.',
+  triangulasi: 'Untuk menjamin bahwa data dan hasil penafsiran eksistensial bersifat sahih dan bebas dari bias subjektivitas, peneliti akan menerapkan: (1) triangulasi sumber, yaitu membandingkan keterangan motif ritual dari pelaku kungkum dengan keterangan pembanding dari Juru Kunci Umbul Pengging serta tokoh adat setempat; dan (2) triangulasi teknik, yaitu mengonfrontasi klaim lisan pelaku bahwa mereka murni mencari keheningan spiritual dengan hasil observasi peneliti dan bukti dokumentasi papan tarif pemandu ritual di lokasi.'
+};
+const KOLOM_G = ['jenis', 'sumber', 'teknik', 'kisi', 'analisis', 'triangulasi'];
+
 const PANEL = {
+  g: {
+    berkas: ['rubrik/G-metode.json'],
+    bagian: 'G',
+    ambil: () => Object.fromEntries(KOLOM_G.map((k) => [k, $(`#metode-${k}`).value])),
+    isiContoh: () => { for (const k of KOLOM_G) $(`#metode-${k}`).value = CONTOH_G[k]; },
+    ada: () => KOLOM_G.some((k) => $(`#metode-${k}`).value.trim()),
+    kosongkan: () => { for (const k of KOLOM_G) $(`#metode-${k}`).value = ''; }
+  },
   e: {
     berkas: ['rubrik/E-tinjauan.json'],
     bagian: 'E',

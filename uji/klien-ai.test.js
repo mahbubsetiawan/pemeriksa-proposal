@@ -172,3 +172,24 @@ test('label paragraf internal (P2, [P3], "paragraf P2", P2-P3) di penjelasan diu
   const h = validasiHasil(entri, [{ id: 'E3', status: 'terpenuhi', bukti: [], alasan: 'Kontras ada di P2 dan P3.' }], { tinjauan: 'a\n\nb' });
   assert.equal(h[0].pesan, 'Kontras ada di paragraf ke-2 dan paragraf ke-3.');
 });
+
+const RUBRIK_G = baca('../rubrik/G-metode.json');
+
+test('bagian G: data tiruan mengambil bukti dari kolom yang tepat, dan Worker menerima keenam kolom', async () => {
+  const masukan = { jenis: 'Penelitian kualitatif lapangan.', sumber: 'Data primer dan sekunder.', teknik: 'Wawancara mendalam.', kisi: 'Konsep | Kategori analitik | Indikator', analisis: 'Deskriptif, verifikatif, interpretatif.', triangulasi: 'Triangulasi sumber dan teknik.' };
+  const tiruan = await periksaMakna(RUBRIK_G, masukan);
+  assert.deepEqual(tiruan.map((x) => x.id), ['G8', 'G9', 'G10', 'G11', 'G12', 'G13']);
+  assert.ok(tiruan.every((x) => x.bukti.length === 1));
+  const bodi = {};
+  const f = async (url, init) => { Object.assign(bodi, JSON.parse(init.body)); return new Response(JSON.stringify({ hasil: [] }), { status: 200 }); };
+  await periksaMakna(RUBRIK_G, { ...masukan, latar: 'tidak ikut' },
+    buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', bagian: 'G', fetchFn: f }));
+  assert.deepEqual(Object.keys(bodi).sort(), ['analisis', 'bagian', 'jenis', 'kisi', 'sumber', 'teknik', 'triangulasi']);
+});
+
+test('bagian G: kutipan berlabel bagian ("Sumber data: ...") diterima setelah label dibuang', () => {
+  const entri = RUBRIK_G.filter((e) => e.id === 'G9');
+  const h = validasiHasil(entri, [{ id: 'G9', status: 'terpenuhi', alasan: 'x', bukti: ['Sumber data: Data primer dan sekunder.', 'karangan'] }],
+    { sumber: 'Data primer dan sekunder.' });
+  assert.deepEqual(h[0].bukti, ['Data primer dan sekunder.']);
+});

@@ -10,11 +10,12 @@ import rubrikD from '../rubrik/D-manfaat.json' with { type: 'json' };
 import rubrikH from '../rubrik/H-sistematika.json' with { type: 'json' };
 import rubrikE from '../rubrik/E-tinjauan.json' with { type: 'json' };
 import rubrikF from '../rubrik/F-landasan.json' with { type: 'json' };
+import rubrikG from '../rubrik/G-metode.json' with { type: 'json' };
 
 export const MODEL = 'claude-haiku-5-5';
 export const BATAS = Object.freeze({
   butir: 3, panjangButir: 600, panjangIsian: 200, totalKarakter: 3000,
-  latar: 12000, manfaat: 2000, sistematika: 6000, tinjauan: 8000, landasan: 8000, kerangka: 3000, konsepF: 400, badanMaks: 30000,
+  latar: 12000, manfaat: 2000, sistematika: 6000, tinjauan: 8000, landasan: 8000, kerangka: 3000, konsepF: 400, metode: 3000, kisi: 4000, badanMaks: 30000,
   perPerangkatPerHari: 20, globalPerHari: 300, maxTokens: 4000, maxTokensLatar: 6000, maxTokensKecil: 3500
 });
 const AI_BC = [...rubrikB, ...rubrikC].filter((e) => e.jenis === 'ai');
@@ -23,6 +24,7 @@ const AI_D = rubrikD.filter((e) => e.jenis === 'ai');
 const AI_H = rubrikH.filter((e) => e.jenis === 'ai');
 const AI_E = rubrikE.filter((e) => e.jenis === 'ai');
 const AI_F = rubrikF.filter((e) => e.jenis === 'ai');
+const AI_G = rubrikG.filter((e) => e.jenis === 'ai');
 
 const SISTEM_UMUM = (objek) => `Anda pemeriksa awal ${objek}, memakai kriteria yang diberikan.
 Tugas Anda hanya mendiagnosis: menyatakan tiap kriteria terpenuhi, belum, atau tidak_yakin.
@@ -88,6 +90,18 @@ Petunjuk membaca landasan teori dan kerangka pemikiran (dari panduan penulisan):
 - Bila kolom kerangka pemikiran kosong, jawab kriteria tentang kerangka (F6 dan F7) dengan tidak_yakin dan alasan bahwa kolom itu kosong.
 - Nilailah berdasarkan isi, bukan label atau jumlah paragraf.
 - Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
+
+const HINT_G = `
+Petunjuk membaca metode penelitian (dari panduan penulisan):
+- Jenis dan pendekatan: payung metodologis (kualitatif lapangan atau pustaka) disebut tegas, disertai justifikasi akademis mengapa pendekatan (misalnya fenomenologis atau filosofis) dipilih.
+- Sumber data: klasifikasi tegas antara data primer (dari tangan pertama, misalnya informan di lapangan) dan data sekunder (arsip, monografi, buku, jurnal); tidak dicampuradukkan, dan merujuk objek yang definitif dan spesifik.
+- Teknik pengumpulan data: biasanya observasi, wawancara mendalam, dan dokumentasi (untuk penelitian pustaka: pembacaan kritis dan dokumentasi). Daftar pertanyaan mentah tidak dimasukkan; sebagai gantinya ada tabel kisi-kisi instrumen: fokus masalah (konsep) lalu kategori analitik lalu indikator lalu sumber data lalu teknik pengumpulan data, diturunkan dari uraian konsep di landasan teori.
+- Kategori analitik dan indikator berfungsi sebagai pedoman peka (sensitizing) yang mengarahkan pencarian data, bukan alat ukur. Indikator adalah ciri yang dicari dalam data (ujaran, tindakan, atau dokumen pada penelitian lapangan; gagasan, proposisi, atau istilah kunci dalam teks pada penelitian pustaka).
+- Analisis data memakai tiga tahapan berkesinambungan: deskriptif (temuan secara objektif), verifikatif atau verstehen (makna asli dan motif dari sudut pandang pelaku tanpa asumsi peneliti), dan interpretatif (menafsirkan temuan dengan teori).
+- Triangulasi (sumber dan teknik) diletakkan paling akhir sebagai jaminan mutu: yang diuji adalah produk temuan akhir yang telah diinterpretasikan, bukan sekadar data mentah.
+- Proposal ditulis dalam bahasa rencana ("akan dilakukan"), bukan bahasa laporan.
+- Bila kolom yang relevan dengan suatu kriteria kosong, jawab kriteria itu dengan tidak_yakin dan alasan bahwa kolomnya kosong.
+- Nilailah berdasarkan isi, bukan label. Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
 
 const buatSkema = (ids) => ({
   type: 'object',
@@ -202,6 +216,17 @@ export function bersihkanMasukanLandasan(b) {
   return { landasan, kerangka, konsep, paragraf };
 }
 
+export function bersihkanMasukanMetode(b) {
+  if (!b || typeof b !== 'object') return { galat: 'Isi permintaan tidak valid.' };
+  const ambil = (k) => String(b[k] ?? '').trim();
+  const m = { jenis: ambil('jenis'), sumber: ambil('sumber'), teknik: ambil('teknik'), kisi: ambil('kisi'), analisis: ambil('analisis'), triangulasi: ambil('triangulasi') };
+  if (!Object.values(m).some(Boolean)) return { galat: 'Isi metode penelitian terlebih dahulu.' };
+  if (Object.entries(m).some(([k, v]) => v.length > (k === 'kisi' ? BATAS.kisi : BATAS.metode))) {
+    return { galat: 'Ada isian metode yang terlalu panjang.', status: 413 };
+  }
+  return m;
+}
+
 const daftarKriteria = (entri) => entri.map((e) => `- ${e.id}: ${e.kriteria} (dasar: ${e.dasar})`).join('\n');
 
 export function susunPermintaan(m) {
@@ -310,13 +335,37 @@ export function susunPermintaanLandasan(m) {
   };
 }
 
+export function susunPermintaanMetode(m) {
+  const baris = (nama, nilai) => `${nama}: ${nilai || '(kosong)'}`;
+  const isi = [
+    'Kriteria yang diperiksa:', daftarKriteria(AI_G), '',
+    '<tulisan_mahasiswa>',
+    baris('Jenis dan pendekatan penelitian', m.jenis),
+    baris('Sumber data', m.sumber),
+    baris('Teknik pengumpulan data', m.teknik),
+    baris('Kisi-kisi instrumen', m.kisi),
+    baris('Teknik analisis data', m.analisis),
+    baris('Triangulasi', m.triangulasi),
+    '</tulisan_mahasiswa>', '',
+    'Kembalikan satu entri untuk setiap id kriteria. Kutip tanpa label bagian seperti "Sumber data:".'
+  ].join('\n');
+  return {
+    model: MODEL,
+    max_tokens: BATAS.maxTokensLatar,
+    system: SISTEM_UMUM('metode penelitian proposal skripsi') + HINT_G,
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema: buatSkema(AI_G.map((e) => e.id)) } },
+    messages: [{ role: 'user', content: isi }]
+  };
+}
+
 const PROFIL = {
   BC: { ids: AI_BC.map((e) => e.id), bersihkan: bersihkanMasukan, susun: susunPermintaan },
   A: { ids: AI_A.map((e) => e.id), bersihkan: bersihkanMasukanLatar, susun: susunPermintaanLatar },
   D: { ids: AI_D.map((e) => e.id), bersihkan: bersihkanMasukanManfaat, susun: susunPermintaanManfaat },
   H: { ids: AI_H.map((e) => e.id), bersihkan: bersihkanMasukanSistematika, susun: susunPermintaanSistematika },
   E: { ids: AI_E.map((e) => e.id), bersihkan: bersihkanMasukanTinjauan, susun: susunPermintaanTinjauan },
-  F: { ids: AI_F.map((e) => e.id), bersihkan: bersihkanMasukanLandasan, susun: susunPermintaanLandasan }
+  F: { ids: AI_F.map((e) => e.id), bersihkan: bersihkanMasukanLandasan, susun: susunPermintaanLandasan },
+  G: { ids: AI_G.map((e) => e.id), bersihkan: bersihkanMasukanMetode, susun: susunPermintaanMetode }
 };
 
 async function hitung(kv, kunci, batas) {
@@ -351,7 +400,7 @@ export async function tangani(request, env, fetchFn = fetch) {
   if (teks.length > BATAS.badanMaks) return galat('Permintaan terlalu besar.', 413, cors);
   let badan;
   try { badan = JSON.parse(teks); } catch { return galat('Isi permintaan bukan JSON yang valid.', 400, cors); }
-  const profil = PROFIL[['A', 'D', 'E', 'F', 'H'].includes(badan?.bagian) ? badan.bagian : 'BC'];
+  const profil = PROFIL[['A', 'D', 'E', 'F', 'G', 'H'].includes(badan?.bagian) ? badan.bagian : 'BC'];
   const m = profil.bersihkan(badan);
   if (m.galat) return galat(m.galat, m.status ?? 400, cors);
 

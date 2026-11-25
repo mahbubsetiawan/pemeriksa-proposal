@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaE1, periksaF1, periksaF2, pecahKonsep, periksaH1, periksaH2, periksaH3, periksaH4, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
+  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaE1, periksaF1, periksaF2, pecahKonsep, periksaG1, periksaG2, periksaG3, periksaG4, periksaG5, periksaG6, periksaG7, periksaH1, periksaH2, periksaH3, periksaH4, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
 } from '../js/aturan.js';
 
 const baca = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
-const RUBRIK = ['A-latar', 'B-rumusan', 'C-tujuan', 'D-manfaat', 'E-tinjauan', 'F-landasan', 'H-sistematika'].flatMap((n) => baca(`../rubrik/${n}.json`));
+const RUBRIK = ['A-latar', 'B-rumusan', 'C-tujuan', 'D-manfaat', 'E-tinjauan', 'F-landasan', 'G-metode', 'H-sistematika'].flatMap((n) => baca(`../rubrik/${n}.json`));
 
 // Contoh benar dari Panduan Bab I.B dan I.C (kasus Kungkum Pengging - Sartre).
 const RM_BENAR = [
@@ -129,7 +129,7 @@ test('rubrik: bentuk entri dan rujukan panduan', () => {
     for (const k of ['id', 'bagian', 'jenis', 'kriteria', 'tingkat', 'rujukan', 'pesan_gagal', 'dasar']) {
       assert.ok(e[k], `${e.id} tanpa ${k}`);
     }
-    assert.match(e.rujukan, /^Panduan Bab (?:I\.[A-E]|II\.[A-C])$/);
+    assert.match(e.rujukan, /^Panduan Bab (?:I\.[A-E]|II\.[A-C]|III(?:\.[A-E])?)$/);
     assert.ok(e.bagian_panduan);
     assert.ok(['aturan', 'ai'].includes(e.jenis));
     assert.ok(!ids.has(e.id));
@@ -327,4 +327,88 @@ test('periksaSemua bagian E dan F: pesan terisi, kriteria makna menunggu AI', ()
   assert.match(pf.F2.pesan, /kesadaran otentik/);
   for (const id of ['F3', 'F4', 'F5', 'F6', 'F7']) assert.equal(pf[id].status, STATUS.BELUM_DIJALANKAN);
   assert.ok([...e, ...f].every((x) => !/\{\w+\}/.test(x.pesan)));
+});
+
+// Contoh benar dari panduan Bab III (kasus Kungkum Pengging - Sartre), disesuaikan ke bahasa rencana proposal.
+const G_JENIS = 'Penelitian ini merupakan penelitian kualitatif lapangan (field research) dengan pendekatan filosofis-fenomenologis. Pendekatan ini dipilih karena peneliti akan mendalami fenomena sosial secara alami di lokasi Umbul Pengging.';
+const G_SUMBER = '1. Data primer akan berupa transkrip wawancara mendalam dengan informan kunci serta catatan lapangan hasil observasi.\n2. Data sekunder akan berupa profil monografi dari Kantor Desa serta literatur teoretis mengenai eksistensialisme Sartre.';
+const G_TEKNIK = 'Pengumpulan data akan dilakukan melalui observasi non-partisipan, wawancara mendalam, dan dokumentasi. Peneliti akan memedomani matriks kisi-kisi instrumen.';
+const G_KISI = 'Fokus masalah (konsep) | Kategori analitik | Indikator | Sumber data | Teknik pengumpulan data\nKonstruksi kebebasan radikal | Kesadaran dan pilihan bebas subjek | Pilihan sadar subjek vs. rutinitas | Pelaku Kungkum | Wawancara, Observasi';
+const G_ANALISIS = 'Analisis data akan dilakukan melalui tiga tahapan. Pertama, analisis deskriptif memaparkan temuan secara objektif. Kedua, analisis verifikatif (verstehen) menggali motif dari sudut pandang pelaku. Ketiga, analisis interpretatif membenturkan temuan dengan teori Sartre.';
+const G_TRIANG = 'Peneliti akan menerapkan triangulasi sumber, yaitu membandingkan keterangan pelaku dengan keterangan Juru Kunci, serta triangulasi teknik, yaitu mengonfrontasi hasil wawancara dengan observasi dan dokumentasi.';
+const G_BENAR = { jenis: G_JENIS, sumber: G_SUMBER, teknik: G_TEKNIK, kisi: G_KISI, analisis: G_ANALISIS, triangulasi: G_TRIANG };
+
+test('G1: sumber data wajib menyebut data primer dan data sekunder', () => {
+  assert.equal(periksaG1(G_SUMBER).status, STATUS.TERPENUHI);
+  const r = periksaG1('Data primer berupa wawancara dengan lima informan kunci.');
+  assert.equal(r.status, STATUS.BELUM);
+  assert.equal(r.data.kurang, 'data sekunder');
+  assert.equal(periksaG1('Wawancara dan buku.').data.kurang, 'data primer dan data sekunder');
+  assert.equal(periksaG1(' ').status, STATUS.TIDAK_DAPAT);
+});
+
+test('G2: tiga baris pertanyaan berderet menjadi peringatan; kisi-kisi dan narasi lolos', () => {
+  assert.equal(periksaG2(G_TEKNIK, G_KISI).status, STATUS.TERPENUHI);
+  const r = periksaG2('Pertanyaan wawancara:\n1. Mengapa Anda berkungkum?\n2. Sejak kapan Anda berkungkum?\n3. Apa yang Anda rasakan?', '');
+  assert.equal(r.status, STATUS.PERINGATAN);
+  assert.equal(r.bukti.length, 3);
+  assert.equal(periksaG2('Satu pertanyaan saja?\nDua pertanyaan?', '').status, STATUS.TERPENUHI);
+  assert.equal(periksaG2('', '').status, STATUS.TIDAK_DAPAT);
+});
+
+test('G3: kisi-kisi harus menyebut kelima kolom', () => {
+  assert.equal(periksaG3(G_KISI).status, STATUS.TERPENUHI);
+  const r = periksaG3('Fokus masalah | Indikator | Sumber data');
+  assert.equal(r.status, STATUS.PERINGATAN);
+  assert.match(r.data.kurang, /kategori analitik/);
+  assert.match(r.data.kurang, /teknik pengumpulan data/);
+  assert.equal(periksaG3('').status, STATUS.TIDAK_DAPAT);
+});
+
+test('G4 dan G5: tiga tahap analisis wajib; model Miles dan Huberman hanya peringatan', () => {
+  assert.equal(periksaG4(G_ANALISIS).status, STATUS.TERPENUHI);
+  const r = periksaG4('Analisis data akan memakai tahap deskriptif dan interpretatif.');
+  assert.equal(r.status, STATUS.BELUM);
+  assert.equal(r.data.kurang, 'verifikatif (verstehen)');
+  assert.equal(periksaG4('Hanya analisis biasa.').data.kurang, 'deskriptif, verifikatif (verstehen), interpretatif');
+  assert.equal(periksaG5(G_ANALISIS).status, STATUS.TERPENUHI);
+  const m = periksaG5('Analisis data akan mengikuti model Miles dan Huberman: reduksi data, penyajian data, dan penarikan kesimpulan.');
+  assert.equal(m.status, STATUS.PERINGATAN);
+  assert.match(m.bukti[0], /Miles/);
+});
+
+test('G6: triangulasi sumber dan triangulasi teknik keduanya wajib disebut', () => {
+  assert.equal(periksaG6(G_TRIANG).status, STATUS.TERPENUHI);
+  const r = periksaG6('Peneliti akan menerapkan triangulasi sumber.');
+  assert.equal(r.status, STATUS.BELUM);
+  assert.equal(r.data.kurang, 'triangulasi teknik');
+  assert.equal(periksaG6('Data akan diuji keabsahannya.').data.kurang, 'triangulasi sumber dan triangulasi teknik');
+});
+
+test('G7: bahasa rencana lolos; bahasa laporan atau tanpa "akan" menjadi peringatan', () => {
+  assert.equal(periksaG7(G_JENIS, G_SUMBER, G_TEKNIK, G_ANALISIS, G_TRIANG).status, STATUS.TERPENUHI);
+  const laporan = periksaG7('Wawancara telah dilakukan terhadap lima informan kunci.', G_SUMBER);
+  assert.equal(laporan.status, STATUS.PERINGATAN);
+  assert.match(laporan.bukti[0], /telah dilakukan/);
+  assert.equal(periksaG7('Penelitian ini bersifat kualitatif lapangan.').status, STATUS.PERINGATAN);
+  assert.equal(periksaG7('', '').status, STATUS.TIDAK_DAPAT);
+});
+
+test('periksaSemua bagian G: contoh benar lolos semua aturan; contoh salah tertangkap; kriteria makna menunggu AI', () => {
+  const benar = periksaSemua(RUBRIK.filter((e) => e.bagian === 'G'), G_BENAR);
+  const pb = Object.fromEntries(benar.map((h) => [h.id, h]));
+  for (const id of ['G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7']) assert.equal(pb[id].status, STATUS.TERPENUHI, id);
+  for (const id of ['G8', 'G9', 'G10', 'G11', 'G12', 'G13']) assert.equal(pb[id].status, STATUS.BELUM_DIJALANKAN, id);
+  const salah = periksaSemua(RUBRIK.filter((e) => e.bagian === 'G'), {
+    jenis: 'Wawancara telah dilakukan.', sumber: 'Data primer berupa wawancara.', teknik: '', kisi: 'Indikator saja',
+    analisis: 'Analisis memakai model Miles dan Huberman.', triangulasi: 'Triangulasi sumber.'
+  });
+  const ps = Object.fromEntries(salah.map((h) => [h.id, h]));
+  assert.match(ps.G1.pesan, /^Data sekunder belum disebut/);
+  assert.equal(ps.G3.status, STATUS.PERINGATAN);
+  assert.equal(ps.G4.status, STATUS.BELUM);
+  assert.equal(ps.G5.status, STATUS.PERINGATAN);
+  assert.match(ps.G6.pesan, /triangulasi teknik/);
+  assert.equal(ps.G7.status, STATUS.PERINGATAN);
+  assert.ok([...benar, ...salah].every((x) => !/\{\w+\}/.test(x.pesan)));
 });

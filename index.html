@@ -21,6 +21,7 @@
     <symbol id="i-daftar" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
     <symbol id="i-buku" viewBox="0 0 24 24"><path d="M4 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H4zM20 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/></symbol>
     <symbol id="i-lapis" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5zM3 12.5l9 5 9-5M3 17l9 5 9-5"/></symbol>
+    <symbol id="i-metode" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
     <symbol id="i-kilau" viewBox="0 0 24 24"><path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
   </svg>
 
@@ -64,7 +65,10 @@
             <svg class="ik" aria-hidden="true"><use href="#i-lapis"/></svg>
             <span class="nama"><b>F</b> Landasan teori</span>
           </button>
-          <span class="butir-menu mati" aria-hidden="true"><span class="nama"><b>G</b> Metode</span><em>Segera</em></span>
+          <button type="button" role="tab" id="tab-g" aria-controls="panel-g" aria-selected="false" data-panel="g" class="butir-menu">
+            <svg class="ik" aria-hidden="true"><use href="#i-metode"/></svg>
+            <span class="nama"><b>G</b> Metode</span>
+          </button>
           <button type="button" role="tab" id="tab-h" aria-controls="panel-h" aria-selected="false" data-panel="h" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-daftar"/></svg>
             <span class="nama"><b>H</b> Sistematika</span>
@@ -206,6 +210,50 @@
           <div class="kartu-isian">
             <label for="kerangka">Kerangka pemikiran (narasi alur, opsional)</label>
             <textarea id="kerangka" rows="6" placeholder="Narasi alur bagan: Situation, Target, Approach, Review, Ends."></textarea>
+          </div>
+          <div class="aksi">
+            <button type="submit" class="utama">Periksa</button>
+            <button type="button" class="contoh sekunder">Isi contoh</button>
+            <button type="button" class="kosongkan sekunder">Kosongkan</button>
+          </div>
+        </form>
+        <section class="hasil" aria-live="polite" hidden>
+          <div class="ringkas"><div class="skor"></div><div class="chip-wadah"></div><button type="button" class="jalankan-makna utama"><svg class="ik" aria-hidden="true"><use href="#i-kilau"/></svg><span>Periksa makna (AI)</span></button></div>
+          <p class="pesan-makna bantu" role="status"></p>
+          <div class="isi-hasil"></div>
+        </section>
+      </section>
+
+      <section id="panel-g" class="panel" role="tabpanel" aria-labelledby="tab-g" hidden>
+        <div class="judul-kerja">
+          <h2>Metode penelitian</h2>
+          <p>Lima unsur: jenis dan pendekatan, sumber data, teknik pengumpulan dan kisi-kisi, analisis data, serta triangulasi. Ditulis dalam bahasa rencana.</p>
+          <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
+        </div>
+        <form id="form-g" novalidate>
+          <div class="kartu-isian">
+            <label for="metode-jenis">Jenis dan pendekatan penelitian</label>
+            <textarea id="metode-jenis" rows="4" placeholder="Jenis penelitian kualitatif (lapangan atau pustaka), pendekatannya, dan alasan memilihnya."></textarea>
+          </div>
+          <div class="kartu-isian">
+            <label for="metode-sumber">Sumber data</label>
+            <textarea id="metode-sumber" rows="5" placeholder="Data primer dan data sekunder, masing-masing dengan objek yang spesifik."></textarea>
+          </div>
+          <div class="kartu-isian">
+            <label for="metode-teknik">Teknik pengumpulan data</label>
+            <textarea id="metode-teknik" rows="4" placeholder="Observasi, wawancara mendalam, dokumentasi (atau pembacaan kritis untuk penelitian pustaka)."></textarea>
+          </div>
+          <div class="kartu-isian">
+            <label for="metode-kisi">Kisi-kisi instrumen</label>
+            <textarea id="metode-kisi" rows="6" placeholder="Tempel tabelnya: fokus masalah, kategori analitik, indikator, sumber data, teknik pengumpulan data."></textarea>
+          </div>
+          <div class="kartu-isian">
+            <label for="metode-analisis">Teknik analisis data</label>
+            <textarea id="metode-analisis" rows="5" placeholder="Tiga tahapan: deskriptif, verifikatif (verstehen), interpretatif."></textarea>
+          </div>
+          <div class="kartu-isian">
+            <label for="metode-triangulasi">Keabsahan data (triangulasi)</label>
+            <textarea id="metode-triangulasi" rows="4" placeholder="Triangulasi sumber dan triangulasi teknik, dengan contoh konkret."></textarea>
           </div>
           <div class="aksi">
             <button type="submit" class="utama">Periksa</button>

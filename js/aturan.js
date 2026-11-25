@@ -262,7 +262,88 @@ export function periksaF2(konsep, landasan) {
   return hilang.length ? hasil(STATUS.PERINGATAN, { nomor: hilang }) : hasil(STATUS.TERPENUHI);
 }
 
+/** G1: sumber data memuat klasifikasi data primer dan data sekunder. */
+export function periksaG1(sumber) {
+  if (!terisi(sumber)) return kosong('sumber data');
+  const kurang = [];
+  if (!/data\s+primer/i.test(sumber)) kurang.push('data primer');
+  if (!/data\s+sekunder/i.test(sumber)) kurang.push('data sekunder');
+  return kurang.length ? hasil(STATUS.BELUM, { data: { kurang: kurang.join(' dan ') } }) : hasil(STATUS.TERPENUHI);
+}
+
+/** G2: peringatan bila ada tiga baris pertanyaan (berakhiran "?") atau lebih. */
+export function periksaG2(teknik, kisi) {
+  const baris = `${teknik ?? ''}\n${kisi ?? ''}`.split('\n').map((b) => b.trim()).filter(Boolean);
+  if (!baris.length) return kosong('teknik pengumpulan data');
+  const tanya = baris.filter((b) => /\?\s*$/.test(b));
+  return tanya.length >= 3 ? hasil(STATUS.PERINGATAN, { bukti: tanya.slice(0, 3) }) : hasil(STATUS.TERPENUHI);
+}
+
+const KOLOM_KISI = [
+  ['fokus masalah (konsep)', /fokus|konsep/i],
+  ['kategori analitik', /kategori\s+analitik/i],
+  ['indikator', /indikator/i],
+  ['sumber data', /sumber\s+data/i],
+  ['teknik pengumpulan data', /teknik/i]
+];
+
+/** G3: kisi-kisi menyebut kelima kolom (pencarian kata kunci, jadi hanya peringatan). */
+export function periksaG3(kisi) {
+  if (!terisi(kisi)) return kosong('kisi-kisi instrumen');
+  const hilang = KOLOM_KISI.filter(([, pola]) => !pola.test(kisi)).map(([nama]) => nama);
+  return hilang.length ? hasil(STATUS.PERINGATAN, { data: { kurang: hilang.join(', ') } }) : hasil(STATUS.TERPENUHI);
+}
+
+const TAHAP_ANALISIS = [
+  ['deskriptif', /deskriptif/i],
+  ['verifikatif (verstehen)', /verifikatif|verstehen/i],
+  ['interpretatif', /interpretatif/i]
+];
+
+/** G4: analisis data menyebut tiga tahapan (deskriptif, verifikatif, interpretatif). */
+export function periksaG4(analisis) {
+  if (!terisi(analisis)) return kosong('teknik analisis data');
+  const hilang = TAHAP_ANALISIS.filter(([, pola]) => !pola.test(analisis)).map(([nama]) => nama);
+  return hilang.length ? hasil(STATUS.BELUM, { data: { kurang: hilang.join(', ') } }) : hasil(STATUS.TERPENUHI);
+}
+
+/** G5: peringatan bila memakai model reduksi-display (Miles dan Huberman). */
+export function periksaG5(analisis) {
+  const kalimat = kalimatDari(analisis);
+  if (!kalimat.length) return kosong('teknik analisis data');
+  const model = kalimat.filter((k) => /miles|huberman|reduksi\s+data|penyajian\s+data\s+dan\s+penarikan/i.test(k));
+  return model.length ? hasil(STATUS.PERINGATAN, { bukti: model.slice(0, 3) }) : hasil(STATUS.TERPENUHI);
+}
+
+/** G6: keabsahan data menyebut triangulasi sumber dan triangulasi teknik. */
+export function periksaG6(triangulasi) {
+  if (!terisi(triangulasi)) return kosong('keabsahan data (triangulasi)');
+  const hilang = [];
+  if (!/triangulasi\s+sumber/i.test(triangulasi)) hilang.push('triangulasi sumber');
+  if (!/triangulasi\s+teknik/i.test(triangulasi)) hilang.push('triangulasi teknik');
+  return hilang.length ? hasil(STATUS.BELUM, { data: { kurang: hilang.join(' dan ') } }) : hasil(STATUS.TERPENUHI);
+}
+
+const POLA_LAPORAN = /\btelah\s+(?:dilakukan|dilaksanakan|diwawancarai|mewawancarai|mengumpulkan|dikumpulkan|diobservasi|mengobservasi)\b/i;
+
+/** G7: proposal memakai bahasa rencana ("akan"); kalimat laporan ("telah dilakukan") atau tanpa "akan" menjadi peringatan. */
+export function periksaG7(...bagian) {
+  const teks = bagian.map((b) => String(b ?? '')).join('\n');
+  const kalimat = kalimatDari(teks);
+  if (!kalimat.length) return kosong('metode penelitian');
+  const laporan = kalimat.filter((k) => POLA_LAPORAN.test(k));
+  if (laporan.length) return hasil(STATUS.PERINGATAN, { bukti: laporan.slice(0, 3) });
+  return /\bakan\b/i.test(teks) ? hasil(STATUS.TERPENUHI) : hasil(STATUS.PERINGATAN);
+}
+
 export const PEMERIKSA = {
+  G1: (i) => periksaG1(i.sumber),
+  G2: (i) => periksaG2(i.teknik, i.kisi),
+  G3: (i) => periksaG3(i.kisi),
+  G4: (i) => periksaG4(i.analisis),
+  G5: (i) => periksaG5(i.analisis),
+  G6: (i) => periksaG6(i.triangulasi),
+  G7: (i) => periksaG7(i.jenis, i.sumber, i.teknik, i.analisis, i.triangulasi),
   E1: (i) => periksaE1(i.tinjauan),
   F1: (i) => periksaF1(i.landasan),
   F2: (i) => periksaF2(i.konsep, i.landasan),
@@ -290,7 +371,8 @@ export function gabungNomor(nomor) {
 
 export function isiTemplat(templat, h) {
   const nilai = { n: gabungNomor(h.nomor), ...h.data };
-  return String(templat ?? '').replace(/\{(\w+)\}/g, (_, k) => (nilai[k] ?? `{${k}}`));
+  const teks = String(templat ?? '').replace(/\{(\w+)\}/g, (_, k) => (nilai[k] ?? `{${k}}`));
+  return teks.charAt(0).toUpperCase() + teks.slice(1); // kalimat diawali isian otomatis tetap berhuruf kapital
 }
 
 /** Jalankan seluruh rubrik; entri berjenis AI ditandai "belum dijalankan". */
