@@ -229,3 +229,13 @@ test('bagian B dan C: Worker menerima isian yang tepat per bagian', async () => 
   assert.deepEqual(tiruanB.map((x) => x.id), ['B4', 'B5', 'B6']);
   assert.deepEqual(tiruanC.map((x) => x.id), ['C3']);
 });
+
+test('buatPelaksanaWorker: identitas ikut dikirim di badan permintaan', async () => {
+  let badan;
+  const f = async (url, init) => { badan = JSON.parse(init.body); return new Response(JSON.stringify({ hasil: [] }), { status: 200 }); };
+  const p = buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', identitas: { nama: 'SITI AMINAH', nim: '231121004' }, bagian: 'A', fetchFn: f });
+  await p([], { latar: 'x' });
+  assert.deepEqual(badan.identitas, { nama: 'SITI AMINAH', nim: '231121004' });
+  assert.equal(badan.bagian, 'A');
+  assert.equal(badan.latar, 'x');
+});

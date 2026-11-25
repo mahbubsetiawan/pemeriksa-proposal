@@ -1,7 +1,9 @@
 // Perantara Claude API untuk Pemeriksa Proposal Skripsi (Cloudflare Worker, paket gratis).
 // Kunci API HANYA dibaca dari rahasia Worker (env.ANTHROPIC_API_KEY), yang dipasang pemilik lewat dasbor atau
 // `wrangler secret put`. Berkas ini tidak memuat, meminta, atau mencatat kunci apa pun.
-// Draf mahasiswa tidak disimpan dan tidak dicatat (tidak ada console.log atas isi permintaan).
+// Atas keputusan pemilik (25 November 2026, mahasiswa telah menyetujui): setiap pemeriksaan makna yang berhasil disimpan
+// di KV (nama, NIM, isian, hasil) untuk uji mutu dan perbaikan aplikasi. Hanya pemilik yang dapat mengambilnya, lewat
+// GET /ekspor dengan rahasia KODE_ADMIN. Tidak ada console.log atas isi permintaan.
 // Memakai fetch langsung (bukan SDK) agar tanpa langkah pemasangan dan hemat waktu CPU paket gratis (10 ms).
 import rubrikA from '../rubrik/A-latar.json' with { type: 'json' };
 import rubrikB from '../rubrik/B-rumusan.json' with { type: 'json' };
@@ -165,6 +167,15 @@ export function kodeSah(kode, env) {
   const daftar = String(env.KODE_AKSES ?? '').split(',').map((s) => s.trim()).filter(Boolean);
   if (!kode || !daftar.length) return false;
   return daftar.map((k) => sama(kode, k)).some(Boolean);
+}
+
+/** Identitas pengguna: nama dan NIM wajib. NIM hanya angka, titik, dan tanda hubung. */
+export function bersihkanIdentitas(x) {
+  const nama = String(x?.nama ?? '').replace(/\s+/g, ' ').trim().toUpperCase(); // format kampus: huruf kapital
+  const nim = String(x?.nim ?? '').replace(/\s+/g, '');
+  if (nama.length < 3 || nama.length > 80 || !/^[\p{L}\p{M}'’ -]+$/u.test(nama)) return { galat: 'Isi nama lengkap sesuai data kampus, tanpa titik (3 sampai 80 huruf).' };
+  if (!/^[0-9]{9}$/.test(nim)) return { galat: 'NIM harus 9 angka tanpa titik, contoh 241121022.' };
+  return { nama, nim };
 }
 
 export function bersihkanMasukan(b) {
@@ -492,6 +503,32 @@ const PROFIL = {
   K: { ids: AI_K.map((e) => e.id), bersihkan: bersihkanMasukanKoherensi, susun: susunPermintaanKoherensi }
 };
 
+/** Simpan satu pemeriksaan yang berhasil. Kegagalan menyimpan tidak boleh menggagalkan jawaban kepada mahasiswa. */
+async function simpanPemeriksaan(kv, rekam) {
+  try {
+    await kv.put(`s:${rekam.waktu}:${crypto.randomUUID().slice(0, 8)}`, JSON.stringify(rekam));
+  } catch { /* abaikan */ }
+}
+
+const BARIS_EKSPOR = 40; // paket gratis: paling banyak 50 subrequest per permintaan
+
+/** GET /ekspor?kursor=...: hanya untuk pemilik (X-Kunci-Admin = rahasia KODE_ADMIN). */
+async function ekspor(request, env) {
+  const hdr = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+  const kunci = request.headers.get('X-Kunci-Admin');
+  if (!env.KODE_ADMIN || !kunci || !sama(kunci, env.KODE_ADMIN)) {
+    return new Response(JSON.stringify({ galat: 'Tidak diizinkan.' }), { status: 401, headers: hdr });
+  }
+  const kursor = new URL(request.url).searchParams.get('kursor') || undefined;
+  const daftar = await env.PEMAKAIAN.list({ prefix: 's:', limit: BARIS_EKSPOR, cursor: kursor });
+  const data = [];
+  for (const k of daftar.keys) {
+    const v = await env.PEMAKAIAN.get(k.name);
+    if (v) { try { data.push({ kunci: k.name, ...JSON.parse(v) }); } catch { /* lewati */ } }
+  }
+  return new Response(JSON.stringify({ data, kursor: daftar.list_complete ? null : daftar.cursor }), { status: 200, headers: hdr });
+}
+
 async function hitung(kv, kunci, batas) {
   const sekarang = Number((await kv.get(kunci)) ?? 0);
   if (sekarang >= batas) return { ok: false, sekarang };
@@ -500,6 +537,7 @@ async function hitung(kv, kunci, batas) {
 }
 
 export async function tangani(request, env, fetchFn = fetch) {
+  if (request.method === 'GET' && new URL(request.url).pathname === '/ekspor') return ekspor(request, env);
   const asalSah = String(env.ASAL_DIIZINKAN ?? 'https://mahbubsetiawan.github.io').split(',').map((s) => s.trim());
   const asal = request.headers.get('Origin');
   const cors = asal && asalSah.includes(asal)
@@ -525,6 +563,8 @@ export async function tangani(request, env, fetchFn = fetch) {
   let badan;
   try { badan = JSON.parse(teks); } catch { return galat('Isi permintaan bukan JSON yang valid.', 400, cors); }
   const profil = PROFIL[['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K'].includes(badan?.bagian) ? badan.bagian : 'BC'];
+  const identitas = bersihkanIdentitas(badan?.identitas);
+  if (identitas.galat) return galat(identitas.galat, 400, cors);
   const m = profil.bersihkan(badan);
   if (m.galat) return galat(m.galat, m.status ?? 400, cors);
 
@@ -563,6 +603,11 @@ export async function tangani(request, env, fetchFn = fetch) {
     const blok = (data.content ?? []).find((b) => b.type === 'text');
     hasil = JSON.parse(blok?.text ?? '').hasil;
   } catch { return galat('Keluaran pemeriksaan makna tidak dapat dibaca.', 502, cors); }
+  const { identitas: _abaikan, ...masukan } = badan;
+  await simpanPemeriksaan(env.PEMAKAIAN, {
+    waktu: new Date().toISOString(), nama: identitas.nama, nim: identitas.nim, idPerangkat,
+    bagian: badan?.bagian ?? 'BC', masukan, hasil, penggunaan
+  });
   return json({ hasil, sisa, penggunaan }, 200, cors);
 }
 

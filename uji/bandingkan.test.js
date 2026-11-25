@@ -35,3 +35,28 @@ test('jalankanAturanSemua: bagian kosong dilewati dan hasil memuat pesan', () =>
   assert.ok(baris.every((b) => b.jenis === 'aturan' && 'pesan' in b));
   assert.deepEqual(jalankanAturanSemua([{ id: 'x', latar: 'a', rumusan: ['y'] }], ['A']).map((b) => b.kriteria), ['A7']);
 });
+
+import { jadikanButir, ambilSemua } from './ambil-data.js';
+
+test('jadikanButir: satu butir per NIM, isian terbaru menang, kosong tidak menimpa, uji pemilik dilewati', () => {
+  const rekaman = [
+    { waktu: '2026-11-26T01:00:00Z', nim: '111111111', masukan: { bagian: 'A', latar: 'latar lama' } },
+    { waktu: '2026-11-26T02:00:00Z', nim: '111111111', masukan: { bagian: 'A', latar: 'latar baru' } },
+    { waktu: '2026-11-26T03:00:00Z', nim: '111111111', masukan: { bagian: 'B', rumusan: ['r1'], latar: '' } },
+    { waktu: '2026-11-26T04:00:00Z', nim: '000000000', masukan: { bagian: 'A', latar: 'x' } }
+  ];
+  const butir = jadikanButir(rekaman);
+  assert.equal(butir.length, 1);
+  assert.equal(butir[0].latar, 'latar baru');
+  assert.deepEqual(butir[0].rumusan, ['r1']);
+  assert.match(butir[0].id, /^mhs-[0-9a-f]{6}$/);
+  assert.ok(!JSON.stringify(butir).includes('111111111'));
+});
+
+test('ambilSemua: mengikuti kursor sampai selesai dan melaporkan penolakan', async () => {
+  const halaman = [{ data: [{ id: 1 }], kursor: 'k2' }, { data: [{ id: 2 }], kursor: null }];
+  let i = 0;
+  const f = async (u, o) => { assert.equal(o.headers['X-Kunci-Admin'], 'kunci'); return new Response(JSON.stringify(halaman[i++]), { status: 200 }); };
+  assert.equal((await ambilSemua('https://w.example/', 'kunci', f)).length, 2);
+  await assert.rejects(() => ambilSemua('https://w.example', 'x', async () => new Response('{"galat":"Tidak diizinkan."}', { status: 401 })), /Tidak diizinkan/);
+});

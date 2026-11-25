@@ -607,9 +607,10 @@ function pasangPanel(nama, rubrik) {
     if (!terakhir) return;
     let pelaksana;
     if (SUNGGUHAN) {
+      if (!ambilIdentitas()) { bukaGerbangMasuk(); return; }
       const kode = await pastikanIzin();
       if (!kode) return;
-      pelaksana = buatPelaksanaWorker({ url: URL_WORKER, kodeAkses: kode, idPerangkat: idPerangkat(), bagian: cfg.bagian });
+      pelaksana = buatPelaksanaWorker({ url: URL_WORKER, kodeAkses: kode, idPerangkat: idPerangkat(), identitas: ambilIdentitas(), bagian: cfg.bagian });
     }
     tombol.disabled = true;
     tombol.classList.add('memuat');
@@ -648,8 +649,56 @@ function pasangMenu() {
   }));
 }
 
+/* ---------- identitas pengguna (nama dan NIM) ---------- */
+const KUNCI_IDENTITAS = 'identitas-v1';
+
+function ambilIdentitas() {
+  try {
+    const x = JSON.parse(localStorage.getItem(KUNCI_IDENTITAS));
+    return x?.nama && x?.nim ? { nama: x.nama, nim: x.nim } : null;
+  } catch { return null; }
+}
+
+/** Sama dengan aturan di Worker, agar kesalahan terlihat sebelum dikirim. */
+function periksaIdentitas(nama, nim) {
+  const n = String(nama).replace(/\s+/g, ' ').trim().toUpperCase(); // format kampus: huruf kapital
+  const m = String(nim).replace(/\s+/g, '');
+  if (n.length < 3 || n.length > 80 || !/^[\p{L}\p{M}'’ -]+$/u.test(n)) return { galat: 'Isi nama lengkap sesuai data kampus, tanpa titik (3 sampai 80 huruf).' };
+  if (!/^[0-9]{9}$/.test(m)) return { galat: 'NIM harus 9 angka tanpa titik, contoh 241121022.' };
+  return { nama: n, nim: m };
+}
+
+function tampilkanIdentitas() {
+  const x = ambilIdentitas();
+  $('#identitas-saat-ini').textContent = x ? `Masuk sebagai ${x.nama} (${x.nim}).` : '';
+}
+
+/** Gerbang masuk: dialog yang tidak bisa ditutup sampai nama dan NIM terisi. */
+function bukaGerbangMasuk() {
+  const dlg = $('#dialog-masuk');
+  const x = ambilIdentitas();
+  $('#masuk-nama').value = x?.nama ?? '';
+  $('#masuk-nim').value = x?.nim ?? '';
+  $('#masuk-setuju').checked = false;
+  $('#galat-masuk').textContent = '';
+  dlg.oncancel = (e) => e.preventDefault();
+  $('#form-masuk').onsubmit = (e) => {
+    e.preventDefault();
+    const r = periksaIdentitas($('#masuk-nama').value, $('#masuk-nim').value);
+    if (r.galat) { $('#galat-masuk').textContent = r.galat; return; }
+    if (!$('#masuk-setuju').checked) { $('#galat-masuk').textContent = 'Centang persetujuan untuk melanjutkan.'; return; }
+    localStorage.setItem(KUNCI_IDENTITAS, JSON.stringify({ nama: r.nama, nim: r.nim }));
+    $('#galat-masuk').textContent = '';
+    dlg.close();
+    tampilkanIdentitas();
+  };
+  if (!dlg.open) dlg.showModal();
+  $('#masuk-nama').focus();
+}
+
 function pasangDialog() {
-  $('#buka-tentang').addEventListener('click', () => $('#dialog-tentang').showModal());
+  $('#ganti-identitas').addEventListener('click', () => { $('#dialog-tentang').close(); bukaGerbangMasuk(); });
+  $('#buka-tentang').addEventListener('click', () => { tampilkanIdentitas(); $('#dialog-tentang').showModal(); });
   $('#tutup-tentang').addEventListener('click', () => $('#dialog-tentang').close());
   if (SUNGGUHAN) {
     const b = $('#buka-kode');
@@ -688,6 +737,7 @@ async function mulai() {
   pulihkanDraf();
   pasangMenu();
   pasangDialog();
+  if (SUNGGUHAN && !ambilIdentitas()) bukaGerbangMasuk();
   pasangLaporan();
   pasangHapusDraf();
   document.addEventListener('input', () => { perbaruiProgres(); jadwalSimpan(); });

@@ -37,9 +37,10 @@ Setelah terpasang, isi `URL_WORKER` di `js/konfigurasi.js` dengan alamat Worker.
 - Batas 20 pemeriksaan per perangkat per hari dan 300 per hari untuk seluruh kelas (`BATAS_GLOBAL`).
 - CORS hanya untuk `https://mahbubsetiawan.github.io`. Untuk uji lokal, tambahkan `http://localhost:8765` ke `ASAL_DIIZINKAN` sementara.
 - Batas panjang teks, paling banyak 3 butir per bagian.
-- Isi permintaan tidak disimpan dan tidak dicatat.
+- Identitas (nama dan NIM) wajib. Tiap pemeriksaan yang berhasil disimpan di KV (kunci `s:...`: nama, NIM, isian, hasil) untuk uji mutu; mahasiswa diberi tahu di aplikasi. Tidak ada console.log atas isi permintaan.
+- Pengambilan data hanya oleh pemilik: `GET /ekspor` dengan header `X-Kunci-Admin` = rahasia `KODE_ADMIN` (`npx wrangler secret put KODE_ADMIN`, diketik sendiri). Pakai `node uji/ambil-data.js`.
 
 ## Catatan batas paket gratis (diperiksa 24 November 2026)
 - Workers Free: 100.000 permintaan per hari, 10 ms waktu CPU per permintaan, 50 subrequest.
-- KV Free: 1.000 penulisan per hari. Tiap pemeriksaan memakai 2 penulisan (perangkat dan global), sehingga kapasitas praktisnya sekitar 500 pemeriksaan per hari.
+- KV Free: 1.000 penulisan per hari. Tiap pemeriksaan memakai 3 penulisan (perangkat, global, dan salinan isian), sehingga kapasitas praktisnya sekitar 330 pemeriksaan per hari.
 - Model: `claude-haiku-5-5` ($0,10 masukan dan $0,50 keluaran per juta token pada daftar harga yang dimuat dalam sesi ini).

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { tangani, susunPermintaan, susunPermintaanLatar, susunPermintaanManfaat, susunPermintaanSistematika, susunPermintaanTinjauan, susunPermintaanLandasan, susunPermintaanMetode, bersihkanMasukanMetode, susunPermintaanKoherensi, bersihkanMasukanKoherensi, susunPermintaanRumusan, susunPermintaanTujuan, bersihkanMasukanRumusan, bersihkanMasukanTujuan, bersihkanMasukanTinjauan, bersihkanMasukanLandasan, bersihkanMasukan, bersihkanMasukanLatar, bersihkanMasukanManfaat, bersihkanMasukanSistematika, MODEL, BATAS } from '../worker/index.js';
+import { tangani, bersihkanIdentitas, susunPermintaan, susunPermintaanLatar, susunPermintaanManfaat, susunPermintaanSistematika, susunPermintaanTinjauan, susunPermintaanLandasan, susunPermintaanMetode, bersihkanMasukanMetode, susunPermintaanKoherensi, bersihkanMasukanKoherensi, susunPermintaanRumusan, susunPermintaanTujuan, bersihkanMasukanRumusan, bersihkanMasukanTujuan, bersihkanMasukanTinjauan, bersihkanMasukanLandasan, bersihkanMasukan, bersihkanMasukanLatar, bersihkanMasukanManfaat, bersihkanMasukanSistematika, MODEL, BATAS } from '../worker/index.js';
 
 const ASAL = 'https://mahbubsetiawan.github.io';
 const kv = () => {
@@ -10,11 +10,12 @@ const kv = () => {
   return { get: async (k) => m.get(k) ?? null, put: async (k, v) => { m.set(k, v); } };
 };
 const env = (x = {}) => ({ ANTHROPIC_API_KEY: 'kunci-uji-palsu', KODE_AKSES: 'kelas-a,kelas-b', PEMAKAIAN: kv(), ...x });
+const IDENT = { nama: 'Mahasiswa Uji', nim: '231121999' };
 const req = (badan, { metode = 'POST', asal = ASAL, kode = 'kelas-a', id = 'perangkat-0001' } = {}) =>
   new Request('https://w.example/periksa', {
     method: metode,
     headers: { Origin: asal, 'X-Kode-Akses': kode, 'X-Id-Perangkat': id, 'Content-Type': 'application/json' },
-    body: metode === 'POST' ? JSON.stringify(badan) : undefined
+    body: metode === 'POST' ? JSON.stringify({ identitas: IDENT, ...badan }) : undefined
   });
 const BADAN = {
   rumusan: ['Bagaimana akal dibahas dalam Misykat al-Anwar?'],
@@ -343,4 +344,57 @@ test('bagian B dan C lewat Worker; profil BC lama tetap dilayani untuk pemakai y
   assert.equal((await tangani(req(BADAN), env(), f(HASIL))).status, 200);
   assert.match(dikirim.messages[0].content, /- B4:/);
   assert.match(dikirim.messages[0].content, /- C3:/);
+});
+
+test('identitas wajib: tanpa nama atau NIM yang sah, permintaan ditolak sebelum memanggil layanan AI', async () => {
+  let dipanggil = false;
+  const f = async () => { dipanggil = true; return hasilAnthropic(HASIL)(); };
+  const tanpa = new Request('https://w.example/periksa', {
+    method: 'POST',
+    headers: { Origin: ASAL, 'X-Kode-Akses': 'kelas-a', 'X-Id-Perangkat': 'perangkat-0001', 'Content-Type': 'application/json' },
+    body: JSON.stringify(BADAN)
+  });
+  assert.equal((await tangani(tanpa, env(), f)).status, 400);
+  assert.deepEqual(bersihkanIdentitas({ nama: 'SITI AMINAH', nim: '231121004' }), { nama: 'SITI AMINAH', nim: '231121004' });
+  for (const salah of [{}, { nama: 'Si', nim: '231121004' }, { nama: 'Siti', nim: 'abc' }, { nama: 'Siti Aminah', nim: '24112102' }, { nama: 'Siti Aminah', nim: '24.11.21.022' }, { nama: 'Siti A. Aminah', nim: '241121022' }, { nama: '<b>Siti</b>', nim: '231121004' }]) {
+    assert.ok(bersihkanIdentitas(salah).galat, JSON.stringify(salah));
+  }
+  assert.equal(dipanggil, false);
+});
+
+test('pemeriksaan berhasil disimpan ke KV bersama identitas; ekspor hanya untuk pemilik', async () => {
+  const simpan = new Map();
+  const kvLengkap = {
+    get: async (k) => simpan.get(k) ?? null,
+    put: async (k, v) => { simpan.set(k, v); },
+    list: async ({ prefix }) => ({ keys: [...simpan.keys()].filter((k) => k.startsWith(prefix)).map((name) => ({ name })), list_complete: true })
+  };
+  const e = env({ PEMAKAIAN: kvLengkap, KODE_ADMIN: 'rahasia-admin' });
+  const r = await tangani(req(BADAN), e, hasilAnthropic(HASIL));
+  assert.equal(r.status, 200);
+  const rekam = [...simpan.entries()].filter(([k]) => k.startsWith('s:'));
+  assert.equal(rekam.length, 1);
+  const isi = JSON.parse(rekam[0][1]);
+  assert.equal(isi.nama, 'MAHASISWA UJI');
+  assert.equal(isi.nim, '231121999');
+  assert.deepEqual(isi.masukan.rumusan, BADAN.rumusan);
+  assert.ok(!('identitas' in isi.masukan));
+  assert.equal(isi.hasil.length, 4);
+
+  const ekspor = (kunci) => new Request('https://w.example/ekspor', { method: 'GET', headers: kunci ? { 'X-Kunci-Admin': kunci } : {} });
+  assert.equal((await tangani(ekspor(null), e)).status, 401);
+  assert.equal((await tangani(ekspor('salah'), e)).status, 401);
+  assert.equal((await tangani(ekspor('rahasia-admin'), env({ PEMAKAIAN: kvLengkap }))).status, 401); // KODE_ADMIN belum dipasang
+  const ok = await tangani(ekspor('rahasia-admin'), e);
+  assert.equal(ok.status, 200);
+  const j = await ok.json();
+  assert.equal(j.data.length, 1);
+  assert.equal(j.data[0].nim, '231121999');
+  assert.equal(j.kursor, null);
+});
+
+test('kegagalan menyimpan tidak menggagalkan jawaban kepada mahasiswa', async () => {
+  const kvRusak = { get: async () => null, put: async (k) => { if (k.startsWith('s:')) throw new Error('KV penuh'); } };
+  const r = await tangani(req(BADAN), env({ PEMAKAIAN: kvRusak }), hasilAnthropic(HASIL));
+  assert.equal(r.status, 200);
 });

@@ -71,9 +71,9 @@ export async function pelaksanaTiruan(entriAi, input) {
  * Pelaksana sungguhan: memanggil Worker perantara. Hanya mengirim isian pengguna, kode akses, dan id perangkat acak.
  * `bagian` memilih jenis pemeriksaan: 'BC' (rumusan dan tujuan) atau 'A' (latar belakang).
  */
-export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC', fetchFn = (...a) => fetch(...a) }) {
+export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, identitas, bagian = 'BC', fetchFn = (...a) => fetch(...a) }) {
   return async (entriAi, input) => {
-    const badan = {
+    const badan = { identitas, ...{
       A: { bagian: 'A', latar: input.latar },
       D: { bagian: 'D', teoretis: input.teoretis, praktis: input.praktis },
       H: { bagian: 'H', sistematika: input.sistematika },
@@ -84,7 +84,7 @@ export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC'
       B: { bagian: 'B', rumusan: input.rumusan, teori: input.teori, konsep: input.konsep, objek: input.objek },
       C: { bagian: 'C', rumusan: input.rumusan, tujuan: input.tujuan },
       BC: { bagian: 'BC', rumusan: input.rumusan, tujuan: input.tujuan, teori: input.teori, konsep: input.konsep, objek: input.objek }
-    }[bagian] ?? { bagian: 'BC' };
+    }[bagian] ?? { bagian: 'BC' } };
     let res;
     try {
       res = await fetchFn(url, {

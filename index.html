@@ -363,10 +363,24 @@
     </footer>
   </div>
 
+  <dialog id="dialog-masuk" aria-labelledby="judul-masuk">
+    <form method="dialog" id="form-masuk">
+      <h2 id="judul-masuk">Masuk</h2>
+      <p class="bantu">Isi nama dan NIM sebelum memakai aplikasi ini. Aplikasi ini sedang diuji coba oleh Dr. Mahbub Setiawan.</p>
+      <label for="masuk-nama">Nama lengkap</label>
+      <input id="masuk-nama" type="text" autocomplete="name" maxlength="80">
+      <label for="masuk-nim">NIM</label>
+      <input id="masuk-nim" type="text" inputmode="numeric" autocomplete="off" maxlength="9" placeholder="contoh: 241121022 (9 angka, tanpa titik)">
+      <label class="pilihan"><input id="masuk-setuju" type="checkbox"> <span>Saya setuju nama, NIM, dan tulisan yang saya periksa dengan AI disimpan oleh Dr. Mahbub Setiawan untuk menguji dan memperbaiki aplikasi ini.</span></label>
+      <p id="galat-masuk" class="galat" role="alert"></p>
+      <div class="aksi-dialog"><button type="submit" class="utama">Masuk</button></div>
+    </form>
+  </dialog>
+
   <dialog id="dialog-ai" aria-labelledby="judul-dialog-ai">
     <form method="dialog" id="form-dialog-ai">
       <h2 id="judul-dialog-ai">Periksa Makna dengan AI</h2>
-      <p class="bantu">Tulisan Anda dikirim ke layanan Claude (Anthropic) untuk dinilai. Menurut ketentuan Anthropic untuk API, data tidak dipakai melatih model secara bawaan dan dihapus dari sistem mereka dalam 30 hari. Server perantara aplikasi ini tidak menyimpan tulisan Anda.</p>
+      <p class="bantu">Tulisan Anda dikirim ke layanan Claude (Anthropic) untuk dinilai. Menurut ketentuan Anthropic untuk API, data tidak dipakai melatih model secara bawaan dan dihapus dari sistem mereka dalam 30 hari. Server perantara aplikasi ini menyimpan salinan tulisan, nama, dan NIM Anda untuk uji coba dan perbaikan aplikasi (hanya pemilik aplikasi yang dapat membukanya).</p>
       <label for="kode">Kode Akses Kelas</label>
       <input id="kode" type="password" autocomplete="off">
       <label class="pilihan"><input id="setuju" type="checkbox"> <span>Saya setuju tulisan saya dikirim untuk pemeriksaan ini.</span></label>
@@ -397,10 +411,13 @@
     <p>Pemeriksaan aturan berjalan di perangkat ini. Pemeriksaan makna oleh AI mengirim tulisan Anda ke layanan Claude hanya setelah Anda menyetujuinya.</p>
     <h3 class="sub-dialog">Data Anda</h3>
     <p>Isian disimpan otomatis di peramban perangkat ini agar tidak hilang saat halaman dimuat ulang; tidak dikirim ke mana pun kecuali Anda meminta pemeriksaan makna oleh AI. Layanan AI tidak memakai tulisan Anda untuk melatih model dan menyimpannya paling lama 30 hari.</p>
+    <p>Setiap kali Anda meminta pemeriksaan makna oleh AI, salinan tulisan yang dikirim, hasilnya, serta nama dan NIM Anda disimpan oleh Dr. Mahbub Setiawan untuk menguji dan memperbaiki aplikasi. Tombol di bawah hanya menghapus isian di perangkat ini, bukan salinan yang sudah tersimpan; untuk meminta penghapusan salinan itu, hubungi Dr. Mahbub Setiawan.</p>
+    <p class="bantu" id="identitas-saat-ini"></p>
+    <p><button type="button" id="ganti-identitas" class="sekunder kecil">Ganti nama dan NIM</button></p>
     <p><button type="button" id="hapus-draf" class="sekunder kecil">Hapus semua isian tersimpan</button> <span id="pesan-hapus" class="bantu" role="status"></span></p>
     <h3 class="sub-dialog">Keterbatasan</h3>
     <p>Hasilnya bantuan awal, bukan penilaian final. Pemeriksaan berbasis pola kata dapat keliru, dan pemeriksaan makna oleh AI dapat salah menafsirkan. Pertimbangkan hasilnya, lalu bawa ke pembimbing Anda.</p>
-    <p class="bantu" id="versi-aplikasi">Versi 1.0.2 (rilis 25 November 2026, cache v55)</p>
+    <p class="bantu" id="versi-aplikasi">Versi 1.1.0 (rilis 25 November 2026, cache v56)</p>
     <div class="aksi-dialog"><button type="button" id="tutup-tentang" class="utama">Tutup</button></div>
   </dialog>
 

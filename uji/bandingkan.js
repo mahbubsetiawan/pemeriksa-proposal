@@ -84,6 +84,8 @@ export function jalankanAturanSemua(data, huruf = null) {
   return baris;
 }
 
+// Worker mewajibkan identitas dan menyimpan tiap pemeriksaan; uji pemilik diberi NIM 000000000 agar mudah disaring dari data mahasiswa.
+const IDENTITAS_UJI = { nama: 'Uji Pemilik', nim: '000000000' };
 // Worker hanya menerima permintaan dari asal situs resmi; Node tidak menambahkannya sendiri.
 const DENGAN_ASAL = (url, opsi) => fetch(url, { ...opsi, headers: { ...opsi.headers, Origin: 'https://mahbubsetiawan.github.io' } });
 
@@ -99,7 +101,7 @@ async function jalankanAi(data, ulang, huruf) {
     for (const h of bagianTerisi(butir).filter((x) => !huruf || huruf.includes(x))) {
       const entriAi = RUBRIK_BAGIAN[h].filter((e) => e.jenis === 'ai');
       if (!entriAi.length) continue;
-      const pelaksana = buatPelaksanaWorker({ url, kodeAkses: kode, idPerangkat, bagian: h, fetchFn: DENGAN_ASAL });
+      const pelaksana = buatPelaksanaWorker({ url, kodeAkses: kode, idPerangkat, identitas: IDENTITAS_UJI, bagian: h, fetchFn: DENGAN_ASAL });
       for (let i = 0; i < ulang; i++) {
         let r;
         try {
