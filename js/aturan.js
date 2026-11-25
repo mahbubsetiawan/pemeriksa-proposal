@@ -181,7 +181,60 @@ export function periksaH2(sistematika) {
   return hasil(STATUS.PERINGATAN, { nomor: singkat.map((b) => b.label), bukti: singkat.map((b) => b.teks.slice(0, 160)) });
 }
 
+const POLA_URUT = /penelitian\s+(?:pertama|kedua|ketiga|keempat|kelima)\b/i;
+const paragrafDari = (t) => String(t ?? '').split(/\n\s*\n+/).map((p) => p.trim()).filter(Boolean);
+
+/** E1: dilarang mendaftar penelitian berurutan ("Penelitian pertama oleh A..., kedua oleh B..."). */
+export function periksaE1(tinjauan) {
+  const kalimat = kalimatDari(tinjauan);
+  if (!kalimat.length) return kosong('tinjauan penelitian terdahulu');
+  const daftar = kalimat.filter((k) => POLA_URUT.test(k));
+  return daftar.length ? hasil(STATUS.BELUM, { bukti: daftar.slice(0, 3) }) : hasil(STATUS.TERPENUHI);
+}
+
+/** E2: rumus CAP-G meminta tiga paragraf; selain itu peringatan (hanya menghitung paragraf). */
+export function periksaE2(tinjauan) {
+  const jumlah = paragrafDari(tinjauan).length;
+  if (!jumlah) return kosong('tinjauan penelitian terdahulu');
+  return jumlah === 3 ? hasil(STATUS.TERPENUHI, { data: { jumlah } }) : hasil(STATUS.PERINGATAN, { data: { jumlah } });
+}
+
+const POLA_BIOGRAFI = /\b(?:lahir|dilahirkan)\s+(?:di|pada|tahun)\b|\bbersekolah\b|\bmenempuh\s+pendidikan\b|\b(?:wafat|meninggal)\s+(?:di|pada|tahun)\b/i;
+
+/** F1: peringatan bila ada kalimat biografis (kelahiran, pendidikan, wafat). */
+export function periksaF1(landasan) {
+  const kalimat = kalimatDari(landasan);
+  if (!kalimat.length) return kosong('landasan teori');
+  const bio = kalimat.filter((k) => POLA_BIOGRAFI.test(k));
+  return bio.length ? hasil(STATUS.PERINGATAN, { bukti: bio.slice(0, 3) }) : hasil(STATUS.TERPENUHI);
+}
+
+const normal = (t) => String(t ?? '').toLowerCase().replace(/[-–]/g, ' ').replace(/\s+/g, ' ').trim();
+
+/** Pecah isian konsep teori: pemisah koma, titik koma, atau baris baru. */
+export function pecahKonsep(konsep) {
+  return String(konsep ?? '').split(/[,;\n]+/).map((k) => k.trim()).filter(Boolean);
+}
+
+/** F2: tiap konsep di rumusan harus ditemukan (istilah utama atau alias dalam kurung) di landasan teori. */
+export function periksaF2(konsep, landasan) {
+  const daftar = pecahKonsep(konsep);
+  if (!daftar.length) return hasil(STATUS.TIDAK_DAPAT, { data: { alasan: 'Isi konsep teori di rumusan terlebih dahulu.' } });
+  if (!terisi(landasan)) return kosong('landasan teori');
+  const isi = normal(landasan);
+  const hilang = daftar.filter((k) => {
+    const utama = k.replace(/\(.*?\)/g, '').trim();
+    const alias = (k.match(/\(([^)]+)\)/) ?? [])[1];
+    return ![utama, alias].filter(Boolean).some((c) => isi.includes(normal(c)));
+  });
+  return hilang.length ? hasil(STATUS.PERINGATAN, { nomor: hilang }) : hasil(STATUS.TERPENUHI);
+}
+
 export const PEMERIKSA = {
+  E1: (i) => periksaE1(i.tinjauan),
+  E2: (i) => periksaE2(i.tinjauan),
+  F1: (i) => periksaF1(i.landasan),
+  F2: (i) => periksaF2(i.konsep, i.landasan),
   D1: (i) => periksaD1(i.teoretis, i.praktis),
   D2: (i) => periksaD2(i.teoretis, i.praktis),
   H1: (i) => periksaH1(i.sistematika),

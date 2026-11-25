@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaH1, periksaH2, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
+  STATUS, bersihkan, kataPertama, pecahBab, periksaA7, periksaD1, periksaD2, periksaE1, periksaE2, periksaF1, periksaF2, pecahKonsep, periksaH1, periksaH2, periksaB1, periksaB2, periksaB3, periksaC1, periksaC2, periksaSemua
 } from '../js/aturan.js';
 
 const baca = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
-const RUBRIK = ['A-latar', 'B-rumusan', 'C-tujuan', 'D-manfaat', 'H-sistematika'].flatMap((n) => baca(`../rubrik/${n}.json`));
+const RUBRIK = ['A-latar', 'B-rumusan', 'C-tujuan', 'D-manfaat', 'E-tinjauan', 'F-landasan', 'H-sistematika'].flatMap((n) => baca(`../rubrik/${n}.json`));
 
 // Contoh benar dari Panduan Bab I.B dan I.C (kasus Kungkum Pengging - Sartre).
 const RM_BENAR = [
@@ -129,7 +129,7 @@ test('rubrik: bentuk entri dan rujukan panduan', () => {
     for (const k of ['id', 'bagian', 'jenis', 'kriteria', 'tingkat', 'rujukan', 'pesan_gagal', 'dasar']) {
       assert.ok(e[k], `${e.id} tanpa ${k}`);
     }
-    assert.match(e.rujukan, /^Panduan Bab I\.[A-E]$/);
+    assert.match(e.rujukan, /^Panduan Bab (?:I\.[A-E]|II\.[A-C])$/);
     assert.ok(e.bagian_panduan);
     assert.ok(['aturan', 'ai'].includes(e.jenis));
     assert.ok(!ids.has(e.id));
@@ -231,4 +231,67 @@ test('periksaSemua bagian D dan H: aturan jalan, kriteria makna menunggu AI, pes
   assert.equal(ph.H2.status, STATUS.TERPENUHI);
   assert.equal(ph.H3.status, STATUS.BELUM_DIJALANKAN);
   assert.ok([...d, ...h].every((x) => !/\{\w+\}/.test(x.pesan)));
+});
+
+// Contoh benar dari panduan Bab II.A (CAP-G) dan Bab II.B (D-K-R), kasus Kungkum Pengging - Sartre.
+const TINJAUAN_BENAR = [
+  'Secara tematik, literatur mengenai ritual air dan tradisi spiritual di Jawa dapat dikelompokkan ke dalam dua tren kajian utama. Tren pertama berfokus pada fungsi sosiologis-antropologis ritual, sedangkan tren kedua menyoroti aspek sinkretisme teologis mistisisme Jawa.',
+  'Meskipun terdapat kesamaan dalam melihat ketahanan Tradisi Kungkum, terdapat perbedaan tajam dalam memaknai motivasi pelaku. Penelitian oleh Jurnal A (2024) mengklaim tekanan struktur mitos kolektif. Sebaliknya, studi oleh Jurnal B (2025) mendapati motif ekonomi.',
+  'Di sinilah posisi penelitian ini berada untuk mengisi celah akademik. Melalui Teori Eksistensialisme Jean-Paul Sartre, penelitian ini membedah bagaimana pelaku mengonstruksi kesadaran dan kebebasan mereka.'
+].join('\n\n');
+const LANDASAN_BENAR = [
+  'Eksistensialisme merupakan sebuah perspektif filsafat yang menegaskan bahwa "eksistensi mendahului esensi". Jean-Paul Sartre menempatkan manusia sebagai subjek yang "dikutuk untuk bebas".',
+  'Secara operasional, terdapat tiga konsep pokok Sartre: (1) Being-in-itself vs Being-for-itself; (2) Kebebasan Radikal dan Pilihan; serta (3) Itikad Buruk (Bad Faith), yaitu saat aktor menyalahkan tradisi atas kegagalannya sendiri.',
+  'Teori Sartre merupakan pisau bedah yang tajam untuk menganalisis Tradisi Kungkum di Pengging.'
+].join('\n\n');
+const KONSEP_F = 'kebebasan radikal, itikad buruk (bad faith), being-for-itself';
+
+test('E1: sintesis lolos; daftar "Penelitian pertama oleh A..." gagal', () => {
+  assert.equal(periksaE1(TINJAUAN_BENAR).status, STATUS.TERPENUHI);
+  const r = periksaE1('Penelitian pertama oleh A membahas tahlilan. Penelitian kedua oleh B membahas kungkum.');
+  assert.equal(r.status, STATUS.BELUM);
+  assert.equal(r.bukti.length, 2);
+  assert.equal(periksaE1('   ').status, STATUS.TIDAK_DAPAT);
+});
+
+test('E2: tepat tiga paragraf lolos; selain itu peringatan dengan jumlahnya', () => {
+  assert.equal(periksaE2(TINJAUAN_BENAR).status, STATUS.TERPENUHI);
+  const satu = periksaE2('Satu paragraf saja yang panjang. Kalimat kedua. Kalimat ketiga.');
+  assert.equal(satu.status, STATUS.PERINGATAN);
+  assert.equal(satu.data.jumlah, 1);
+  assert.equal(periksaE2(TINJAUAN_BENAR + '\n\nParagraf keempat.').data.jumlah, 4);
+});
+
+test('F1: landasan tanpa biografi lolos; kalimat kelahiran atau pendidikan menjadi peringatan', () => {
+  assert.equal(periksaF1(LANDASAN_BENAR).status, STATUS.TERPENUHI);
+  const r = periksaF1(LANDASAN_BENAR + ' Sartre lahir di Paris pada tahun 1905 dan bersekolah di Lycée Henri IV.');
+  assert.equal(r.status, STATUS.PERINGATAN);
+  assert.match(r.bukti[0], /lahir di Paris/);
+  assert.equal(periksaF1('Kegagalan itu melahirkan kebutuhan ruang spiritual.').status, STATUS.TERPENUHI);
+});
+
+test('F2: tiap konsep di rumusan harus muncul di landasan; alias dalam kurung dan tanda hubung dimaklumi', () => {
+  assert.deepEqual(pecahKonsep('a, b;c\nd'), ['a', 'b', 'c', 'd']);
+  assert.equal(periksaF2(KONSEP_F, LANDASAN_BENAR).status, STATUS.TERPENUHI);
+  const r = periksaF2(KONSEP_F + ', kesadaran otentik', LANDASAN_BENAR);
+  assert.equal(r.status, STATUS.PERINGATAN);
+  assert.deepEqual(r.nomor, ['kesadaran otentik']);
+  assert.equal(periksaF2('', LANDASAN_BENAR).status, STATUS.TIDAK_DAPAT);
+  assert.equal(periksaF2(KONSEP_F, '  ').status, STATUS.TIDAK_DAPAT);
+});
+
+test('periksaSemua bagian E dan F: pesan terisi, kriteria makna menunggu AI', () => {
+  const e = periksaSemua(RUBRIK.filter((x) => x.bagian === 'E'), { tinjauan: 'Penelitian pertama oleh A membahas X.' });
+  const pe = Object.fromEntries(e.map((h) => [h.id, h]));
+  assert.equal(pe.E1.status, STATUS.BELUM);
+  assert.equal(pe.E2.status, STATUS.PERINGATAN);
+  assert.match(pe.E2.pesan, /1 paragraf/);
+  assert.equal(pe.E3.status, STATUS.BELUM_DIJALANKAN);
+  const f = periksaSemua(RUBRIK.filter((x) => x.bagian === 'F'), { konsep: KONSEP_F + ', kesadaran otentik', landasan: LANDASAN_BENAR });
+  const pf = Object.fromEntries(f.map((h) => [h.id, h]));
+  assert.equal(pf.F1.status, STATUS.TERPENUHI);
+  assert.equal(pf.F2.status, STATUS.PERINGATAN);
+  assert.match(pf.F2.pesan, /kesadaran otentik/);
+  for (const id of ['F3', 'F4', 'F5', 'F6', 'F7']) assert.equal(pf[id].status, STATUS.BELUM_DIJALANKAN);
+  assert.ok([...e, ...f].every((x) => !/\{\w+\}/.test(x.pesan)));
 });

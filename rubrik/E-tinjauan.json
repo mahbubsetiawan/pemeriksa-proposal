@@ -1,0 +1,69 @@
+[
+  {
+    "id": "E1",
+    "bagian": "E",
+    "jenis": "aturan",
+    "kriteria": "Tidak mendaftar penelitian satu per satu (\"Penelitian pertama oleh A…, kedua oleh B…\")",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.A",
+    "bagian_panduan": "Bab II.A, Kaidah Akademik",
+    "dasar": "\"Tinjauan pustaka dilarang keras disajikan dengan model mendaftar isi jurnal satu per satu per paragraf (misalnya: 'Penelitian pertama oleh A membahas...', 'Penelitian kedua oleh B membahas...'). Bagian ini wajib ditulis secara sintesis.\"",
+    "pesan_gagal": "Ada kalimat yang mendaftar penelitian secara berurutan (\"penelitian pertama, kedua, …\"); panduan meminta sintesis, bukan daftar."
+  },
+  {
+    "id": "E2",
+    "bagian": "E",
+    "jenis": "aturan",
+    "kriteria": "Ditulis dalam tiga paragraf sintesis (rumus CAP-G)",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab II.A",
+    "bagian_panduan": "Bab II.A, Rumus",
+    "dasar": "\"Rumus: CAP-G (3 Paragraf Sintesis)\". Pemeriksaan ini hanya menghitung paragraf, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Terdapat {jumlah} paragraf; rumus CAP-G meminta tiga paragraf sintesis.",
+    "pesan_peringatan": "Terdapat {jumlah} paragraf; rumus CAP-G meminta tiga paragraf sintesis: Classification, Analysis of contrast, serta Position and gap. Pisahkan paragraf dengan satu baris kosong."
+  },
+  {
+    "id": "E3",
+    "bagian": "E",
+    "jenis": "ai",
+    "kriteria": "Classification: mengelompokkan literatur menurut tema, metode, dan temuan",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.A",
+    "bagian_panduan": "Bab II.A, Rumus CAP-G",
+    "dasar": "\"C - Classification (Paragraf 1): Mengelompokkan literatur-literatur terdahulu berdasarkan kesamaan Tema, Metode, dan Temuan/Hasil.\"",
+    "pesan_gagal": "Pengelompokan literatur menurut tema, metode, dan temuan belum tampak."
+  },
+  {
+    "id": "E4",
+    "bagian": "E",
+    "jenis": "ai",
+    "kriteria": "Analysis of contrast: membandingkan dan membenturkan antar-literatur",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.A",
+    "bagian_panduan": "Bab II.A, Rumus CAP-G",
+    "dasar": "\"A - Analysis of Contrast (Paragraf 2): Membenturkan, membandingkan, serta mencari titik temu dan perbedaan tajam antar-literatur tersebut.\"",
+    "pesan_gagal": "Perbandingan dan perbedaan tajam antar-literatur belum tampak."
+  },
+  {
+    "id": "E5",
+    "bagian": "E",
+    "jenis": "ai",
+    "kriteria": "Position and gap: menegaskan celah akademik dan posisi penelitian dengan teori yang dipilih",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.A",
+    "bagian_panduan": "Bab II.A, Rumus CAP-G",
+    "dasar": "\"P & G - Position & Gap Filling (Paragraf 3): Menegaskan secara objektif letak celah akademik yang tersisa dan posisi kontribusi orisinalitas peneliti untuk mengisi lubang tersebut menggunakan teori yang dipilih.\"",
+    "pesan_gagal": "Celah akademik dan posisi penelitian dengan teori yang dipilih belum tegas."
+  },
+  {
+    "id": "E6",
+    "bagian": "E",
+    "jenis": "ai",
+    "kriteria": "Berupa sintesis, bukan rangkuman penelitian satu per satu",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.A",
+    "bagian_panduan": "Bab II, Kaidah Akademik (Umum) dan Bab II.A",
+    "dasar": "Bab II \"dilarang hanya mendaftar rangkuman skripsi orang lain seperti daftar isi\"; tinjauan \"wajib ditulis secara sintesis\".",
+    "pesan_gagal": "Tulisan masih berupa rangkuman penelitian satu per satu, belum sintesis."
+  }
+]

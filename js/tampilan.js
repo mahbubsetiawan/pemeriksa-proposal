@@ -240,7 +240,30 @@ const CONTOH_H = [
   'BAB V: PENUTUP. Bab ini berisi simpulan final teoretis yang menjawab pemaknaan eksistensial pelaku Tradisi Kungkum, pernyataan jujur mengenai keterbatasan penelitian, serta saran-saran akademis bagi peneliti selanjutnya dan saran praktis bagi pemangku adat serta pengelola wisata Umbul Pengging.'
 ].join('\n\n');
 
+const CONTOH_E = 'Secara tematik, literatur mengenai ritual air dan tradisi spiritual di Jawa dalam kurun waktu lima tahun terakhir dapat dikelompokkan ke dalam dua tren kajian utama. Tren pertama berfokus pada fungsi sosiologis-antropologis ritual sebagai alat perekat solidaritas sosial, sedangkan tren kedua dominan menyoroti aspek sinkretisme teologis mistisisme Jawa. Dari segi metode, mayoritas peneliti terdahulu mengandalkan pendekatan etnografi deskriptif, dengan temuan umum yang menempatkan pelaku ritual sekadar sebagai pelestari tradisi yang pasif tanpa otonomi kesadaran penuh.\n\nMeskipun terdapat kesamaan dalam melihat ketahanan Tradisi Kungkum di tengah modernitas, terdapat perbedaan tajam di antara studi-studi tersebut dalam memaknai motivasi pelaku. Penelitian oleh Jurnal A (2024) mengklaim bahwa pelaku ritual melakukan kungkum murni karena tekanan struktur mitos kolektif. Sebaliknya, studi sosiologis oleh Jurnal B (2025) mendapati temuan bahwa tradisi ini bertahan murni karena motif ekonomi (pencarian pesugihan). Studi C (2025) mencoba mengontraskan kedua temuan ini, namun bias tetap terjadi akibat belum adanya peneliti yang menatap ritual dari kacamata kedalaman eksistensial aktor.\n\nDi sinilah posisi penelitian ini berada untuk mengisi celah akademik (research gap) yang luput dari para peneliti terdahulu. Berbeda dengan studi di atas yang bias pada analisis fungsionalisme murni, penelitian ini mempertemukan tindakan lapangan dengan filsafat eksistensial. Melalui Teori Eksistensialisme Jean-Paul Sartre, penelitian ini membedah bagaimana pelaku Tradisi Kungkum mengonstruksi kesadaran, kebebasan, dan krisis identitas mereka di balik ritual tersebut.';
+const CONTOH_F = {
+  konsep: 'kebebasan radikal, itikad buruk (bad faith), being-for-itself',
+  landasan: 'Eksistensialisme merupakan sebuah perspektif filsafat yang menegaskan bahwa "eksistensi mendahului esensi". Jean-Paul Sartre menempatkan manusia sebagai subjek yang "dikutuk untuk bebas", di mana individu memegang tanggung jawab penuh atas pilihan hidupnya tanpa bisa berlindung di balik takdir atau mistisisme yang melumpuhkan kesadaran.\n\nSecara operasional, terdapat tiga konsep pokok Sartre yang akan diturunkan menjadi kategori analitik dan indikator lapangan pada Bab III: (1) Being-in-itself (mekanis/tanpa sadar) vs Being-for-itself (subjek otentik yang sadar); (2) Kebebasan Radikal dan Pilihan; serta (3) Itikad Buruk (Bad Faith), yaitu saat aktor menyalahkan tradisi/mitos atas kegagalannya sendiri.\n\nTeori Sartre merupakan pisau bedah yang tajam untuk menganalisis Tradisi Kungkum di Pengging. Secara sekilas, ritual ini sering dituduh sebagai tindakan mistis fatalistik. Namun melalui lensa eksistensialisme, ruang umbul didekonstruksi sebagai "ruang eksistensial" di mana manusia Jawa merespons krisis modernitas dan menguji kebebasan serta otentisitas hidupnya.',
+  kerangka: 'Penelitian ini bermula dari Situation makro, yaitu krisis otentisitas manusia modern akibat kepungan masyarakat industri/modernitas. Krisis ini kemudian ditatap pada sebuah Target konkret, yakni bertahannya Tradisi Kungkum malam hari di Umbul Pengging. Untuk membedah tindakan tersebut, peneliti menggunakan Approach Teori Eksistensialisme Jean-Paul Sartre (konsep: Kebebasan Radikal dan Bad Faith). Setelah melakukan evaluasi melalui Review yang menunjukkan bahwa pendekatan sosiologis/etnografi sebelumnya gagal memotret kedalaman makna eksistensial pelaku, penelitian ini bermuara pada Ends, yakni mengungkap secara kritis konstruksi kebebasan otentik dan dinamika itikad buruk komodifikasi di balik ritual tersebut.'
+};
+
 const PANEL = {
+  e: {
+    berkas: ['rubrik/E-tinjauan.json'],
+    bagian: 'E',
+    ambil: () => ({ tinjauan: $('#tinjauan').value }),
+    isiContoh: () => { $('#tinjauan').value = CONTOH_E; $('#tinjauan').dispatchEvent(new Event('input')); },
+    ada: () => $('#tinjauan').value.trim().length > 0,
+    kosongkan: () => { $('#tinjauan').value = ''; $('#tinjauan').dispatchEvent(new Event('input')); }
+  },
+  f: {
+    berkas: ['rubrik/F-landasan.json'],
+    bagian: 'F',
+    ambil: () => ({ konsep: $('#konsep-f').value, landasan: $('#landasan').value, kerangka: $('#kerangka').value }),
+    isiContoh: () => { $('#konsep-f').value = CONTOH_F.konsep; $('#landasan').value = CONTOH_F.landasan; $('#kerangka').value = CONTOH_F.kerangka; },
+    ada: () => ['#konsep-f', '#landasan', '#kerangka'].some((i) => $(i).value.trim()),
+    kosongkan: () => { for (const i of ['#konsep-f', '#landasan', '#kerangka']) $(i).value = ''; }
+  },
   d: {
     berkas: ['rubrik/D-manfaat.json'],
     bagian: 'D',
@@ -345,9 +368,14 @@ function pasangMenu() {
       const aktif = t.dataset.panel === nama;
       t.setAttribute('aria-selected', String(aktif));
       $(`#panel-${t.dataset.panel}`).hidden = !aktif;
+      if (aktif) t.scrollIntoView({ inline: 'center', block: 'nearest' }); // bilah menu di ponsel ikut bergulir
     }
   };
-  tabs.forEach((t) => t.addEventListener('click', () => pilih(t.dataset.panel)));
+  tabs.forEach((t) => t.addEventListener('click', () => {
+    pilih(t.dataset.panel);
+    // Koherensi ringan: konsep teori dari tab B–C ikut terisi di tab F bila kolomnya masih kosong.
+    if (t.dataset.panel === 'f' && !$('#konsep-f').value.trim() && $('#konsep').value.trim()) $('#konsep-f').value = $('#konsep').value;
+  }));
 }
 
 function pasangDialog() {
@@ -358,6 +386,17 @@ function pasangDialog() {
     b.hidden = false;
     b.addEventListener('click', () => { sessionStorage.removeItem('setuju'); bukaDialogAi(); });
   }
+}
+
+function pasangHitungTinjauan() {
+  const isi = $('#tinjauan');
+  const perbarui = () => {
+    const t = isi.value;
+    const paragraf = t.split(/\n\s*\n+/).filter((p) => p.trim()).length;
+    $('#hitung-tinjauan').textContent = t ? `${t.length} karakter · ${paragraf} paragraf (maks. 8.000 karakter)` : '';
+  };
+  isi.addEventListener('input', perbarui);
+  perbarui();
 }
 
 function pasangHitungLatar() {
@@ -379,6 +418,7 @@ async function mulai() {
   pasangMenu();
   pasangDialog();
   pasangHitungLatar();
+  pasangHitungTinjauan();
   // Pasang segera, sebelum rubrik selesai dimuat, agar formulir tidak pernah terkirim secara bawaan (memuat ulang halaman).
   for (const [nama, cfg] of Object.entries(PANEL)) {
     $(`#form-${nama}`).addEventListener('submit', (e) => e.preventDefault());

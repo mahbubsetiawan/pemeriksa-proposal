@@ -19,6 +19,8 @@
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></symbol>
     <symbol id="i-manfaat" viewBox="0 0 24 24"><path d="M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7C10 7 8 6 8 4.5S11 3 12 7zM12 7c2 0 4-1 4-2.5S13 3 12 7z"/></symbol>
     <symbol id="i-daftar" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+    <symbol id="i-buku" viewBox="0 0 24 24"><path d="M4 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H4zM20 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/></symbol>
+    <symbol id="i-lapis" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5zM3 12.5l9 5 9-5M3 17l9 5 9-5"/></symbol>
     <symbol id="i-kilau" viewBox="0 0 24 24"><path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
   </svg>
 
@@ -54,8 +56,14 @@
             <svg class="ik" aria-hidden="true"><use href="#i-manfaat"/></svg>
             <span class="nama"><b>D</b> Manfaat</span>
           </button>
-          <span class="butir-menu mati" aria-hidden="true"><span class="nama"><b>E</b> Tinjauan terdahulu</span><em>Segera</em></span>
-          <span class="butir-menu mati" aria-hidden="true"><span class="nama"><b>F</b> Landasan teori</span><em>Segera</em></span>
+          <button type="button" role="tab" id="tab-e" aria-controls="panel-e" aria-selected="false" data-panel="e" class="butir-menu">
+            <svg class="ik" aria-hidden="true"><use href="#i-buku"/></svg>
+            <span class="nama"><b>E</b> Tinjauan terdahulu</span>
+          </button>
+          <button type="button" role="tab" id="tab-f" aria-controls="panel-f" aria-selected="false" data-panel="f" class="butir-menu">
+            <svg class="ik" aria-hidden="true"><use href="#i-lapis"/></svg>
+            <span class="nama"><b>F</b> Landasan teori</span>
+          </button>
           <span class="butir-menu mati" aria-hidden="true"><span class="nama"><b>G</b> Metode</span><em>Segera</em></span>
           <button type="button" role="tab" id="tab-h" aria-controls="panel-h" aria-selected="false" data-panel="h" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-daftar"/></svg>
@@ -141,6 +149,63 @@
           <div class="kartu-isian">
             <label for="manfaat-praktis">Manfaat praktis</label>
             <textarea id="manfaat-praktis" rows="4" placeholder="Rekomendasi atau kegunaan bagi aktor, masyarakat, atau lembaga tertentu di lapangan."></textarea>
+          </div>
+          <div class="aksi">
+            <button type="submit" class="utama">Periksa</button>
+            <button type="button" class="contoh sekunder">Isi contoh</button>
+            <button type="button" class="kosongkan sekunder">Kosongkan</button>
+          </div>
+        </form>
+        <section class="hasil" aria-live="polite" hidden>
+          <div class="ringkas"><div class="skor"></div><div class="chip-wadah"></div><button type="button" class="jalankan-makna utama"><svg class="ik" aria-hidden="true"><use href="#i-kilau"/></svg><span>Periksa makna (AI)</span></button></div>
+          <p class="pesan-makna bantu" role="status"></p>
+          <div class="isi-hasil"></div>
+        </section>
+      </section>
+
+      <section id="panel-e" class="panel" role="tabpanel" aria-labelledby="tab-e" hidden>
+        <div class="judul-kerja">
+          <h2>Tinjauan penelitian terdahulu</h2>
+          <p>Rumus CAP-G: tiga paragraf sintesis, bukan daftar penelitian.</p>
+          <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
+        </div>
+        <form id="form-e" novalidate>
+          <div class="kartu-isian">
+            <label for="tinjauan" class="sr">Tinjauan penelitian terdahulu</label>
+            <textarea id="tinjauan" class="panjang" rows="12" placeholder="Tempel tinjauan penelitian terdahulu Anda di sini. Pisahkan paragraf dengan satu baris kosong."></textarea>
+            <p id="hitung-tinjauan" class="bantu" aria-live="polite"></p>
+          </div>
+          <div class="aksi">
+            <button type="submit" class="utama">Periksa</button>
+            <button type="button" class="contoh sekunder">Isi contoh</button>
+            <button type="button" class="kosongkan sekunder">Kosongkan</button>
+          </div>
+        </form>
+        <section class="hasil" aria-live="polite" hidden>
+          <div class="ringkas"><div class="skor"></div><div class="chip-wadah"></div><button type="button" class="jalankan-makna utama"><svg class="ik" aria-hidden="true"><use href="#i-kilau"/></svg><span>Periksa makna (AI)</span></button></div>
+          <p class="pesan-makna bantu" role="status"></p>
+          <div class="isi-hasil"></div>
+        </section>
+      </section>
+
+      <section id="panel-f" class="panel" role="tabpanel" aria-labelledby="tab-f" hidden>
+        <div class="judul-kerja">
+          <h2>Landasan teori dan kerangka pemikiran</h2>
+          <p>Rumus D-K-R, dan alur deduktif Situation sampai Ends.</p>
+          <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
+        </div>
+        <form id="form-f" novalidate>
+          <div class="kartu-isian">
+            <label for="konsep-f">Konsep teori di rumusan</label>
+            <input id="konsep-f" type="text" autocomplete="off" placeholder="pisahkan dengan koma; terisi otomatis dari tab B–C bila sudah diisi">
+          </div>
+          <div class="kartu-isian">
+            <label for="landasan">Landasan teori</label>
+            <textarea id="landasan" class="panjang" rows="10" placeholder="Tempel landasan teori Anda di sini. Pisahkan paragraf dengan satu baris kosong."></textarea>
+          </div>
+          <div class="kartu-isian">
+            <label for="kerangka">Kerangka pemikiran (narasi alur, opsional)</label>
+            <textarea id="kerangka" rows="6" placeholder="Narasi alur bagan: Situation, Target, Approach, Review, Ends."></textarea>
           </div>
           <div class="aksi">
             <button type="submit" class="utama">Periksa</button>

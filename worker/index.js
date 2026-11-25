@@ -8,17 +8,21 @@ import rubrikB from '../rubrik/B-rumusan.json' with { type: 'json' };
 import rubrikC from '../rubrik/C-tujuan.json' with { type: 'json' };
 import rubrikD from '../rubrik/D-manfaat.json' with { type: 'json' };
 import rubrikH from '../rubrik/H-sistematika.json' with { type: 'json' };
+import rubrikE from '../rubrik/E-tinjauan.json' with { type: 'json' };
+import rubrikF from '../rubrik/F-landasan.json' with { type: 'json' };
 
 export const MODEL = 'claude-haiku-5-5';
 export const BATAS = Object.freeze({
   butir: 3, panjangButir: 600, panjangIsian: 200, totalKarakter: 3000,
-  latar: 12000, manfaat: 2000, sistematika: 6000, badanMaks: 30000,
+  latar: 12000, manfaat: 2000, sistematika: 6000, tinjauan: 8000, landasan: 8000, kerangka: 3000, konsepF: 400, badanMaks: 30000,
   perPerangkatPerHari: 20, globalPerHari: 300, maxTokens: 4000, maxTokensLatar: 6000, maxTokensKecil: 3500
 });
 const AI_BC = [...rubrikB, ...rubrikC].filter((e) => e.jenis === 'ai');
 const AI_A = rubrikA.filter((e) => e.jenis === 'ai');
 const AI_D = rubrikD.filter((e) => e.jenis === 'ai');
 const AI_H = rubrikH.filter((e) => e.jenis === 'ai');
+const AI_E = rubrikE.filter((e) => e.jenis === 'ai');
+const AI_F = rubrikF.filter((e) => e.jenis === 'ai');
 
 const SISTEM_UMUM = (objek) => `Anda pemeriksa awal ${objek}, memakai kriteria yang diberikan.
 Tugas Anda hanya mendiagnosis: menyatakan tiap kriteria terpenuhi, belum, atau tidak_yakin.
@@ -62,6 +66,24 @@ Petunjuk membaca sistematika penulisan (dari panduan penulisan):
 - Sistematika harus menerangkan logika fungsional dan isi spesifik dari bab ke bab guna menjawab rumusan masalah secara runtut; bukan sekadar daftar judul bab.
 - Penulisan naratif, langsung pada deskripsi materi per bab, tanpa kalimat pembuka yang bertele-tele.
 - Nilailah berdasarkan isi. Bab terakhir (penutup) biasanya memuat simpulan, keterbatasan, dan saran.
+- Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
+
+const HINT_E = `
+Petunjuk membaca tinjauan penelitian terdahulu (rumus CAP-G dari panduan penulisan):
+- C Classification: mengelompokkan literatur terdahulu berdasarkan kesamaan tema, metode, dan temuan atau hasil.
+- A Analysis of contrast: membenturkan dan membandingkan, serta mencari titik temu dan perbedaan tajam antar-literatur.
+- P dan G Position and gap: menegaskan secara objektif letak celah akademik yang tersisa dan posisi kontribusi orisinal peneliti untuk mengisi celah itu dengan teori yang dipilih.
+- Tinjauan wajib berupa sintesis. Mendaftar penelitian satu per satu per paragraf ("Penelitian pertama oleh A membahas...") tidak memenuhi kriteria.
+- Nilailah berdasarkan isi, bukan label ataupun jumlah paragraf. Satu paragraf boleh memuat lebih dari satu unsur.
+- Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
+
+const HINT_F = `
+Petunjuk membaca landasan teori dan kerangka pemikiran (dari panduan penulisan):
+- Landasan teori memakai rumus D-K-R. D Definisi konseptual: penjelasan teoretis akademis tentang teori atau paradigma yang dipakai. K Konsep utama teori: uraian tiap konsep mendasar (definisi singkat beserta aspek pokoknya) yang akan diturunkan menjadi kategori analitik dan indikator. R Relevansi teori dengan objek: argumen logis mengapa teori itu alat yang paling tajam dan cocok untuk membedah objek material.
+- Landasan teori tidak berisi biografi tokoh.
+- Kerangka pemikiran berupa narasi alur deduktif dari makro ke mikro mengikuti STARE: Situation, Target, Approach, Review, Ends. Pada Review, yang dibenturkan adalah nama pendekatan atau teori terdahulu, bukan detail temuan datanya.
+- Bila kolom kerangka pemikiran kosong, jawab kriteria tentang kerangka (F6 dan F7) dengan tidak_yakin dan alasan bahwa kolom itu kosong.
+- Nilailah berdasarkan isi, bukan label atau jumlah paragraf.
 - Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
 
 const buatSkema = (ids) => ({
@@ -155,6 +177,28 @@ export function bersihkanMasukanSistematika(b) {
   return { sistematika };
 }
 
+export function bersihkanMasukanTinjauan(b) {
+  if (!b || typeof b !== 'object') return { galat: 'Isi permintaan tidak valid.' };
+  const tinjauan = String(b.tinjauan ?? '').trim();
+  if (!tinjauan) return { galat: 'Isi tinjauan penelitian terdahulu terlebih dahulu.' };
+  if (tinjauan.length > BATAS.tinjauan) return { galat: `Tinjauan terlalu panjang (paling banyak ${BATAS.tinjauan} karakter).`, status: 413 };
+  const paragraf = tinjauan.split(/\n\s*\n+/).map((p) => p.replace(/\s+/g, ' ').trim()).filter(Boolean).slice(0, 80);
+  return { tinjauan, paragraf };
+}
+
+export function bersihkanMasukanLandasan(b) {
+  if (!b || typeof b !== 'object') return { galat: 'Isi permintaan tidak valid.' };
+  const landasan = String(b.landasan ?? '').trim();
+  const kerangka = String(b.kerangka ?? '').trim();
+  const konsep = String(b.konsep ?? '').trim();
+  if (!landasan) return { galat: 'Isi landasan teori terlebih dahulu.' };
+  if (landasan.length > BATAS.landasan || kerangka.length > BATAS.kerangka || konsep.length > BATAS.konsepF) {
+    return { galat: 'Ada isian yang terlalu panjang.', status: 413 };
+  }
+  const paragraf = landasan.split(/\n\s*\n+/).map((p) => p.replace(/\s+/g, ' ').trim()).filter(Boolean).slice(0, 80);
+  return { landasan, kerangka, konsep, paragraf };
+}
+
 const daftarKriteria = (entri) => entri.map((e) => `- ${e.id}: ${e.kriteria} (dasar: ${e.dasar})`).join('\n');
 
 export function susunPermintaan(m) {
@@ -229,11 +273,47 @@ export function susunPermintaanSistematika(m) {
   };
 }
 
+export function susunPermintaanTinjauan(m) {
+  const isi = [
+    'Kriteria yang diperiksa:', daftarKriteria(AI_E), '',
+    '<tulisan_mahasiswa>', ...m.paragraf.map((p, i) => `[P${i + 1}] ${p}`), '</tulisan_mahasiswa>', '',
+    'Kembalikan satu entri untuk setiap id kriteria. Kutip tanpa label [P1].'
+  ].join('\n');
+  return {
+    model: MODEL,
+    max_tokens: BATAS.maxTokensLatar,
+    system: SISTEM_UMUM('tinjauan penelitian terdahulu proposal skripsi') + HINT_E,
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema: buatSkema(AI_E.map((e) => e.id)) } },
+    messages: [{ role: 'user', content: isi }]
+  };
+}
+
+export function susunPermintaanLandasan(m) {
+  const isi = [
+    'Kriteria yang diperiksa:', daftarKriteria(AI_F), '',
+    '<tulisan_mahasiswa>',
+    `Konsep teori di rumusan: ${m.konsep || '(kosong)'}`,
+    'Landasan teori:', ...m.paragraf.map((p, i) => `[P${i + 1}] ${p}`),
+    `Kerangka pemikiran: ${m.kerangka || '(kosong)'}`,
+    '</tulisan_mahasiswa>', '',
+    'Kembalikan satu entri untuk setiap id kriteria. Kutip tanpa label [P1].'
+  ].join('\n');
+  return {
+    model: MODEL,
+    max_tokens: BATAS.maxTokensLatar,
+    system: SISTEM_UMUM('landasan teori dan kerangka pemikiran proposal skripsi') + HINT_F,
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema: buatSkema(AI_F.map((e) => e.id)) } },
+    messages: [{ role: 'user', content: isi }]
+  };
+}
+
 const PROFIL = {
   BC: { ids: AI_BC.map((e) => e.id), bersihkan: bersihkanMasukan, susun: susunPermintaan },
   A: { ids: AI_A.map((e) => e.id), bersihkan: bersihkanMasukanLatar, susun: susunPermintaanLatar },
   D: { ids: AI_D.map((e) => e.id), bersihkan: bersihkanMasukanManfaat, susun: susunPermintaanManfaat },
-  H: { ids: AI_H.map((e) => e.id), bersihkan: bersihkanMasukanSistematika, susun: susunPermintaanSistematika }
+  H: { ids: AI_H.map((e) => e.id), bersihkan: bersihkanMasukanSistematika, susun: susunPermintaanSistematika },
+  E: { ids: AI_E.map((e) => e.id), bersihkan: bersihkanMasukanTinjauan, susun: susunPermintaanTinjauan },
+  F: { ids: AI_F.map((e) => e.id), bersihkan: bersihkanMasukanLandasan, susun: susunPermintaanLandasan }
 };
 
 async function hitung(kv, kunci, batas) {
@@ -268,7 +348,7 @@ export async function tangani(request, env, fetchFn = fetch) {
   if (teks.length > BATAS.badanMaks) return galat('Permintaan terlalu besar.', 413, cors);
   let badan;
   try { badan = JSON.parse(teks); } catch { return galat('Isi permintaan bukan JSON yang valid.', 400, cors); }
-  const profil = PROFIL[['A', 'D', 'H'].includes(badan?.bagian) ? badan.bagian : 'BC'];
+  const profil = PROFIL[['A', 'D', 'E', 'F', 'H'].includes(badan?.bagian) ? badan.bagian : 'BC'];
   const m = profil.bersihkan(badan);
   if (m.galat) return galat(m.galat, m.status ?? 400, cors);
 

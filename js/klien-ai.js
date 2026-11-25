@@ -24,7 +24,16 @@ const SKENARIO_TIRUAN = {
   D4: { status: 'tidak_yakin', sumber: 'praktis', alasan: 'Data tiruan: kespesifikan pihak belum dapat dipastikan.' },
   H3: { status: 'terpenuhi', sumber: 'sistematika', alasan: 'Data tiruan: isi bab tampak diterangkan.' },
   H4: { status: 'tidak_yakin', sumber: 'sistematika', alasan: 'Data tiruan: kerunutan alur belum dapat dipastikan.' },
-  H5: { status: 'belum', sumber: 'sistematika', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' }
+  H5: { status: 'belum', sumber: 'sistematika', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' },
+  E3: { status: 'terpenuhi', sumber: 'tinjauan', alasan: 'Data tiruan: pengelompokan literatur tampak ada.' },
+  E4: { status: 'tidak_yakin', sumber: 'tinjauan', alasan: 'Data tiruan: perbandingan antar-literatur belum dapat dipastikan.' },
+  E5: { status: 'belum', sumber: 'tinjauan', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' },
+  E6: { status: 'terpenuhi', sumber: 'tinjauan', alasan: 'Data tiruan: tulisan tampak sintesis.' },
+  F3: { status: 'terpenuhi', sumber: 'landasan', alasan: 'Data tiruan: definisi konseptual tampak ada.' },
+  F4: { status: 'terpenuhi', sumber: 'landasan', alasan: 'Data tiruan: konsep utama tampak diuraikan.' },
+  F5: { status: 'tidak_yakin', sumber: 'landasan', alasan: 'Data tiruan: relevansi dengan objek belum dapat dipastikan.' },
+  F6: { status: 'terpenuhi', sumber: 'kerangka', alasan: 'Data tiruan: alur deduktif tampak ada.' },
+  F7: { status: 'belum', sumber: 'kerangka', alasan: 'Data tiruan: contoh hasil "belum terpenuhi" untuk menguji tampilan.' }
 };
 
 const rapat = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
@@ -57,6 +66,8 @@ export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC'
       A: { bagian: 'A', latar: input.latar },
       D: { bagian: 'D', teoretis: input.teoretis, praktis: input.praktis },
       H: { bagian: 'H', sistematika: input.sistematika },
+      E: { bagian: 'E', tinjauan: input.tinjauan },
+      F: { bagian: 'F', konsep: input.konsep, landasan: input.landasan, kerangka: input.kerangka },
       BC: { bagian: 'BC', rumusan: input.rumusan, tujuan: input.tujuan, teori: input.teori, konsep: input.konsep, objek: input.objek }
     }[bagian] ?? { bagian: 'BC' };
     let res;
@@ -87,7 +98,7 @@ export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC'
  * bukti berupa kutipan nyata dari tulisan pengguna. Yang melanggar diturunkan menjadi "tidak yakin".
  */
 export function validasiHasil(entriAi, mentah, input) {
-  const isian = [input.teori, input.konsep, input.objek, input.latar, input.teoretis, input.praktis, input.sistematika];
+  const isian = [input.teori, input.konsep, input.objek, input.latar, input.teoretis, input.praktis, input.sistematika, input.tinjauan, input.landasan, input.kerangka];
   const korpus = [...butirTerisi(input.rumusan), ...butirTerisi(input.tujuan)].map((b) => b.teks).concat(isian)
     .map(rapat).filter(Boolean);
   const sah = new Set(Object.values(STATUS_AI));

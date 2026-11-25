@@ -135,3 +135,30 @@ test('bagian D: kutipan berlabel "Manfaat teoretis:" diterima setelah label dibu
   const h = validasiHasil(entri, [{ id: 'D3', status: 'terpenuhi', alasan: 'x', bukti: ['Manfaat teoretis: Memperkaya kajian AFI.', 'karangan'] }], { teoretis: 'Memperkaya kajian AFI.', praktis: '' });
   assert.deepEqual(h[0].bukti, ['Memperkaya kajian AFI.']);
 });
+
+const RUBRIK_E = baca('../rubrik/E-tinjauan.json');
+const RUBRIK_F = baca('../rubrik/F-landasan.json');
+
+test('bagian E dan F: data tiruan memberi bukti, dan Worker menerima isian yang tepat', async () => {
+  const eTiruan = await periksaMakna(RUBRIK_E, { tinjauan: 'Paragraf satu tentang tema.\n\nParagraf dua tentang kontras.' });
+  assert.deepEqual(eTiruan.map((x) => x.id), ['E3', 'E4', 'E5', 'E6']);
+  assert.ok(eTiruan.every((x) => x.bukti.length === 1));
+  const fTiruan = await periksaMakna(RUBRIK_F, { konsep: 'a', landasan: 'Definisi teori.', kerangka: 'Alur deduktif.' });
+  assert.deepEqual(fTiruan.map((x) => x.id), ['F3', 'F4', 'F5', 'F6', 'F7']);
+  const bodi = {};
+  const f = async (url, init) => { Object.assign(bodi, JSON.parse(init.body)); return new Response(JSON.stringify({ hasil: [] }), { status: 200 }); };
+  await periksaMakna(RUBRIK_E, { tinjauan: 'a', latar: 'tidak ikut' },
+    buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', bagian: 'E', fetchFn: f }));
+  assert.deepEqual(Object.keys(bodi).sort(), ['bagian', 'tinjauan']);
+  for (const k of Object.keys(bodi)) delete bodi[k];
+  await periksaMakna(RUBRIK_F, { konsep: 'k', landasan: 'l', kerangka: 'r', tinjauan: 'tidak ikut' },
+    buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', bagian: 'F', fetchFn: f }));
+  assert.deepEqual(Object.keys(bodi).sort(), ['bagian', 'kerangka', 'konsep', 'landasan']);
+});
+
+test('bagian F: kutipan dari kolom kerangka dan landasan diterima, karangan ditolak', () => {
+  const entri = RUBRIK_F.filter((e) => e.id === 'F6');
+  const h = validasiHasil(entri, [{ id: 'F6', status: 'terpenuhi', alasan: 'x', bukti: ['[P1] Definisi teori.', 'Alur deduktif dari makro ke mikro', 'kalimat yang tidak ada'] }],
+    { konsep: 'a', landasan: 'Definisi teori.', kerangka: 'Alur deduktif dari makro ke mikro.' });
+  assert.equal(h[0].bukti.length, 2);
+});

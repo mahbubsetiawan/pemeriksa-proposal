@@ -1,0 +1,81 @@
+[
+  {
+    "id": "F1",
+    "bagian": "F",
+    "jenis": "aturan",
+    "kriteria": "Landasan teori tidak berisi biografi tokoh",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab II.B",
+    "bagian_panduan": "Bab II.B, Kaidah Akademik",
+    "dasar": "\"Mahasiswa dilarang keras membuang halaman untuk menuliskan biografi historis-personal tokoh (misal: kapan tokoh lahir, di mana ia bersekolah)\". Pemeriksaan ini hanya mencari kata kunci biografi, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Ada kalimat yang tampak biografis (kelahiran, pendidikan, atau wafat tokoh).",
+    "pesan_peringatan": "Ada kalimat yang tampak biografis (kelahiran, pendidikan, atau wafat tokoh). Panduan melarang biografi karena tidak bisa diturunkan menjadi instrumen."
+  },
+  {
+    "id": "F2",
+    "bagian": "F",
+    "jenis": "aturan",
+    "kriteria": "Setiap konsep teori di rumusan diuraikan di landasan teori",
+    "tingkat": "peringatan",
+    "rujukan": "Panduan Bab II.B",
+    "bagian_panduan": "Bab II.B, Kaidah Akademik",
+    "dasar": "\"Setiap konsep yang muncul dalam rumusan masalah wajib diuraikan di sini, sebab kategori analitik dan indikator pada Bab III diturunkan dari uraian tersebut.\" Pemeriksaan ini hanya mencocokkan istilah, jadi hasilnya berupa peringatan.",
+    "pesan_gagal": "Konsep {n} belum ditemukan di landasan teori.",
+    "pesan_peringatan": "Konsep {n} belum ditemukan di landasan teori dengan istilah yang sama. Pastikan tiap konsep di rumusan diuraikan di sini, dan istilahnya konsisten."
+  },
+  {
+    "id": "F3",
+    "bagian": "F",
+    "jenis": "ai",
+    "kriteria": "Definisi konseptual: penjelasan teoretis akademis tentang teori atau paradigma yang dipakai",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.B",
+    "bagian_panduan": "Bab II.B, Rumus D-K-R",
+    "dasar": "\"D - Definisi Konseptual: Penjelasan teoretis secara akademis mengenai teori atau paradigma yang digunakan.\"",
+    "pesan_gagal": "Definisi konseptual teori atau paradigma belum tampak."
+  },
+  {
+    "id": "F4",
+    "bagian": "F",
+    "jenis": "ai",
+    "kriteria": "Konsep utama: tiap konsep mendasar diuraikan dengan definisi singkat dan aspek pokoknya",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.B",
+    "bagian_panduan": "Bab II.B, Rumus D-K-R",
+    "dasar": "\"K - Konsep Utama Teori: Uraian setiap konsep mendasar dari teori (definisi singkat beserta aspek-aspek pokoknya) yang nantinya bertugas bermigrasi ke Bab III untuk diturunkan menjadi kategori analitik dan indikator dalam instrumen.\"",
+    "pesan_gagal": "Uraian konsep utama (definisi singkat dan aspek pokok) belum lengkap."
+  },
+  {
+    "id": "F5",
+    "bagian": "F",
+    "jenis": "ai",
+    "kriteria": "Relevansi teori dengan objek: argumen mengapa teori ini paling tajam untuk objek material",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.B",
+    "bagian_panduan": "Bab II.B, Rumus D-K-R",
+    "dasar": "\"R - Relevansi Teori dengan Objek: Argumen logis mengapa 'pisau bedah' ini adalah alat paling tajam dan cocok untuk membedah objek material.\"",
+    "pesan_gagal": "Argumen relevansi teori dengan objek material belum tampak."
+  },
+  {
+    "id": "F6",
+    "bagian": "F",
+    "jenis": "ai",
+    "kriteria": "Kerangka pemikiran mengikuti alur deduktif dari makro ke mikro (Situation, Target, Approach, Review, Ends)",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.C",
+    "bagian_panduan": "Bab II.C, Kaidah Akademik dan Rumus",
+    "dasar": "\"Bagian ini disusun dengan alur deduktif (dari makro ke mikro)\"; rumus: Penitisan Logika Deduktif dengan langkah Situation, Target, Approach, Review, dan Ends.",
+    "pesan_gagal": "Alur deduktif makro ke mikro (Situation sampai Ends) belum tampak di kerangka pemikiran."
+  },
+  {
+    "id": "F7",
+    "bagian": "F",
+    "jenis": "ai",
+    "kriteria": "Pada Review, yang dibenturkan adalah nama pendekatan atau teori terdahulu, bukan detail temuan data",
+    "tingkat": "wajib",
+    "rujukan": "Panduan Bab II.C",
+    "bagian_panduan": "Bab II.C, Kaidah Akademik",
+    "dasar": "\"Di dalam Bagan Kerangka Visual, yang dibenturkan atau dikritik adalah kacamata teori/pendekatan orang lain, bukan detail temuan datanya.\"",
+    "pesan_gagal": "Bagian Review memuat detail temuan, bukan nama pendekatan atau teori terdahulu."
+  }
+]

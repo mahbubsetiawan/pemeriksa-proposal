@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { tangani, susunPermintaan, susunPermintaanLatar, susunPermintaanManfaat, susunPermintaanSistematika, bersihkanMasukan, bersihkanMasukanLatar, bersihkanMasukanManfaat, bersihkanMasukanSistematika, MODEL, BATAS } from '../worker/index.js';
+import { tangani, susunPermintaan, susunPermintaanLatar, susunPermintaanManfaat, susunPermintaanSistematika, susunPermintaanTinjauan, susunPermintaanLandasan, bersihkanMasukanTinjauan, bersihkanMasukanLandasan, bersihkanMasukan, bersihkanMasukanLatar, bersihkanMasukanManfaat, bersihkanMasukanSistematika, MODEL, BATAS } from '../worker/index.js';
 
 const ASAL = 'https://mahbubsetiawan.github.io';
 const kv = () => {
@@ -197,4 +197,43 @@ test('bagian D dan H lewat Worker: kriteria yang dikirim ke model sesuai bagian'
   assert.equal((await tangani(req({ bagian: 'H', sistematika: 'Bab I berisi latar belakang.' }), env(), f(HASIL_H))).status, 200);
   assert.match(dikirim.messages[0].content, /- H5:/);
   assert.equal((await tangani(req({ bagian: 'D', teoretis: '', praktis: '' }), env(), f(HASIL_D))).status, 400);
+});
+
+const HASIL_E = ['E3', 'E4', 'E5', 'E6'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
+const HASIL_F = ['F3', 'F4', 'F5', 'F6', 'F7'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
+
+test('bagian E: masukan dibatasi, prompt memuat E3-E6, petunjuk CAP-G, dan paragraf bernomor', () => {
+  assert.ok(bersihkanMasukanTinjauan({ tinjauan: ' ' }).galat);
+  assert.equal(bersihkanMasukanTinjauan({ tinjauan: 'a'.repeat(BATAS.tinjauan + 1) }).status, 413);
+  const b = susunPermintaanTinjauan(bersihkanMasukanTinjauan({ tinjauan: 'Paragraf satu.\n\nParagraf dua.' }));
+  assert.match(b.system, /CAP-G/);
+  assert.match(b.system, /Jangan menulis ulang/);
+  for (const id of ['E3', 'E4', 'E5', 'E6']) assert.match(b.messages[0].content, new RegExp(`- ${id}:`));
+  assert.doesNotMatch(b.messages[0].content, /- E1:|- A1:/);
+  assert.match(b.messages[0].content, /\[P2\] Paragraf dua/);
+  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['E3', 'E4', 'E5', 'E6']);
+});
+
+test('bagian F: masukan dibatasi, prompt memuat F3-F7, konsep, landasan bernomor, dan kerangka', () => {
+  assert.ok(bersihkanMasukanLandasan({ landasan: '' }).galat);
+  assert.equal(bersihkanMasukanLandasan({ landasan: 'a', kerangka: 'b'.repeat(BATAS.kerangka + 1) }).status, 413);
+  const b = susunPermintaanLandasan(bersihkanMasukanLandasan({ konsep: 'kebebasan radikal', landasan: 'Definisi.\n\nKonsep.', kerangka: 'Situation sampai Ends.' }));
+  assert.match(b.system, /D-K-R/);
+  assert.match(b.system, /biografi/);
+  assert.match(b.messages[0].content, /Konsep teori di rumusan: kebebasan radikal/);
+  assert.match(b.messages[0].content, /\[P2\] Konsep\./);
+  assert.match(b.messages[0].content, /Kerangka pemikiran: Situation sampai Ends\./);
+  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['F3', 'F4', 'F5', 'F6', 'F7']);
+  const kosong = susunPermintaanLandasan(bersihkanMasukanLandasan({ landasan: 'Definisi.' }));
+  assert.match(kosong.messages[0].content, /Kerangka pemikiran: \(kosong\)/);
+});
+
+test('bagian E dan F lewat Worker: kriteria yang dikirim ke model sesuai bagian', async () => {
+  let dikirim;
+  const f = (hasil) => async (url, init) => { dikirim = JSON.parse(init.body); return hasilAnthropic(hasil)(); };
+  assert.equal((await tangani(req({ bagian: 'E', tinjauan: 'Paragraf satu.' }), env(), f(HASIL_E))).status, 200);
+  assert.match(dikirim.messages[0].content, /- E5:/);
+  assert.equal((await tangani(req({ bagian: 'F', konsep: 'k', landasan: 'Definisi teori.' }), env(), f(HASIL_F))).status, 200);
+  assert.match(dikirim.messages[0].content, /- F7:/);
+  assert.equal((await tangani(req({ bagian: 'F', landasan: '' }), env(), f(HASIL_F))).status, 400);
 });
