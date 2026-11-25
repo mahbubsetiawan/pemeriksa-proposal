@@ -26,6 +26,13 @@ const KELOMPOK = [
 ];
 const JUDUL_BUTIR = { rumusan: 'Rumusan', tujuan: 'Tujuan' };
 const SUNGGUHAN = Boolean(URL_WORKER);
+const NAMA_BAGIAN = {
+  a: 'A. Latar Belakang Masalah', b: 'B. Rumusan Masalah', c: 'C. Tujuan Penelitian', d: 'D. Manfaat Penelitian',
+  e: 'E. Tinjauan Penelitian Terdahulu', f: 'F. Landasan Teori', g: 'G. Metode Penelitian', h: 'H. Sistematika Penulisan',
+  k: 'Koherensi Antarbagian'
+};
+const URUTAN_BAGIAN = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'k'];
+const HASIL = {}; // hasil terakhir per bagian pada sesi ini
 
 const CONTOH = {
   a: { latar: [
@@ -224,7 +231,199 @@ function sajikan(akar, hasil, { pesan = '', gulir = true } = {}) {
   $('.pesan-makna', akar).textContent = pesan;
   const bagianHasil = $('.hasil', akar);
   bagianHasil.hidden = false;
-  if (gulir) bagianHasil.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (gulir && !window.matchMedia('(min-width:1100px)').matches) bagianHasil.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const nama = akar.id.replace('panel-', '');
+  HASIL[nama] = hasil;
+  aturTitik(nama, hasil);
+  pasangEkspor(akar, nama);
+}
+
+/* ---------- laporan: salin dan cetak ---------- */
+function ringkasBagian(hasil) {
+  const dinilai = hasil.filter((h) => h.status !== STATUS.BELUM_DIJALANKAN);
+  const baik = dinilai.filter((h) => h.status === STATUS.TERPENUHI).length;
+  return { dinilai: dinilai.length, baik, total: hasil.length };
+}
+
+function entriLaporan(namaBagian) {
+  const daftar = namaBagian ? [namaBagian] : URUTAN_BAGIAN;
+  return daftar.filter((n) => HASIL[n]?.length).map((n) => ({ nama: n, judul: NAMA_BAGIAN[n], hasil: HASIL[n] }));
+}
+
+const tanggalHariIni = () => new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+const CATATAN_LAPORAN = 'Bantuan awal berdasarkan Panduan Struktur Penulisan Skripsi Prodi AFI (bukan dokumen resmi fakultas). Bukan penilaian final; pembimbing tetap rujukan akhir.';
+
+function teksLaporan(entri) {
+  const baris = ['PEMERIKSA PROPOSAL SKRIPSI AFI', `Hasil pemeriksaan awal, ${tanggalHariIni()}`,
+    'Dikembangkan dan diuji oleh Dr. Mahbub Setiawan, Prodi AFI, UIN Raden Mas Said Surakarta.', CATATAN_LAPORAN, ''];
+  for (const e of entri) {
+    const r = ringkasBagian(e.hasil);
+    baris.push(`${e.judul}${r.dinilai ? ` (${r.baik} dari ${r.dinilai} kriteria yang dinilai sudah baik)` : ''}`);
+    for (const k of KELOMPOK) {
+      const butir = e.hasil.filter((h) => k.status.includes(h.status));
+      if (!butir.length) continue;
+      baris.push(`  ${k.judul}:`);
+      for (const h of butir) {
+        baris.push(`  - ${h.id} ${h.kriteria}`);
+        if (h.pesan && k.kunci !== 'baik') baris.push(`    ${h.pesan}`);
+        if (k.kunci !== 'baik') for (const b of h.bukti) baris.push(`    Kutipan: "${b}"`);
+      }
+    }
+    baris.push('');
+  }
+  return baris.join('\n');
+}
+
+function isiAreaCetak(entri) {
+  const area = $('#laporan-cetak');
+  area.replaceChildren();
+  area.append(el('h1', '', 'Pemeriksa Proposal Skripsi AFI'),
+    el('p', 'meta', `Hasil pemeriksaan awal, ${tanggalHariIni()}`),
+    el('p', 'meta', 'Dikembangkan dan diuji oleh Dr. Mahbub Setiawan, Prodi AFI, UIN Raden Mas Said Surakarta.'),
+    el('p', 'meta', CATATAN_LAPORAN));
+  for (const e of entri) {
+    const r = ringkasBagian(e.hasil);
+    const sek = el('section', 'bag');
+    sek.append(el('h2', '', e.judul));
+    if (r.dinilai) sek.append(el('p', 'meta', `${r.baik} dari ${r.dinilai} kriteria yang dinilai sudah baik.`));
+    for (const k of KELOMPOK) {
+      const butir = e.hasil.filter((h) => k.status.includes(h.status));
+      if (!butir.length) continue;
+      sek.append(el('h3', '', k.judul));
+      const ul = el('ul');
+      for (const h of butir) {
+        const li = el('li');
+        li.append(el('b', '', `${h.id} ${h.kriteria}`));
+        if (k.kunci !== 'baik') {
+          if (h.pesan) li.append(el('div', '', h.pesan));
+          for (const b of h.bukti) li.append(el('blockquote', '', b));
+        }
+        ul.append(li);
+      }
+      sek.append(ul);
+    }
+    area.append(sek);
+  }
+}
+
+function cetak(entri) {
+  isiAreaCetak(entri);
+  window.addEventListener('afterprint', () => $('#laporan-cetak').replaceChildren(), { once: true });
+  window.print();
+}
+
+async function salinTeks(teks) {
+  try { await navigator.clipboard.writeText(teks); return true; } catch { /* lanjut ke cara cadangan */ }
+  const t = el('textarea');
+  t.value = teks; t.style.position = 'fixed'; t.style.opacity = '0';
+  document.body.append(t); t.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { ok = false; }
+  t.remove();
+  return ok;
+}
+
+function pasangEkspor(akar, nama) {
+  if ($('.ekspor-hasil', akar)) return;
+  const wadah = el('div', 'ekspor-hasil');
+  const salin = el('button', 'sekunder kecil', 'Salin hasil');
+  const cetakB = el('button', 'sekunder kecil', 'Cetak atau simpan PDF');
+  const info = el('span', 'bantu', '');
+  info.setAttribute('role', 'status');
+  for (const b of [salin, cetakB]) b.type = 'button';
+  salin.addEventListener('click', async () => {
+    info.textContent = (await salinTeks(teksLaporan(entriLaporan(nama)))) ? 'Hasil disalin.' : 'Gagal menyalin. Gunakan tombol cetak.';
+  });
+  cetakB.addEventListener('click', () => cetak(entriLaporan(nama)));
+  wadah.append(salin, cetakB, info);
+  $('.isi-hasil', akar).before(wadah);
+}
+
+function pasangLaporan() {
+  const dlg = $('#dialog-laporan');
+  const isi = () => {
+    const daftar = $('#daftar-laporan');
+    daftar.replaceChildren();
+    const entri = entriLaporan();
+    for (const e of entri) {
+      const r = ringkasBagian(e.hasil);
+      const li = el('li');
+      li.append(el('span', '', e.judul), el('span', 'skor-kecil', r.dinilai ? `${r.baik}/${r.dinilai} baik` : 'menunggu AI'));
+      daftar.append(li);
+    }
+    $('#kosong-laporan').textContent = entri.length ? '' : 'Belum ada hasil. Jalankan pemeriksaan di salah satu bagian terlebih dahulu.';
+    for (const id of ['#salin-laporan', '#cetak-laporan']) $(id).disabled = !entri.length;
+    $('#pesan-laporan').textContent = '';
+  };
+  $('#buka-laporan').addEventListener('click', () => { isi(); dlg.showModal(); });
+  $('#tutup-laporan').addEventListener('click', () => dlg.close());
+  $('#salin-laporan').addEventListener('click', async () => {
+    $('#pesan-laporan').textContent = (await salinTeks(teksLaporan(entriLaporan()))) ? 'Laporan disalin.' : 'Gagal menyalin. Gunakan tombol cetak.';
+  });
+  $('#cetak-laporan').addEventListener('click', () => { dlg.close(); cetak(entriLaporan()); });
+}
+
+/* ---------- draf tersimpan di perangkat ---------- */
+const KUNCI_DRAF = 'draf-proposal-v1';
+const bidangDraf = () => [...document.querySelectorAll('.panel input[id], .panel textarea[id]')].filter((e) => !e.dataset.untuk && e.type !== 'checkbox');
+
+function simpanDraf() {
+  try {
+    const data = { v: 1, bidang: {}, rumusan: ambilDaftar('rumusan'), tujuan: ambilDaftar('tujuan') };
+    for (const e of bidangDraf()) data.bidang[e.id] = e.value;
+    const ada = Object.values(data.bidang).some((v) => v.trim()) || data.rumusan.some((v) => v.trim()) || data.tujuan.some((v) => v.trim());
+    if (ada) localStorage.setItem(KUNCI_DRAF, JSON.stringify(data)); else localStorage.removeItem(KUNCI_DRAF);
+  } catch { /* penyimpanan penuh atau dimatikan: aplikasi tetap berjalan tanpa simpan otomatis */ }
+}
+
+function pulihkanDraf() {
+  try {
+    const mentah = localStorage.getItem(KUNCI_DRAF);
+    if (!mentah) return;
+    const d = JSON.parse(mentah);
+    for (const [id, v] of Object.entries(d.bidang ?? {})) {
+      const e = document.getElementById(id);
+      if (e && typeof v === 'string' && bidangDraf().includes(e)) e.value = v;
+    }
+    for (const untuk of ['rumusan', 'tujuan']) {
+      const nilai = Array.isArray(d[untuk]) ? d[untuk].filter((v) => typeof v === 'string') : [];
+      if (nilai.length) aturDaftar(untuk, nilai);
+    }
+  } catch { /* draf rusak diabaikan */ }
+}
+
+let jedaSimpan;
+const jadwalSimpan = () => { clearTimeout(jedaSimpan); jedaSimpan = setTimeout(simpanDraf, 400); };
+
+function pasangHapusDraf() {
+  $('#hapus-draf').addEventListener('click', () => {
+    try { localStorage.removeItem(KUNCI_DRAF); } catch { /* abaikan */ }
+    $('#pesan-hapus').textContent = 'Terhapus. Memuat ulang…';
+    setTimeout(() => location.reload(), 400);
+  });
+}
+
+/** Titik status di menu: merah bila ada yang perlu diperbaiki, kuning bila perlu dicek, hijau bila baik. */
+function aturTitik(nama, hasil) {
+  const t = $(`#tab-${nama} .titik`);
+  if (!t) return;
+  const ada = (...s) => hasil.some((h) => s.includes(h.status));
+  const kelas = !hasil.length ? '' :
+    ada(STATUS.BELUM) ? 'perbaiki' :
+    ada(STATUS.PERINGATAN, STATUS.TIDAK_YAKIN, STATUS.TIDAK_DAPAT) ? 'periksa' :
+    ada(STATUS.TERPENUHI) ? 'baik' : '';
+  t.className = `titik ${kelas}`.trim();
+}
+
+/** Progres di header: berapa bagian (selain Koherensi) yang sudah berisi. */
+function perbaruiProgres() {
+  const nama = Object.keys(PANEL).filter((k) => k !== 'k');
+  const n = nama.filter((k) => { try { return PANEL[k].ada(); } catch { return false; } }).length;
+  $('#progres-teks').textContent = `${n} dari ${nama.length}`;
+  const b = $('.progres .batang');
+  b.setAttribute('aria-valuenow', String(n));
+  b.setAttribute('aria-valuemax', String(nama.length));
+  $('i', b).style.width = `${(n / nama.length) * 100}%`;
 }
 
 /* ---------- panel ---------- */
@@ -439,6 +638,7 @@ function pasangMenu() {
       if (aktif) t.scrollIntoView({ inline: 'center', block: 'nearest' }); // bilah menu di ponsel ikut bergulir
     }
   };
+  tabs.forEach((t) => $('.nama', t).after(el('span', 'titik')));
   tabs.forEach((t) => t.addEventListener('click', () => {
     pilih(t.dataset.panel);
     if (t.dataset.panel === 'k') perbaruiSumberK();
@@ -485,8 +685,14 @@ async function mulai() {
   aturDaftar('tujuan', []);
   document.querySelectorAll('.tambah').forEach((t) =>
     t.addEventListener('click', () => tambahButir(t.dataset.untuk)));
+  pulihkanDraf();
   pasangMenu();
   pasangDialog();
+  pasangLaporan();
+  pasangHapusDraf();
+  document.addEventListener('input', () => { perbaruiProgres(); jadwalSimpan(); });
+  document.addEventListener('click', () => setTimeout(() => { perbaruiProgres(); jadwalSimpan(); }, 0));
+  perbaruiProgres();
   pasangHitungLatar();
   pasangHitungTinjauan();
   // Pasang segera, sebelum rubrik selesai dimuat, agar formulir tidak pernah terkirim secara bawaan (memuat ulang halaman).
@@ -500,6 +706,8 @@ async function mulai() {
       $('.isi-hasil', akar).replaceChildren();
       $('.pesan-makna', akar).textContent = '';
       $('.hasil', akar).hidden = true;
+      aturTitik(nama, []);
+      delete HASIL[nama];
       setLangkah(akar, 1);
     });
   }

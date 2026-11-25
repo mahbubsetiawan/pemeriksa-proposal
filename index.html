@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fafbfc">
+  <meta name="theme-color" content="#2e4a66">
   <meta name="color-scheme" content="light">
   <title>Pemeriksa Proposal Skripsi AFI</title>
   <link rel="manifest" href="manifest.webmanifest">
@@ -32,11 +32,16 @@
       <div class="merek">
         <img src="ikon/ikon-192.png" alt="" width="38" height="38">
         <div>
-          <h1>Pemeriksa Proposal</h1>
-          <p class="deskripsi">Periksa bagian proposal Anda terhadap panduan penulisan skripsi.</p>
+          <h1>Pemeriksa Proposal Skripsi</h1>
+          <p class="kredit"><span class="kredit-awal">Dikembangkan dan diuji oleh </span><b>Dr. Mahbub Setiawan</b><span class="kredit-afiliasi"> · Prodi AFI, UIN Raden Mas Said Surakarta</span></p>
         </div>
       </div>
       <div class="kanan-atas">
+        <div class="progres" title="Bagian proposal yang sudah Anda isi">
+          <div class="lab"><span>Bagian terisi</span><span id="progres-teks">0 dari 8</span></div>
+          <div class="batang" role="progressbar" aria-label="Bagian terisi" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0"><i></i></div>
+        </div>
+        <button type="button" id="buka-laporan" class="tombol-atas" title="Laporan semua bagian"><svg class="ik" aria-hidden="true"><use href="#i-daftar"/></svg><span class="teks">Laporan</span></button>
         <span class="lencana-atas" role="note">Bantuan awal, bukan penilaian final</span>
         <button type="button" id="buka-kode" class="ikon-tombol" aria-label="Kode akses" title="Kode akses" hidden><svg class="ik" aria-hidden="true"><use href="#i-kunci"/></svg></button>
         <button type="button" id="buka-tentang" class="ikon-tombol" aria-label="Tentang aplikasi" title="Tentang"><svg class="ik" aria-hidden="true"><use href="#i-info"/></svg></button>
@@ -45,19 +50,19 @@
 
     <aside class="samping">
       <nav class="menu" aria-label="Bagian proposal">
-        <p class="judul-menu">Bagian proposal</p>
+        <p class="judul-menu">Bagian Proposal</p>
         <div role="tablist" aria-orientation="vertical" class="daftar-menu">
           <button type="button" role="tab" id="tab-a" aria-controls="panel-a" aria-selected="true" data-panel="a" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-dokumen"/></svg>
-            <span class="nama"><b>A</b> Latar belakang</span>
+            <span class="nama"><b>A</b> Latar Belakang</span>
           </button>
           <button type="button" role="tab" id="tab-b" aria-controls="panel-b" aria-selected="false" data-panel="b" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-target"/></svg>
-            <span class="nama"><b>B</b> Rumusan masalah</span>
+            <span class="nama"><b>B</b> Rumusan Masalah</span>
           </button>
           <button type="button" role="tab" id="tab-c" aria-controls="panel-c" aria-selected="false" data-panel="c" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-tujuan"/></svg>
-            <span class="nama"><b>C</b> Tujuan penelitian</span>
+            <span class="nama"><b>C</b> Tujuan Penelitian</span>
           </button>
           <button type="button" role="tab" id="tab-d" aria-controls="panel-d" aria-selected="false" data-panel="d" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-manfaat"/></svg>
@@ -65,11 +70,11 @@
           </button>
           <button type="button" role="tab" id="tab-e" aria-controls="panel-e" aria-selected="false" data-panel="e" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-buku"/></svg>
-            <span class="nama"><b>E</b> Tinjauan terdahulu</span>
+            <span class="nama"><b>E</b> Tinjauan Terdahulu</span>
           </button>
           <button type="button" role="tab" id="tab-f" aria-controls="panel-f" aria-selected="false" data-panel="f" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-lapis"/></svg>
-            <span class="nama"><b>F</b> Landasan teori</span>
+            <span class="nama"><b>F</b> Landasan Teori</span>
           </button>
           <button type="button" role="tab" id="tab-g" aria-controls="panel-g" aria-selected="false" data-panel="g" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-metode"/></svg>
@@ -90,13 +95,13 @@
     <main class="kerja">
       <section id="panel-a" class="panel" role="tabpanel" aria-labelledby="tab-a">
         <div class="judul-kerja">
-          <h2>Latar belakang masalah</h2>
+          <h2>Latar Belakang Masalah</h2>
           <p>Rumus STARE: situasi, target, pendekatan, tinjauan, muara.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-a" novalidate>
           <div class="kartu-isian">
-            <label for="latar" class="sr">Latar belakang masalah</label>
+            <label for="latar" class="sr">Latar Belakang Masalah</label>
             <textarea id="latar" class="panjang" rows="12" placeholder="Tempel latar belakang Anda di sini. Pisahkan paragraf dengan satu baris kosong."></textarea>
             <p id="hitung-latar" class="bantu" aria-live="polite"></p>
           </div>
@@ -115,19 +120,19 @@
 
       <section id="panel-b" class="panel" role="tabpanel" aria-labelledby="tab-b" hidden>
         <div class="judul-kerja">
-          <h2>Rumusan masalah</h2>
+          <h2>Rumusan Masalah</h2>
           <p>Kata tanya analitis, konsep teori, dan objek material sejak pertanyaan pertama.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-b" novalidate>
           <div class="kartu-isian tiga">
-            <div><label for="teori">Nama teori</label><input id="teori" type="text" autocomplete="off" placeholder="mis. Eksistensialisme Sartre"></div>
-            <div><label for="konsep">Konsep teori</label><input id="konsep" type="text" autocomplete="off" placeholder="paling banyak tiga, pisahkan koma"></div>
-            <div><label for="objek">Objek material</label><input id="objek" type="text" autocomplete="off" placeholder="teks atau lapangan yang diteliti"></div>
+            <div><label for="teori">Nama Teori</label><input id="teori" type="text" autocomplete="off" placeholder="mis. Eksistensialisme Sartre"></div>
+            <div><label for="konsep">Konsep Teori</label><input id="konsep" type="text" autocomplete="off" placeholder="paling banyak tiga, pisahkan koma"></div>
+            <div><label for="objek">Objek Material</label><input id="objek" type="text" autocomplete="off" placeholder="teks atau lapangan yang diteliti"></div>
           </div>
 
           <div class="kartu-isian">
-            <div class="kepala-daftar"><h3>Rumusan masalah</h3><button type="button" class="tambah sekunder kecil" data-untuk="rumusan">+ Tambah</button></div>
+            <div class="kepala-daftar"><h3>Rumusan Masalah</h3><button type="button" class="tambah sekunder kecil" data-untuk="rumusan">+ Tambah</button></div>
             <div id="daftar-rumusan" class="daftar"></div>
           </div>
 
@@ -146,19 +151,19 @@
 
       <section id="panel-c" class="panel" role="tabpanel" aria-labelledby="tab-c" hidden>
         <div class="judul-kerja">
-          <h2>Tujuan penelitian</h2>
+          <h2>Tujuan Penelitian</h2>
           <p>Kata kerja analitis ditambah bunyi rumusan masalah, satu tujuan untuk tiap rumusan.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-c" novalidate>
           <div class="kartu-isian">
-            <h3>Rumusan dari tab B</h3>
+            <h3>Rumusan dari Tab B</h3>
             <ol id="rujukan-rumusan" class="rujukan-rumusan"></ol>
             <p id="kosong-rumusan" class="bantu"></p>
           </div>
 
           <div class="kartu-isian">
-            <div class="kepala-daftar"><h3>Tujuan penelitian</h3><button type="button" class="tambah sekunder kecil" data-untuk="tujuan">+ Tambah</button></div>
+            <div class="kepala-daftar"><h3>Tujuan Penelitian</h3><button type="button" class="tambah sekunder kecil" data-untuk="tujuan">+ Tambah</button></div>
             <div id="daftar-tujuan" class="daftar"></div>
           </div>
 
@@ -177,17 +182,17 @@
 
       <section id="panel-d" class="panel" role="tabpanel" aria-labelledby="tab-d" hidden>
         <div class="judul-kerja">
-          <h2>Manfaat penelitian</h2>
+          <h2>Manfaat Penelitian</h2>
           <p>Dua dimensi: manfaat teoretis dan manfaat praktis.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-d" novalidate>
           <div class="kartu-isian">
-            <label for="manfaat-teoretis">Manfaat teoretis</label>
+            <label for="manfaat-teoretis">Manfaat Teoretis</label>
             <textarea id="manfaat-teoretis" rows="4" placeholder="Kontribusi bagi pengembangan keilmuan yang spesifik di Prodi AFI."></textarea>
           </div>
           <div class="kartu-isian">
-            <label for="manfaat-praktis">Manfaat praktis</label>
+            <label for="manfaat-praktis">Manfaat Praktis</label>
             <textarea id="manfaat-praktis" rows="4" placeholder="Rekomendasi atau kegunaan bagi aktor, masyarakat, atau lembaga tertentu di lapangan."></textarea>
           </div>
           <div class="aksi">
@@ -205,13 +210,13 @@
 
       <section id="panel-e" class="panel" role="tabpanel" aria-labelledby="tab-e" hidden>
         <div class="judul-kerja">
-          <h2>Tinjauan penelitian terdahulu</h2>
+          <h2>Tinjauan Penelitian Terdahulu</h2>
           <p>Tiga unsur: pengelompokan, perbandingan, serta posisi dan celah. Pembagian paragraf bebas; bukan daftar penelitian.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-e" novalidate>
           <div class="kartu-isian">
-            <label for="tinjauan" class="sr">Tinjauan penelitian terdahulu</label>
+            <label for="tinjauan" class="sr">Tinjauan Penelitian Terdahulu</label>
             <textarea id="tinjauan" class="panjang" rows="12" placeholder="Tempel tinjauan penelitian terdahulu Anda di sini. Pisahkan paragraf dengan satu baris kosong."></textarea>
             <p id="hitung-tinjauan" class="bantu" aria-live="polite"></p>
           </div>
@@ -230,21 +235,21 @@
 
       <section id="panel-f" class="panel" role="tabpanel" aria-labelledby="tab-f" hidden>
         <div class="judul-kerja">
-          <h2>Landasan teori dan kerangka pemikiran</h2>
+          <h2>Landasan Teori dan Kerangka Pemikiran</h2>
           <p>Rumus D-K-R, dan alur deduktif Situation sampai Ends.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-f" novalidate>
           <div class="kartu-isian">
-            <label for="konsep-f">Konsep teori di rumusan</label>
+            <label for="konsep-f">Konsep Teori di Rumusan</label>
             <input id="konsep-f" type="text" autocomplete="off" placeholder="pisahkan dengan koma; terisi otomatis dari tab B bila sudah diisi">
           </div>
           <div class="kartu-isian">
-            <label for="landasan">Landasan teori</label>
+            <label for="landasan">Landasan Teori</label>
             <textarea id="landasan" class="panjang" rows="10" placeholder="Tempel landasan teori Anda di sini. Pisahkan paragraf dengan satu baris kosong."></textarea>
           </div>
           <div class="kartu-isian">
-            <label for="kerangka">Kerangka pemikiran (narasi alur, opsional)</label>
+            <label for="kerangka">Kerangka Pemikiran (Narasi Alur, Opsional)</label>
             <textarea id="kerangka" rows="6" placeholder="Narasi alur bagan: Situation, Target, Approach, Review, Ends."></textarea>
           </div>
           <div class="aksi">
@@ -262,33 +267,33 @@
 
       <section id="panel-g" class="panel" role="tabpanel" aria-labelledby="tab-g" hidden>
         <div class="judul-kerja">
-          <h2>Metode penelitian</h2>
+          <h2>Metode Penelitian</h2>
           <p>Lima unsur: jenis dan pendekatan, sumber data, teknik pengumpulan dan kisi-kisi, analisis data, serta triangulasi. Ditulis dalam bahasa rencana.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-g" novalidate>
           <div class="kartu-isian">
-            <label for="metode-jenis">Jenis dan pendekatan penelitian</label>
+            <label for="metode-jenis">Jenis dan Pendekatan Penelitian</label>
             <textarea id="metode-jenis" rows="4" placeholder="Jenis penelitian kualitatif (lapangan atau pustaka), pendekatannya, dan alasan memilihnya."></textarea>
           </div>
           <div class="kartu-isian">
-            <label for="metode-sumber">Sumber data</label>
+            <label for="metode-sumber">Sumber Data</label>
             <textarea id="metode-sumber" rows="5" placeholder="Data primer dan data sekunder, masing-masing dengan objek yang spesifik."></textarea>
           </div>
           <div class="kartu-isian">
-            <label for="metode-teknik">Teknik pengumpulan data</label>
+            <label for="metode-teknik">Teknik Pengumpulan Data</label>
             <textarea id="metode-teknik" rows="4" placeholder="Observasi, wawancara mendalam, dokumentasi (atau pembacaan kritis untuk penelitian pustaka)."></textarea>
           </div>
           <div class="kartu-isian">
-            <label for="metode-kisi">Kisi-kisi instrumen</label>
+            <label for="metode-kisi">Kisi-Kisi Instrumen</label>
             <textarea id="metode-kisi" rows="6" placeholder="Tempel tabelnya: fokus masalah, kategori analitik, indikator, sumber data, teknik pengumpulan data."></textarea>
           </div>
           <div class="kartu-isian">
-            <label for="metode-analisis">Teknik analisis data</label>
+            <label for="metode-analisis">Teknik Analisis Data</label>
             <textarea id="metode-analisis" rows="5" placeholder="Tiga tahapan: deskriptif, verifikatif (verstehen), interpretatif."></textarea>
           </div>
           <div class="kartu-isian">
-            <label for="metode-triangulasi">Keabsahan data (triangulasi)</label>
+            <label for="metode-triangulasi">Keabsahan Data (Triangulasi)</label>
             <textarea id="metode-triangulasi" rows="4" placeholder="Triangulasi sumber dan triangulasi teknik, dengan contoh konkret."></textarea>
           </div>
           <div class="aksi">
@@ -306,13 +311,13 @@
 
       <section id="panel-h" class="panel" role="tabpanel" aria-labelledby="tab-h" hidden>
         <div class="judul-kerja">
-          <h2>Sistematika penulisan</h2>
+          <h2>Sistematika Penulisan</h2>
           <p>Narasi isi tiap bab: "Bab pertama berisi …", tanpa judul dan tanpa nama rumus.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-h" novalidate>
           <div class="kartu-isian">
-            <label for="sistematika" class="sr">Sistematika penulisan</label>
+            <label for="sistematika" class="sr">Sistematika Penulisan</label>
             <textarea id="sistematika" class="panjang" rows="12" placeholder="Tulis tiap bab pada paragraf sendiri, diawali Bab pertama berisi…, Bab kedua berisi…, dan seterusnya."></textarea>
           </div>
           <div class="aksi">
@@ -329,13 +334,13 @@
       </section>
       <section id="panel-k" class="panel" role="tabpanel" aria-labelledby="tab-k" hidden>
         <div class="judul-kerja">
-          <h2>Koherensi antarbagian</h2>
+          <h2>Koherensi Antarbagian</h2>
           <p>Memeriksa apakah konsep, teori, objek, dan alur konsisten di seluruh bagian yang sudah Anda isi.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
         <form id="form-k" novalidate>
           <div class="kartu-isian">
-            <h3>Bagian yang terbaca</h3>
+            <h3>Bagian yang Terbaca</h3>
             <ul id="daftar-sumber-k" class="daftar-sumber"></ul>
             <p class="bantu">Tab ini tidak punya kolom isian. Isi dulu bagian lain; makin lengkap, makin banyak yang bisa diperiksa. Bagian yang kosong tidak disalahkan.</p>
           </div>
@@ -354,14 +359,15 @@
 
     <footer class="kaki">
       <p>Alat bantu belajar berdasarkan panduan penulisan skripsi Dr. Mahbub Setiawan. Bukan dokumen resmi fakultas; pembimbing tetap rujukan akhir.</p>
+      <p class="hak">Isian tersimpan otomatis di perangkat ini saja. © 2026 Mahbub Setiawan. Seluruh hak dilindungi.</p>
     </footer>
   </div>
 
   <dialog id="dialog-ai" aria-labelledby="judul-dialog-ai">
     <form method="dialog" id="form-dialog-ai">
-      <h2 id="judul-dialog-ai">Periksa makna dengan AI</h2>
+      <h2 id="judul-dialog-ai">Periksa Makna dengan AI</h2>
       <p class="bantu">Tulisan Anda dikirim ke layanan Claude (Anthropic) untuk dinilai. Menurut ketentuan Anthropic untuk API, data tidak dipakai melatih model secara bawaan dan dihapus dari sistem mereka dalam 30 hari. Server perantara aplikasi ini tidak menyimpan tulisan Anda.</p>
-      <label for="kode">Kode akses kelas</label>
+      <label for="kode">Kode Akses Kelas</label>
       <input id="kode" type="password" autocomplete="off">
       <label class="pilihan"><input id="setuju" type="checkbox"> <span>Saya setuju tulisan saya dikirim untuk pemeriksaan ini.</span></label>
       <p id="galat-dialog" class="galat" role="alert"></p>
@@ -373,7 +379,7 @@
   </dialog>
 
   <dialog id="dialog-kosong" aria-labelledby="judul-kosong">
-    <h2 id="judul-kosong">Kosongkan isian?</h2>
+    <h2 id="judul-kosong">Kosongkan Isian?</h2>
     <p>Semua tulisan di bagian ini akan terhapus dan tidak bisa dikembalikan.</p>
     <div class="aksi-dialog">
       <button type="button" id="batal-kosong" class="sekunder">Batal</button>
@@ -382,12 +388,35 @@
   </dialog>
 
   <dialog id="dialog-tentang" aria-labelledby="judul-tentang">
-    <h2 id="judul-tentang">Tentang aplikasi</h2>
+    <h2 id="judul-tentang">Tentang Aplikasi</h2>
+    <p class="kredit-dialog">Dikembangkan dan diuji oleh <b>Dr. Mahbub Setiawan</b>, Prodi AFI, UIN Raden Mas Said Surakarta.</p>
+    <h3 class="sub-dialog">Dasar Akademik</h3>
     <p>Pemeriksaan ini mengacu pada panduan struktur penulisan skripsi model analisis-teoretis yang disusun Dr. Mahbub Setiawan sebagai alat bantu belajar mahasiswa. Panduan itu bukan dokumen resmi fakultas atau program studi, dan pembimbing Anda tetap menjadi rujukan akhir.</p>
-    <p>Aplikasi hanya menunjukkan kriteria yang sudah dan belum terpenuhi; aplikasi tidak menulis ulang tulisan Anda.</p>
+    <h3 class="sub-dialog">Cara Kerja</h3>
+    <p>Aplikasi hanya menunjukkan kriteria yang sudah dan belum terpenuhi; aplikasi tidak menulis ulang tulisan Anda. Setiap kriteria dirujuk ke bagian panduan yang menjadi dasarnya.</p>
     <p>Pemeriksaan aturan berjalan di perangkat ini. Pemeriksaan makna oleh AI mengirim tulisan Anda ke layanan Claude hanya setelah Anda menyetujuinya.</p>
+    <h3 class="sub-dialog">Data Anda</h3>
+    <p>Isian disimpan otomatis di peramban perangkat ini agar tidak hilang saat halaman dimuat ulang; tidak dikirim ke mana pun kecuali Anda meminta pemeriksaan makna oleh AI. Layanan AI tidak memakai tulisan Anda untuk melatih model dan menyimpannya paling lama 30 hari.</p>
+    <p><button type="button" id="hapus-draf" class="sekunder kecil">Hapus semua isian tersimpan</button> <span id="pesan-hapus" class="bantu" role="status"></span></p>
+    <h3 class="sub-dialog">Keterbatasan</h3>
+    <p>Hasilnya bantuan awal, bukan penilaian final. Pemeriksaan berbasis pola kata dapat keliru, dan pemeriksaan makna oleh AI dapat salah menafsirkan. Pertimbangkan hasilnya, lalu bawa ke pembimbing Anda.</p>
     <div class="aksi-dialog"><button type="button" id="tutup-tentang" class="utama">Tutup</button></div>
   </dialog>
+
+  <dialog id="dialog-laporan" aria-labelledby="judul-laporan">
+    <h2 id="judul-laporan">Laporan Semua Bagian</h2>
+    <p class="bantu">Ringkasan pemeriksaan yang sudah dijalankan pada sesi ini. Bagian yang belum diperiksa tidak ikut dilaporkan.</p>
+    <ul id="daftar-laporan" class="daftar-laporan"></ul>
+    <p id="kosong-laporan" class="bantu"></p>
+    <div class="aksi-dialog">
+      <button type="button" id="salin-laporan" class="sekunder">Salin teks</button>
+      <button type="button" id="cetak-laporan" class="sekunder">Cetak atau simpan PDF</button>
+      <button type="button" id="tutup-laporan" class="utama">Tutup</button>
+    </div>
+    <p id="pesan-laporan" class="bantu" role="status"></p>
+  </dialog>
+
+  <div id="laporan-cetak" aria-hidden="true"></div>
 
   <script type="module" src="js/tampilan.js"></script>
 </body>
