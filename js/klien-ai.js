@@ -93,6 +93,13 @@ export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC'
   };
 }
 
+/** Label paragraf internal ([P2], P3, "paragraf P2") yang bocor ke penjelasan diubah menjadi bahasa biasa ("paragraf ke-2"). */
+export function rapikanLabel(teks) {
+  return String(teks)
+    .replace(/\[?\bP(\d{1,2})\]?\s*[-–]\s*\[?P?(\d{1,2})\]?/g, 'paragraf ke-$1 sampai ke-$2')
+    .replace(/(?:paragraf\s+)?\[?\bP(\d{1,2})\b\]?/gi, 'paragraf ke-$1');
+}
+
 /**
  * Validasi keluaran pelaksana terhadap kontrak (RENCANA bagian 6): id dikenal, status sah,
  * bukti berupa kutipan nyata dari tulisan pengguna. Yang melanggar diturunkan menjadi "tidak yakin".
@@ -115,7 +122,7 @@ export function validasiHasil(entriAi, mentah, input) {
       .filter((b) => typeof b === 'string')
       .map(tanpaLabel)
       .filter((b) => b && korpus.some((k) => k.includes(b)));
-    return { ...dasar, status: h.status, bukti, pesan: String(h.alasan ?? '') };
+    return { ...dasar, status: h.status, bukti, pesan: rapikanLabel(String(h.alasan ?? '')) };
   });
 }
 

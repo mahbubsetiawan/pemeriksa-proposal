@@ -212,6 +212,7 @@ test('bagian E: masukan dibatasi, prompt memuat E2-E5, petunjuk CAP-G, dan parag
   assert.equal(bersihkanMasukanTinjauan({ tinjauan: 'a'.repeat(BATAS.tinjauan + 1) }).status, 413);
   const b = susunPermintaanTinjauan(bersihkanMasukanTinjauan({ tinjauan: 'Paragraf satu.\n\nParagraf dua.' }));
   assert.match(b.system, /CAP-G/);
+  assert.match(b.system, /jangan menulis label internal/);
   assert.match(b.system, /Jangan menulis ulang/);
   for (const id of ['E2', 'E3', 'E4', 'E5']) assert.match(b.messages[0].content, new RegExp(`- ${id}:`));
   assert.doesNotMatch(b.messages[0].content, /- E1:|- A1:/);

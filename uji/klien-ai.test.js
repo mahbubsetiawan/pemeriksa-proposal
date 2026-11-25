@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { periksaMakna, validasiHasil, buatPelaksanaWorker } from '../js/klien-ai.js';
+import { periksaMakna, validasiHasil, buatPelaksanaWorker, rapikanLabel } from '../js/klien-ai.js';
 
 const baca = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
 const RUBRIK = [...baca('../rubrik/B-rumusan.json'), ...baca('../rubrik/C-tujuan.json')];
@@ -161,4 +161,14 @@ test('bagian F: kutipan dari kolom kerangka dan landasan diterima, karangan dito
   const h = validasiHasil(entri, [{ id: 'F6', status: 'terpenuhi', alasan: 'x', bukti: ['[P1] Definisi teori.', 'Alur deduktif dari makro ke mikro', 'kalimat yang tidak ada'] }],
     { konsep: 'a', landasan: 'Definisi teori.', kerangka: 'Alur deduktif dari makro ke mikro.' });
   assert.equal(h[0].bukti.length, 2);
+});
+
+test('label paragraf internal (P2, [P3], "paragraf P2", P2-P3) di penjelasan diubah menjadi bahasa biasa', () => {
+  assert.equal(rapikanLabel('Perbandingan tampak di P2 dan P3.'), 'Perbandingan tampak di paragraf ke-2 dan paragraf ke-3.');
+  assert.equal(rapikanLabel('Lihat [P1] dan paragraf P4.'), 'Lihat paragraf ke-1 dan paragraf ke-4.');
+  assert.equal(rapikanLabel('Unsur ini tersebar pada P2-P3.'), 'Unsur ini tersebar pada paragraf ke-2 sampai ke-3.');
+  assert.equal(rapikanLabel('Tidak ada label di sini; Pasal 5 dan PP2 tetap.'), 'Tidak ada label di sini; Pasal 5 dan PP2 tetap.');
+  const entri = RUBRIK_E.filter((e) => e.id === 'E3');
+  const h = validasiHasil(entri, [{ id: 'E3', status: 'terpenuhi', bukti: [], alasan: 'Kontras ada di P2 dan P3.' }], { tinjauan: 'a\n\nb' });
+  assert.equal(h[0].pesan, 'Kontras ada di paragraf ke-2 dan paragraf ke-3.');
 });
