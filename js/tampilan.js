@@ -257,19 +257,31 @@ const CONTOH_G = {
 };
 const KOLOM_G = ['jenis', 'sumber', 'teknik', 'kisi', 'analisis', 'triangulasi'];
 
-const SUMBER_K = [['A Latar belakang', 'a'], ['B–C Rumusan dan tujuan', 'bc'], ['E Tinjauan terdahulu', 'e'], ['F Landasan teori', 'f'], ['G Metode', 'g'], ['H Sistematika', 'h']];
+/** Rumusan dari tab B ditampilkan sebagai rujukan di tab C (hanya dibaca). */
+function perbaruiRujukanRumusan() {
+  const daftar = $('#rujukan-rumusan');
+  daftar.replaceChildren();
+  const isi = ambilDaftar('rumusan').map((t) => t.trim()).filter(Boolean);
+  isi.forEach((t) => daftar.append(el('li', '', t)));
+  $('#kosong-rumusan').textContent = isi.length
+    ? 'Tujuan dicocokkan dengan rumusan ini, satu tujuan untuk tiap rumusan. Ubah rumusan di tab B.'
+    : 'Belum ada rumusan masalah. Isi di tab B dulu agar tujuan bisa diperiksa.';
+}
+
+const SUMBER_K = [['A Latar belakang', 'a'], ['B Rumusan masalah', 'b'], ['C Tujuan penelitian', 'c'], ['E Tinjauan terdahulu', 'e'], ['F Landasan teori', 'f'], ['G Metode', 'g'], ['H Sistematika', 'h']];
 
 /** Kumpulkan isian dari tab-tab lain untuk pemeriksaan koherensi. */
 function kumpulKoherensi() {
   const a = PANEL.a.ambil();
-  const bc = PANEL.bc.ambil();
+  const b = PANEL.b.ambil();
+  const c = PANEL.c.ambil();
   const e = PANEL.e.ambil();
   const f = PANEL.f.ambil();
   const g = PANEL.g.ambil();
   const h = PANEL.h.ambil();
   return {
-    latar: a.latar, teori: bc.teori, konsep: bc.konsep.trim() ? bc.konsep : f.konsep, objek: bc.objek,
-    rumusan: bc.rumusan, tujuan: bc.tujuan, tinjauan: e.tinjauan, landasan: f.landasan, kerangka: f.kerangka,
+    latar: a.latar, teori: b.teori, konsep: b.konsep.trim() ? b.konsep : f.konsep, objek: b.objek,
+    rumusan: b.rumusan, tujuan: c.tujuan, tinjauan: e.tinjauan, landasan: f.landasan, kerangka: f.kerangka,
     kisi: g.kisi, sistematika: h.sistematika
   };
 }
@@ -343,27 +355,34 @@ const PANEL = {
       $('#latar').dispatchEvent(new Event('input'));
     }
   },
-  bc: {
-    berkas: ['rubrik/B-rumusan.json', 'rubrik/C-tujuan.json'],
-    bagian: 'BC',
-    ambil: () => ({
-      teori: $('#teori').value, konsep: $('#konsep').value, objek: $('#objek').value,
-      rumusan: ambilDaftar('rumusan'), tujuan: ambilDaftar('tujuan')
-    }),
+  b: {
+    berkas: ['rubrik/B-rumusan.json'],
+    bagian: 'B',
+    ambil: () => ({ teori: $('#teori').value, konsep: $('#konsep').value, objek: $('#objek').value, rumusan: ambilDaftar('rumusan') }),
     isiContoh: () => {
       $('#teori').value = CONTOH.bc.teori;
       $('#konsep').value = CONTOH.bc.konsep;
       $('#objek').value = CONTOH.bc.objek;
       aturDaftar('rumusan', CONTOH.bc.rumusan);
-      aturDaftar('tujuan', CONTOH.bc.tujuan);
     },
-    ada: () => ['#teori', '#konsep', '#objek'].some((i) => $(i).value.trim()) ||
-      [...ambilDaftar('rumusan'), ...ambilDaftar('tujuan')].some((t) => t.trim()),
+    ada: () => ['#teori', '#konsep', '#objek'].some((i) => $(i).value.trim()) || ambilDaftar('rumusan').some((t) => t.trim()),
     kosongkan: () => {
       for (const i of ['#teori', '#konsep', '#objek']) $(i).value = '';
       aturDaftar('rumusan', []);
-      aturDaftar('tujuan', []);
     }
+  },
+  c: {
+    berkas: ['rubrik/C-tujuan.json'],
+    bagian: 'C',
+    ambil: () => { perbaruiRujukanRumusan(); return { rumusan: ambilDaftar('rumusan'), tujuan: ambilDaftar('tujuan') }; },
+    isiContoh: () => {
+      // Contoh tujuan butuh rumusan yang bersesuaian; isi contoh rumusan di tab B bila masih kosong.
+      if (!ambilDaftar('rumusan').some((t) => t.trim())) aturDaftar('rumusan', CONTOH.bc.rumusan);
+      aturDaftar('tujuan', CONTOH.bc.tujuan);
+      perbaruiRujukanRumusan();
+    },
+    ada: () => ambilDaftar('tujuan').some((t) => t.trim()),
+    kosongkan: () => { aturDaftar('tujuan', []); }
   }
 };
 
@@ -423,7 +442,8 @@ function pasangMenu() {
   tabs.forEach((t) => t.addEventListener('click', () => {
     pilih(t.dataset.panel);
     if (t.dataset.panel === 'k') perbaruiSumberK();
-    // Koherensi ringan: konsep teori dari tab B–C ikut terisi di tab F bila kolomnya masih kosong.
+    if (t.dataset.panel === 'c') perbaruiRujukanRumusan();
+    // Koherensi ringan: konsep teori dari tab B ikut terisi di tab F bila kolomnya masih kosong.
     if (t.dataset.panel === 'f' && !$('#konsep-f').value.trim() && $('#konsep').value.trim()) $('#konsep-f').value = $('#konsep').value;
   }));
 }

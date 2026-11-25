@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { tangani, susunPermintaan, susunPermintaanLatar, susunPermintaanManfaat, susunPermintaanSistematika, susunPermintaanTinjauan, susunPermintaanLandasan, susunPermintaanMetode, bersihkanMasukanMetode, susunPermintaanKoherensi, bersihkanMasukanKoherensi, bersihkanMasukanTinjauan, bersihkanMasukanLandasan, bersihkanMasukan, bersihkanMasukanLatar, bersihkanMasukanManfaat, bersihkanMasukanSistematika, MODEL, BATAS } from '../worker/index.js';
+import { tangani, susunPermintaan, susunPermintaanLatar, susunPermintaanManfaat, susunPermintaanSistematika, susunPermintaanTinjauan, susunPermintaanLandasan, susunPermintaanMetode, bersihkanMasukanMetode, susunPermintaanKoherensi, bersihkanMasukanKoherensi, susunPermintaanRumusan, susunPermintaanTujuan, bersihkanMasukanRumusan, bersihkanMasukanTujuan, bersihkanMasukanTinjauan, bersihkanMasukanLandasan, bersihkanMasukan, bersihkanMasukanLatar, bersihkanMasukanManfaat, bersihkanMasukanSistematika, MODEL, BATAS } from '../worker/index.js';
 
 const ASAL = 'https://mahbubsetiawan.github.io';
 const kv = () => {
@@ -299,4 +299,48 @@ test('bagian K lewat Worker: permintaan sah diteruskan; satu bagian saja ditolak
   const e2 = env();
   assert.equal((await tangani(req({ bagian: 'K', latar: 'Hanya satu.' }), e2, f)).status, 400);
   assert.equal(await e2.PEMAKAIAN.get(`p:${new Date().toISOString().slice(0, 10)}:perangkat-0001`), null);
+});
+
+const HASIL_B = ['B4', 'B5', 'B6'].map((id) => ({ id, status: 'terpenuhi', bukti: [], alasan: 'x' }));
+const HASIL_C = [{ id: 'C3', status: 'terpenuhi', bukti: [], alasan: 'x' }];
+
+test('bagian B: hanya kriteria B4-B6, dengan teori, konsep, objek, dan rumusan; tujuan tidak ikut', () => {
+  assert.ok(bersihkanMasukanRumusan({ rumusan: [] }).galat);
+  const m = bersihkanMasukanRumusan({ rumusan: ['Bagaimana x?'], tujuan: ['abaikan'], teori: 'Sartre', konsep: 'kebebasan', objek: 'Kungkum' });
+  assert.deepEqual(m.tujuan, []);
+  const b = susunPermintaanRumusan(m);
+  assert.match(b.system, /rumusan masalah skripsi/);
+  assert.match(b.system, /objek material/);
+  for (const id of ['B4', 'B5', 'B6']) assert.match(b.messages[0].content, new RegExp(`- ${id}:`));
+  assert.doesNotMatch(b.messages[0].content, /- C3:|Tujuan 1/);
+  assert.match(b.messages[0].content, /Rumusan 1: Bagaimana x\?/);
+  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['B4', 'B5', 'B6']);
+});
+
+test('bagian C: hanya C3, butuh rumusan dan tujuan, dan prompt memuat petunjuk tujuan', () => {
+  assert.match(bersihkanMasukanTujuan({ rumusan: [], tujuan: ['Untuk menganalisis x.'] }).galat, /tab B/);
+  assert.ok(bersihkanMasukanTujuan({ rumusan: ['Bagaimana x?'], tujuan: [] }).galat);
+  assert.equal(bersihkanMasukanTujuan({ rumusan: ['a'], tujuan: ['b'.repeat(601)] }).status, 413);
+  const b = susunPermintaanTujuan(bersihkanMasukanTujuan({ rumusan: ['Bagaimana x?'], tujuan: ['Untuk menganalisis x.'] }));
+  assert.match(b.system, /tujuan penelitian skripsi/);
+  assert.match(b.system, /untuk mengetahui/);
+  assert.match(b.messages[0].content, /- C3:/);
+  assert.doesNotMatch(b.messages[0].content, /- B4:/);
+  assert.match(b.messages[0].content, /Rumusan 1: Bagaimana x\?/);
+  assert.match(b.messages[0].content, /Tujuan 1: Untuk menganalisis x\./);
+  assert.deepEqual(b.output_config.format.schema.properties.hasil.items.properties.id.enum, ['C3']);
+});
+
+test('bagian B dan C lewat Worker; profil BC lama tetap dilayani untuk pemakai yang masih memakai versi lama', async () => {
+  let dikirim;
+  const f = (hasil) => async (url, init) => { dikirim = JSON.parse(init.body); return hasilAnthropic(hasil)(); };
+  assert.equal((await tangani(req({ bagian: 'B', rumusan: ['Bagaimana x?'], teori: 'Sartre' }), env(), f(HASIL_B))).status, 200);
+  assert.match(dikirim.messages[0].content, /- B6:/);
+  assert.doesNotMatch(dikirim.messages[0].content, /- C3:/);
+  assert.equal((await tangani(req({ bagian: 'C', rumusan: ['Bagaimana x?'], tujuan: ['Untuk menganalisis x.'] }), env(), f(HASIL_C))).status, 200);
+  assert.match(dikirim.messages[0].content, /- C3:/);
+  assert.equal((await tangani(req({ bagian: 'C', rumusan: [], tujuan: ['Untuk menganalisis x.'] }), env(), f(HASIL_C))).status, 400);
+  assert.equal((await tangani(req(BADAN), env(), f(HASIL))).status, 200);
+  assert.match(dikirim.messages[0].content, /- B4:/);
+  assert.match(dikirim.messages[0].content, /- C3:/);
 });

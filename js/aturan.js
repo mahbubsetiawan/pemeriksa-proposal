@@ -92,7 +92,7 @@ export function periksaB3(rumusan) {
 export function periksaC1(rumusan, tujuan) {
   const r = butirTerisi(rumusan);
   const t = butirTerisi(tujuan);
-  if (!r.length) return kosong('rumusan masalah');
+  if (!r.length) return hasil(STATUS.TIDAK_DAPAT, { data: { alasan: 'Isi rumusan masalah di tab B terlebih dahulu.' } });
   if (!t.length) return kosong('tujuan penelitian');
   const data = { jumlah_rumusan: r.length, jumlah_tujuan: t.length };
   return r.length === t.length ? hasil(STATUS.TERPENUHI, { data }) : hasil(STATUS.BELUM, { data });
@@ -351,7 +351,7 @@ function konsepTidakAda(konsep, teks) {
 const tidakDapat = (alasan) => hasil(STATUS.TIDAK_DAPAT, { data: { alasan } });
 
 function periksaKonsepDi(konsep, teks, alasanKosong) {
-  if (!pecahKonsep(konsep).length) return tidakDapat('Isi konsep teori di tab B–C atau F terlebih dahulu.');
+  if (!pecahKonsep(konsep).length) return tidakDapat('Isi konsep teori di tab B atau F terlebih dahulu.');
   if (!terisi(teks)) return tidakDapat(alasanKosong);
   const hilang = konsepTidakAda(konsep, teks);
   return hilang.length ? hasil(STATUS.PERINGATAN, { nomor: hilang }) : hasil(STATUS.TERPENUHI);
@@ -359,7 +359,7 @@ function periksaKonsepDi(konsep, teks, alasanKosong) {
 
 /** K1: konsep teori muncul di rumusan masalah. */
 export function periksaK1(konsep, rumusan) {
-  return periksaKonsepDi(konsep, butirTerisi(rumusan).map((b) => b.teks).join('\n'), 'Isi rumusan masalah di tab B–C terlebih dahulu.');
+  return periksaKonsepDi(konsep, butirTerisi(rumusan).map((b) => b.teks).join('\n'), 'Isi rumusan masalah di tab B terlebih dahulu.');
 }
 
 /** K2: konsep muncul di kisi-kisi instrumen. */
@@ -377,7 +377,7 @@ const BAGIAN_K4 = [['latar', 'latar belakang'], ['tinjauan', 'tinjauan terdahulu
 /** K4: kata kunci nama teori muncul di setiap bagian yang sudah diisi. */
 export function periksaK4(teori, bagian) {
   const kunci = kataKunci(teori);
-  if (!kunci.length) return tidakDapat('Isi nama teori di tab B–C terlebih dahulu.');
+  if (!kunci.length) return tidakDapat('Isi nama teori di tab B terlebih dahulu.');
   const diisi = BAGIAN_K4.filter(([k]) => terisi(bagian?.[k]));
   if (!diisi.length) return tidakDapat('Isi latar belakang, tinjauan, landasan teori, atau kerangka pemikiran terlebih dahulu.');
   const hilang = diisi.filter(([k]) => !kunci.some((c) => normal(bagian[k]).includes(c))).map(([, nama]) => nama);
@@ -387,7 +387,7 @@ export function periksaK4(teori, bagian) {
 /** K5: kata kunci objek material muncul di latar belakang dan rumusan (bagian yang sudah diisi). */
 export function periksaK5(objek, latar, rumusan) {
   const kunci = kataKunci(objek);
-  if (!kunci.length) return tidakDapat('Isi objek material di tab B–C terlebih dahulu.');
+  if (!kunci.length) return tidakDapat('Isi objek material di tab B terlebih dahulu.');
   const teksRumusan = butirTerisi(rumusan).map((b) => b.teks).join('\n');
   const diisi = [[latar, 'latar belakang'], [teksRumusan, 'rumusan masalah']].filter(([t]) => terisi(t));
   if (!diisi.length) return tidakDapat('Isi latar belakang atau rumusan masalah terlebih dahulu.');

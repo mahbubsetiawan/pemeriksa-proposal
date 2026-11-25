@@ -474,3 +474,22 @@ test('periksaSemua bagian K: proposal konsisten lolos; isian sebagian tidak disa
   assert.match(pz.K4.pesan, /tinjauan terdahulu/);
   assert.ok([...periksaSemua(rubrikK, K_BENAR), ...sebagian, ...salah].every((x) => !/\{\w+\}/.test(x.pesan)));
 });
+
+test('C1: tujuan tanpa rumusan di tab B menunjuk ke tab B, bukan menyalahkan', () => {
+  const r = periksaC1([], T_BENAR);
+  assert.equal(r.status, STATUS.TIDAK_DAPAT);
+  assert.match(r.data.alasan, /tab B/);
+  const hasil = periksaSemua(RUBRIK.filter((e) => e.bagian === 'C'), { rumusan: [], tujuan: T_BENAR });
+  const pc = Object.fromEntries(hasil.map((h) => [h.id, h]));
+  assert.equal(pc.C1.status, STATUS.TIDAK_DAPAT);
+  assert.match(pc.C1.pesan, /tab B/);
+  assert.equal(pc.C2.status, STATUS.TERPENUHI);
+  assert.equal(pc.C3.status, STATUS.BELUM_DIJALANKAN);
+});
+
+test('bagian B dan C terpisah: B hanya memuat B1-B6, C hanya C1-C3', () => {
+  const idB = periksaSemua(RUBRIK.filter((e) => e.bagian === 'B'), { rumusan: RM_BENAR }).map((h) => h.id);
+  const idC = periksaSemua(RUBRIK.filter((e) => e.bagian === 'C'), { rumusan: RM_BENAR, tujuan: T_BENAR }).map((h) => h.id);
+  assert.deepEqual(idB, ['B1', 'B2', 'B3', 'B4', 'B5', 'B6']);
+  assert.deepEqual(idC, ['C1', 'C2', 'C3']);
+});

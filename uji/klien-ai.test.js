@@ -213,3 +213,19 @@ test('bagian K: kutipan dari bagian mana pun diterima, label bagian dibuang, kar
     { kerangka: 'Alur dari makro ke mikro.', landasan: 'Konsep pokok Sartre.' });
   assert.deepEqual(h[0].bukti, ['Alur dari makro ke mikro.', 'Konsep pokok Sartre.']);
 });
+
+test('bagian B dan C: Worker menerima isian yang tepat per bagian', async () => {
+  const bodi = {};
+  const f = async (url, init) => { for (const k of Object.keys(bodi)) delete bodi[k]; Object.assign(bodi, JSON.parse(init.body)); return new Response(JSON.stringify({ hasil: [] }), { status: 200 }); };
+  const masukan = { rumusan: ['Bagaimana x?'], tujuan: ['Untuk menganalisis x.'], teori: 'Sartre', konsep: 'kebebasan', objek: 'Kungkum', latar: 'tidak ikut' };
+  await periksaMakna(RUBRIK.filter((e) => e.bagian === 'B'), masukan,
+    buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', bagian: 'B', fetchFn: f }));
+  assert.deepEqual(Object.keys(bodi).sort(), ['bagian', 'konsep', 'objek', 'rumusan', 'teori']);
+  await periksaMakna(RUBRIK.filter((e) => e.bagian === 'C'), masukan,
+    buatPelaksanaWorker({ url: 'https://w.example', kodeAkses: 'k', idPerangkat: 'perangkat-1', bagian: 'C', fetchFn: f }));
+  assert.deepEqual(Object.keys(bodi).sort(), ['bagian', 'rumusan', 'tujuan']);
+  const tiruanB = await periksaMakna(RUBRIK.filter((e) => e.bagian === 'B'), masukan);
+  const tiruanC = await periksaMakna(RUBRIK.filter((e) => e.bagian === 'C'), masukan);
+  assert.deepEqual(tiruanB.map((x) => x.id), ['B4', 'B5', 'B6']);
+  assert.deepEqual(tiruanC.map((x) => x.id), ['C3']);
+});

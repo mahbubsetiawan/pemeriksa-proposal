@@ -20,6 +20,8 @@ export const BATAS = Object.freeze({
   perPerangkatPerHari: 20, globalPerHari: 300, maxTokens: 4000, maxTokensLatar: 6000, maxTokensKecil: 3500
 });
 const AI_BC = [...rubrikB, ...rubrikC].filter((e) => e.jenis === 'ai');
+const AI_B = rubrikB.filter((e) => e.jenis === 'ai');
+const AI_C = rubrikC.filter((e) => e.jenis === 'ai');
 const AI_A = rubrikA.filter((e) => e.jenis === 'ai');
 const AI_D = rubrikD.filter((e) => e.jenis === 'ai');
 const AI_H = rubrikH.filter((e) => e.jenis === 'ai');
@@ -45,6 +47,14 @@ Petunjuk membaca rumusan (dari panduan penulisan):
 - Bagian kalimat yang menerangkan konteks, praktik, atau pelaku adalah bagian objek material. Frasa seperti itu bukan alasan untuk ragu dan bukan kategori analitik.
 - Kategori analitik dan indikator adalah turunan operasional untuk instrumen (misalnya ciri yang dicari dalam data atau butir kisi-kisi). Kriteria tentang itu belum terpenuhi hanya bila rumusan jelas memuatnya, bukan sekadar karena ada frasa konteks.
 - Cocokkan istilah teori di rumusan dengan isian "Konsep teori" dan "Nama teori". Bila istilah di rumusan ada atau jelas turunan dari isian itu, anggap konsep teori terpenuhi.
+- Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
+
+const HINT_C = `
+Petunjuk membaca tujuan penelitian (dari panduan penulisan):
+- Tujuan harus senada dan linear dengan rumusan masalah: satu tujuan untuk tiap rumusan, dengan urutan yang sama.
+- Rumus: kata kerja analitis ("menganalisis" atau "menginterpretasikan") ditambah bunyi rumusan masalah. Kata "untuk mengetahui" tidak dipakai karena berhenti di permukaan.
+- Nilailah kesesuaian isi dan istilah antara tiap tujuan dan rumusan yang bersesuaian. Tujuan boleh menambahkan perspektif teori (misalnya "melalui lensa eksistensialisme") tanpa mengubah fokus rumusan.
+- Bila kolom rumusan kosong, jawab tidak_yakin dengan alasan bahwa rumusan kosong.
 - Pilih tidak_yakin hanya bila setelah petunjuk ini Anda benar-benar tidak dapat memutuskan, dan sebutkan hal konkret yang membuat ragu.`;
 
 const HINT_A = `
@@ -258,6 +268,22 @@ export function bersihkanMasukanKoherensi(b) {
   return m;
 }
 
+export function bersihkanMasukanRumusan(b) {
+  return bersihkanMasukan({ ...(b ?? {}), tujuan: [] });
+}
+
+export function bersihkanMasukanTujuan(b) {
+  if (!b || typeof b !== 'object') return { galat: 'Isi permintaan tidak valid.' };
+  const daftar = (x) => (Array.isArray(x) ? x : []).map((t) => String(t ?? '').trim()).filter(Boolean);
+  const rumusan = daftar(b.rumusan);
+  const tujuan = daftar(b.tujuan);
+  if (!rumusan.length) return { galat: 'Isi rumusan masalah di tab B terlebih dahulu.' };
+  if (!tujuan.length) return { galat: 'Isi tujuan penelitian terlebih dahulu.' };
+  if (rumusan.length > BATAS.butir || tujuan.length > BATAS.butir) return { galat: `Paling banyak ${BATAS.butir} butir per bagian.`, status: 413 };
+  if ([...rumusan, ...tujuan].some((t) => t.length > BATAS.panjangButir)) return { galat: 'Ada isian yang terlalu panjang.', status: 413 };
+  return { rumusan, tujuan };
+}
+
 const daftarKriteria = (entri) => entri.map((e) => `- ${e.id}: ${e.kriteria} (dasar: ${e.dasar})`).join('\n');
 
 export function susunPermintaan(m) {
@@ -415,8 +441,47 @@ export function susunPermintaanKoherensi(m) {
   };
 }
 
+export function susunPermintaanRumusan(m) {
+  const baris = (nama, arr) => arr.map((t, i) => `${nama} ${i + 1}: ${t}`).join('\n') || '(kosong)';
+  const isi = [
+    'Kriteria yang diperiksa:', daftarKriteria(AI_B), '',
+    '<tulisan_mahasiswa>',
+    `Nama teori (objek formal): ${m.teori || '(kosong)'}`,
+    `Konsep teori: ${m.konsep || '(kosong)'}`,
+    `Objek material: ${m.objek || '(kosong)'}`,
+    baris('Rumusan', m.rumusan),
+    '</tulisan_mahasiswa>', '',
+    'Kembalikan satu entri untuk setiap id kriteria.'
+  ].join('\n');
+  return {
+    model: MODEL,
+    max_tokens: BATAS.maxTokens,
+    system: SISTEM_UMUM('rumusan masalah skripsi') + HINT_BC,
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema: buatSkema(AI_B.map((e) => e.id)) } },
+    messages: [{ role: 'user', content: isi }]
+  };
+}
+
+export function susunPermintaanTujuan(m) {
+  const baris = (nama, arr) => arr.map((t, i) => `${nama} ${i + 1}: ${t}`).join('\n') || '(kosong)';
+  const isi = [
+    'Kriteria yang diperiksa:', daftarKriteria(AI_C), '',
+    '<tulisan_mahasiswa>', baris('Rumusan', m.rumusan), baris('Tujuan', m.tujuan), '</tulisan_mahasiswa>', '',
+    'Kembalikan satu entri untuk setiap id kriteria.'
+  ].join('\n');
+  return {
+    model: MODEL,
+    max_tokens: BATAS.maxTokens,
+    system: SISTEM_UMUM('tujuan penelitian skripsi') + HINT_C,
+    output_config: { effort: 'medium', format: { type: 'json_schema', schema: buatSkema(AI_C.map((e) => e.id)) } },
+    messages: [{ role: 'user', content: isi }]
+  };
+}
+
 const PROFIL = {
   BC: { ids: AI_BC.map((e) => e.id), bersihkan: bersihkanMasukan, susun: susunPermintaan },
+  B: { ids: AI_B.map((e) => e.id), bersihkan: bersihkanMasukanRumusan, susun: susunPermintaanRumusan },
+  C: { ids: AI_C.map((e) => e.id), bersihkan: bersihkanMasukanTujuan, susun: susunPermintaanTujuan },
   A: { ids: AI_A.map((e) => e.id), bersihkan: bersihkanMasukanLatar, susun: susunPermintaanLatar },
   D: { ids: AI_D.map((e) => e.id), bersihkan: bersihkanMasukanManfaat, susun: susunPermintaanManfaat },
   H: { ids: AI_H.map((e) => e.id), bersihkan: bersihkanMasukanSistematika, susun: susunPermintaanSistematika },
@@ -458,7 +523,7 @@ export async function tangani(request, env, fetchFn = fetch) {
   if (teks.length > BATAS.badanMaks) return galat('Permintaan terlalu besar.', 413, cors);
   let badan;
   try { badan = JSON.parse(teks); } catch { return galat('Isi permintaan bukan JSON yang valid.', 400, cors); }
-  const profil = PROFIL[['A', 'D', 'E', 'F', 'G', 'H', 'K'].includes(badan?.bagian) ? badan.bagian : 'BC'];
+  const profil = PROFIL[['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K'].includes(badan?.bagian) ? badan.bagian : 'BC'];
   const m = profil.bersihkan(badan);
   if (m.galat) return galat(m.galat, m.status ?? 400, cors);
 

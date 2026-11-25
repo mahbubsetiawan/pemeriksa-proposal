@@ -23,6 +23,7 @@
     <symbol id="i-lapis" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5zM3 12.5l9 5 9-5M3 17l9 5 9-5"/></symbol>
     <symbol id="i-metode" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
     <symbol id="i-tautan" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+    <symbol id="i-tujuan" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
     <symbol id="i-kilau" viewBox="0 0 24 24"><path d="m12 3 1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
   </svg>
 
@@ -50,9 +51,13 @@
             <svg class="ik" aria-hidden="true"><use href="#i-dokumen"/></svg>
             <span class="nama"><b>A</b> Latar belakang</span>
           </button>
-          <button type="button" role="tab" id="tab-bc" aria-controls="panel-bc" aria-selected="false" data-panel="bc" class="butir-menu">
+          <button type="button" role="tab" id="tab-b" aria-controls="panel-b" aria-selected="false" data-panel="b" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-target"/></svg>
-            <span class="nama"><b>B–C</b> Rumusan dan tujuan</span>
+            <span class="nama"><b>B</b> Rumusan masalah</span>
+          </button>
+          <button type="button" role="tab" id="tab-c" aria-controls="panel-c" aria-selected="false" data-panel="c" class="butir-menu">
+            <svg class="ik" aria-hidden="true"><use href="#i-tujuan"/></svg>
+            <span class="nama"><b>C</b> Tujuan penelitian</span>
           </button>
           <button type="button" role="tab" id="tab-d" aria-controls="panel-d" aria-selected="false" data-panel="d" class="butir-menu">
             <svg class="ik" aria-hidden="true"><use href="#i-manfaat"/></svg>
@@ -108,13 +113,13 @@
         </section>
       </section>
 
-      <section id="panel-bc" class="panel" role="tabpanel" aria-labelledby="tab-bc" hidden>
+      <section id="panel-b" class="panel" role="tabpanel" aria-labelledby="tab-b" hidden>
         <div class="judul-kerja">
-          <h2>Rumusan dan tujuan</h2>
-          <p>Kata tanya analitis, konsep teori, dan tujuan yang selaras.</p>
+          <h2>Rumusan masalah</h2>
+          <p>Kata tanya analitis, konsep teori, dan objek material sejak pertanyaan pertama.</p>
           <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
         </div>
-        <form id="form-bc" novalidate>
+        <form id="form-b" novalidate>
           <div class="kartu-isian tiga">
             <div><label for="teori">Nama teori</label><input id="teori" type="text" autocomplete="off" placeholder="mis. Eksistensialisme Sartre"></div>
             <div><label for="konsep">Konsep teori</label><input id="konsep" type="text" autocomplete="off" placeholder="paling banyak tiga, pisahkan koma"></div>
@@ -124,6 +129,32 @@
           <div class="kartu-isian">
             <div class="kepala-daftar"><h3>Rumusan masalah</h3><button type="button" class="tambah sekunder kecil" data-untuk="rumusan">+ Tambah</button></div>
             <div id="daftar-rumusan" class="daftar"></div>
+          </div>
+
+          <div class="aksi">
+            <button type="submit" class="utama">Periksa</button>
+            <button type="button" class="contoh sekunder">Isi contoh</button>
+            <button type="button" class="kosongkan sekunder">Kosongkan</button>
+          </div>
+        </form>
+        <section class="hasil" aria-live="polite" hidden>
+          <div class="ringkas"><div class="skor"></div><div class="chip-wadah"></div><button type="button" class="jalankan-makna utama"><svg class="ik" aria-hidden="true"><use href="#i-kilau"/></svg><span>Periksa makna (AI)</span></button></div>
+          <p class="pesan-makna bantu" role="status"></p>
+          <div class="isi-hasil"></div>
+        </section>
+      </section>
+
+      <section id="panel-c" class="panel" role="tabpanel" aria-labelledby="tab-c" hidden>
+        <div class="judul-kerja">
+          <h2>Tujuan penelitian</h2>
+          <p>Kata kerja analitis ditambah bunyi rumusan masalah, satu tujuan untuk tiap rumusan.</p>
+          <ol class="langkah" aria-label="Langkah"><li class="aktif"><span>1</span>Isi tulisan</li><li><span>2</span>Periksa</li><li><span>3</span>Lihat hasil</li></ol>
+        </div>
+        <form id="form-c" novalidate>
+          <div class="kartu-isian">
+            <h3>Rumusan dari tab B</h3>
+            <ol id="rujukan-rumusan" class="rujukan-rumusan"></ol>
+            <p id="kosong-rumusan" class="bantu"></p>
           </div>
 
           <div class="kartu-isian">
@@ -206,7 +237,7 @@
         <form id="form-f" novalidate>
           <div class="kartu-isian">
             <label for="konsep-f">Konsep teori di rumusan</label>
-            <input id="konsep-f" type="text" autocomplete="off" placeholder="pisahkan dengan koma; terisi otomatis dari tab B–C bila sudah diisi">
+            <input id="konsep-f" type="text" autocomplete="off" placeholder="pisahkan dengan koma; terisi otomatis dari tab B bila sudah diisi">
           </div>
           <div class="kartu-isian">
             <label for="landasan">Landasan teori</label>

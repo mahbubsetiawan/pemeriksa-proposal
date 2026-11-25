@@ -169,3 +169,6 @@ dialog p { margin:.4rem 0; }
 .daftar-sumber li { padding:.4rem .75rem; border-radius:10px; background:var(--lembut); font-size:.9rem; }
 .daftar-sumber .sumber-ok { color:var(--baik); background:var(--baik-bg); }
 .daftar-sumber .sumber-kosong { color:var(--redup2); }
+
+.rujukan-rumusan { margin:.5rem 0 0; padding-left:1.3rem; color:var(--redup); font-family:var(--serif); }
+.rujukan-rumusan li { margin-bottom:.35rem; }

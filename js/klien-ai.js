@@ -81,6 +81,8 @@ export function buatPelaksanaWorker({ url, kodeAkses, idPerangkat, bagian = 'BC'
       K: { bagian: 'K', latar: input.latar, teori: input.teori, konsep: input.konsep, objek: input.objek, rumusan: input.rumusan, tujuan: input.tujuan, tinjauan: input.tinjauan, landasan: input.landasan, kerangka: input.kerangka, kisi: input.kisi, sistematika: input.sistematika },
       G: { bagian: 'G', jenis: input.jenis, sumber: input.sumber, teknik: input.teknik, kisi: input.kisi, analisis: input.analisis, triangulasi: input.triangulasi },
       F: { bagian: 'F', konsep: input.konsep, landasan: input.landasan, kerangka: input.kerangka },
+      B: { bagian: 'B', rumusan: input.rumusan, teori: input.teori, konsep: input.konsep, objek: input.objek },
+      C: { bagian: 'C', rumusan: input.rumusan, tujuan: input.tujuan },
       BC: { bagian: 'BC', rumusan: input.rumusan, tujuan: input.tujuan, teori: input.teori, konsep: input.konsep, objek: input.objek }
     }[bagian] ?? { bagian: 'BC' };
     let res;
