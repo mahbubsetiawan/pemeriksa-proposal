@@ -433,7 +433,7 @@ const CONTOH_D = {
 };
 const CONTOH_H = [
   'Bab pertama berisi pendahuluan yang memuat latar belakang masalah mengenai pergeseran makna spiritualitas pada Tradisi Kungkum di Umbul Pengging, rumusan masalah yang mengawinkan aspek tradisi dengan konsep eksistensialisme, tujuan penelitian, manfaat penelitian secara teoretis maupun praktis, tinjauan pustaka, metode penelitian, serta sistematika penulisan.',
-  'Bab kedua berisi objek material penelitian, yaitu gambaran umum Umbul Pengging di Boyolali beserta deskripsi pelaksanaan Tradisi Kungkum oleh para pelakunya.',
+  'Bab kedua berisi objek material penelitian, yaitu gambaran umum Umbul Pengging di Boyolali beserta deskripsi pelaksanaan Tradisi Kungkum oleh para pelakunya, yang menjadi data dasar untuk dianalisis dengan teori Sartre pada bab berikutnya.',
   'Bab ketiga berisi objek formal penelitian, yaitu teori eksistensialisme Jean-Paul Sartre beserta konsep kebebasan radikal, kesadaran otentik, dan itikad buruk yang dipakai sebagai pisau analisis.',
   'Bab keempat berisi temuan penelitian dan pembahasannya, yaitu analisis konstruksi kebebasan radikal dan kesadaran otentik pelaku serta pembahasan dinamika itikad buruk dalam komodifikasi spiritual.',
   'Bab kelima berisi penutup yang memuat kesimpulan teoretis yang menjawab rumusan masalah, serta saran atau rekomendasi bagi peneliti selanjutnya dan pihak terkait.'
